@@ -1,8 +1,14 @@
+'use client'
 import { Link } from "@heroui/link";
+import { useTranslation } from 'react-i18next';
 import { button as buttonStyles } from "@heroui/theme";
 import { siteConfig } from "@/config/site";
 import { title, subtitle } from "@/components/primitives";
+import "@/i18n"
+
 export default function Home() {
+  const { t } = useTranslation();
+
   return (
     <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
       <div className="inline-block max-w-xl text-center justify-center">
@@ -27,14 +33,13 @@ export default function Home() {
           })}
           href={siteConfig.links.docs}
         >
-          Book Demo
+          {t('welcome')}
         </Link>
         <Link
-          isExternal
           className={buttonStyles({ variant: "bordered", radius: "full" })}
-          href={siteConfig.links.github}
+          href={"/auth/register"}
         >
-          Get Started
+          {t("get started")}
         </Link>
       </div>
     </section>
