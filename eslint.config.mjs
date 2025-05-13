@@ -93,7 +93,7 @@ export default defineConfig([globalIgnores([
         "react-hooks/exhaustive-deps": "off",
         "jsx-a11y/click-events-have-key-events": "warn",
         "jsx-a11y/interactive-supports-focus": "warn",
-        "prettier/prettier": "warn",
+        "prettier/prettier": "off",
         "no-unused-vars": "off",
         "unused-imports/no-unused-vars": "off",
         "unused-imports/no-unused-imports": "warn",
@@ -103,7 +103,6 @@ export default defineConfig([globalIgnores([
             ignoreRestSiblings: false,
             argsIgnorePattern: "^_.*?$",
         }],
-
         "import/order": ["warn", {
             groups: [
                 "type",
@@ -122,7 +121,7 @@ export default defineConfig([globalIgnores([
                 position: "after",
             }],
 
-            "newlines-between": "always",
+            "newlines-between": "never",
         }],
 
         "react/self-closing-comp": "warn",
@@ -139,13 +138,13 @@ export default defineConfig([globalIgnores([
             prev: "*",
             next: "return",
         }, {
-            blankLine: "always",
-            prev: ["const", "let", "var"],
-            next: "*",
-        }, {
-            blankLine: "any",
-            prev: ["const", "let", "var"],
-            next: ["const", "let", "var"],
-        }],
+                blankLine: "always",
+                prev: ["const", "let", "var"],
+                next: "*",
+            }, {
+                blankLine: "any",
+                prev: ["const", "let", "var"],
+                next: ["const", "let", "var"],
+            }],
     },
 }]);
