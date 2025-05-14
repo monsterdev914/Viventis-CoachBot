@@ -1,0 +1,11 @@
+# Ignore node modules  
+node_modules/  
+
+# Ignore build directory  
+dist/  
+
+# Ignore environment variable file  
+.env  
+
+# Ignore Vercel deployment configuration  
+.vercel
