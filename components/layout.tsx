@@ -1,7 +1,11 @@
+'use client';
 
 import { Link } from "@heroui/link";
 import { Navbar } from "./navbar";
+import { useTranslation } from 'react-i18next';
+
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const { t } = useTranslation();
     return (
         <section className="relative flex flex-col h-screen">
             <Navbar />
@@ -15,8 +19,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                     href="#"
                     title="Viventis.com homepage"
                 >
-                    <span className="text-default-600">Powered by</span>
-                    <p className="text-primary">Viventis</p>
+                    <span className="text-default-600">{t("Powered by")}</span>
+                    <p className="text-primary">{t("Viventis")} &copy; {new Date().getFullYear()}</p>
                 </Link>
             </footer>
         </section>

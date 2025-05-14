@@ -23,17 +23,18 @@ import {
   Logo,
 } from "@/components/icons";
 import { TranslateContext } from "@/app/TranslateProvider";
-
+import { useTranslation } from 'react-i18next';
 
 export const Navbar = () => {
   const { setLanguage } = useContext(TranslateContext);
+  const { t } = useTranslation();
   return (
     <HeroUINavbar maxWidth="xl" position="sticky">
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
         <NavbarBrand as="li" className="gap-3 max-w-fit">
           <NextLink className="flex justify-start items-center gap-1" href="/">
             <Logo />
-            <p className="font-bold text-inherit">Viventis</p>
+            <p className="font-bold text-inherit">{t("Viventis")}</p>
           </NextLink>
         </NavbarBrand>
         <ul className="hidden lg:flex gap-4 justify-start ml-2">
@@ -47,7 +48,7 @@ export const Navbar = () => {
                 color="foreground"
                 href={item.href}
               >
-                {item.label}
+                {t(item.label)}
               </NextLink>
             </NavbarItem>
           ))}
@@ -103,7 +104,7 @@ export const Navbar = () => {
                 href="#"
                 size="lg"
               >
-                {item.label}
+                {t(item.label)}
               </Link>
             </NavbarMenuItem>
           ))}
