@@ -27,7 +27,6 @@ import { TranslateContext } from "@/app/TranslateProvider";
 
 export const Navbar = () => {
   const { setLanguage } = useContext(TranslateContext);
-
   return (
     <HeroUINavbar maxWidth="xl" position="sticky">
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">

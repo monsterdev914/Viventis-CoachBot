@@ -9,6 +9,7 @@
     "lint": "eslint --fix"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@heroui/button": "2.2.19",
     "@heroui/code": "2.2.14",
     "@heroui/dropdown": "^2.3.19",
