@@ -1,10 +1,15 @@
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
+import { Link } from "@heroui/link";
 import clsx from "clsx";
 import { Providers } from "./providers";
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
+import { Navbar } from "@/components/navbar";
 import Layout from "@/components/layout";
+import { Image } from "@heroui/react";
+import { AuthProvider } from "@/contexts/AuthContext";
+
 export const metadata: Metadata = {
   title: {
     default: siteConfig.name,
@@ -32,6 +37,7 @@ export default function RootLayout({
     <html suppressHydrationWarning lang="en">
       <head />
       <body
+        suppressHydrationWarning
         className={clsx(
           "min-h-screen bg-background font-sans antialiased",
           fontSans.variable,
