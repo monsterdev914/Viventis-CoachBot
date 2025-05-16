@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardHeader, CardBody, Input, Button, Link, Checkbox } from "@heroui/react";
+import { Card, CardHeader, CardBody, Input, Button, Link, Checkbox, Alert, addToast } from "@heroui/react";
 import { useTranslation } from 'react-i18next';
-
+import { signUp } from '@/app/api';
+import { useAuth } from '@/contexts/AuthContext';
 const RegisterPage: React.FC = () => {
+    const { user } = useAuth();
     const router = useRouter();
     const [mounted, setMounted] = useState(false);
     const { t } = useTranslation();
@@ -23,28 +25,30 @@ const RegisterPage: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
-
         if (formData.password !== formData.confirmPassword) {
             setError('Passwords do not match');
             return;
         }
 
         try {
-            // TODO: Implement registration logic here
-            // const response = await fetch('/api/auth/register', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify({
-            //         email: formData.email,
-            //         password: formData.password,
-            //     }),
-            // });
+            const response = await signUp(formData.email, formData.password);
+            console.log(response.status)
+            if (response.status === 200) {
+                setError('');
+                router.push('/auth/verify-email');
+            }
+            else if (response.status === 405) {
+                //Alert
+                addToast({ title: "System Notification", description: response.data.error, color: "danger" });
+                setError('You have already registered');
+                router.push('/auth/login');
+            }
+            else if (response.status === 409) {
+                addToast({ title: "System Notification", description: response.data.error, color: "danger" });
+            }
 
-            // if (response.ok) {
-            //     router.push('/auth/login');
-            // }
-        } catch (err) {
-            setError('An error occurred during registration');
+        } catch (err: any) {
+            setError(err.response.data.error);
         }
     };
 

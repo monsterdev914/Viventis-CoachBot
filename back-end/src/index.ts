@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import cors from "cors";
 dotenv.config();
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); // Middleware to parse JSON requests
 app.use(cors())

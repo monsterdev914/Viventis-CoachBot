@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response, RequestHandler } from "express";
 import { handleWebhook } from "../controllers/webhookController";
 import ProfileController from "../controllers/profile";
 import { auth } from "../auth";
@@ -11,6 +11,7 @@ import ActionController from "../controllers/actionController";
 import { extractTattooShopInfo } from "../lib/firecrawl";
 import { buyTwilioPhoneNumber } from "../lib/twilio";
 import PhoneNumberController from "../controllers/phoneNumberController";
+import AuthController, { VerifyEmailRequest } from "../controllers/authController";
 const router = express.Router();
 
 /**
@@ -245,7 +246,19 @@ router.put('/action', auth, ActionController.updateAction);
 router.get('/action/list', auth, ActionController.listAction);
 router.get('/action/:id', auth, ActionController.getActionById);
 router.post('/action/action_id', auth, ActionController.getActionByActioId);
-// router.get('/action', auth, ActionController.)
+
 
 router.post("/webhook/:id", handleWebhook);
+
+//test
+router.get('/test', auth, (req, res) => {
+    res.status(200).json({ message: 'test' });
+})
+// Auth routes
+router.post('/auth/resend-verification', AuthController.resendVerification as unknown as RequestHandler);
+router.get('/auth/verify-email', AuthController.verifyEmail as unknown as RequestHandler);
+router.post("/auth/signin", AuthController.signIn as unknown as RequestHandler);
+router.post("/auth/signup", AuthController.signUp as unknown as RequestHandler);
+router.post("/auth/signout", AuthController.signOut as unknown as RequestHandler);
+
 export default router;

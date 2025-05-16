@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardHeader, CardBody, Input, Button, Link, Avatar } from "@heroui/react";
 import { useTranslation } from 'react-i18next';
-
+import { signIn } from '@/app/api/auth';
 const LoginPage: React.FC = () => {
     const router = useRouter();
     const [mounted, setMounted] = useState(false);
@@ -14,9 +14,15 @@ const LoginPage: React.FC = () => {
         password: '',
     });
     const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
 
     useEffect(() => {
         setMounted(true);
+        // Check for verification success
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('verified') === 'true') {
+            setSuccess('Email verified successfully! You can now log in.');
+        }
     }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -24,19 +30,14 @@ const LoginPage: React.FC = () => {
         setError('');
 
         try {
-            // TODO: Implement login logic here
-            // const response = await fetch('/api/auth/login', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify({
-            //         email: formData.email,
-            //         password: formData.password,
-            //     }),
-            // });
-
-            // if (response.ok) {
-            //     router.push('/dashboard');
-            // }
+            const response = await signIn(formData.email, formData.password);
+            if (response.status === 200) {
+                setSuccess('Login successful');
+                localStorage.setItem('token', response.data.token);
+                router.push('/dashboard');
+            } else {
+                setError(response.data.error);
+            }
         } catch (err) {
             setError('An error occurred during login');
         }
@@ -75,6 +76,11 @@ const LoginPage: React.FC = () => {
                     </p>
                 </CardHeader>
                 <CardBody>
+                    {success && (
+                        <div className="mb-4 p-4 bg-success-50 text-success-700 rounded-lg">
+                            {success}
+                        </div>
+                    )}
                     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                         <Input
                             type="email"

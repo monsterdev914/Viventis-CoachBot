@@ -1,2 +1,2 @@
 export * from "./synthflow"
-export * from "./userProfile"
+export * from "./supabase/userProfile"
