@@ -58,13 +58,13 @@ export default function VerifyEmailPage() {
     }, [emailVerified]);
     if (loading) {
         return (
-            <div className="flex justify-center items-center min-h-screen bg-background">
+            <div className="flex justify-center items-center min-h-screen">
                 <Spinner size="lg" color="primary" />
             </div>
         );
     }
     return (
-        <div className="flex justify-center bg-background">
+        <div className="flex justify-center">
             <Card className="w-full max-w-md min-w-fit mx-auto px-5 pt-10 pb-5">
                 <CardHeader className="flex flex-col gap-1">
                     <h1 className="text-2xl font-bold text-center">{t('Verify your email')}</h1>

@@ -1,5 +1,5 @@
 'use client'
-import { useContext } from "react";
+import { useCallback, useContext } from "react";
 import {
   Navbar as HeroUINavbar,
   NavbarContent,
@@ -10,7 +10,7 @@ import {
   NavbarMenuItem,
 } from "@heroui/navbar";
 import { Link } from "@heroui/link";
-import { Button, Select, SelectItem } from "@heroui/react";
+import { Button, Select, SelectItem, user } from "@heroui/react";
 import NextLink from "next/link";
 import clsx from "clsx";
 import { siteConfig } from "@/config/site";
@@ -20,9 +20,22 @@ import {
 } from "@/components/icons";
 import { TranslateContext } from "@/app/TranslateProvider";
 import { useTranslation } from 'react-i18next';
+import { useAuth } from "@/contexts/AuthContext";
+import { signOut } from "@/app/api";
 
 export const Navbar = () => {
+  const { user, setUser, setLoading } = useAuth();
   const { setLanguage } = useContext(TranslateContext);
+  const handleLogout = useCallback(() => {
+    setLoading(true);
+    signOut().then((res) => {
+      if (res.status === 200) {
+        localStorage.removeItem("token");
+        setUser(null);
+      }
+      setLoading(false);
+    })
+  }, []);
   const { t } = useTranslation();
   return (
     <HeroUINavbar maxWidth="xl" className="p-2 bg-[transparent] border-b border-b-color" position="sticky">
@@ -55,7 +68,7 @@ export const Navbar = () => {
         className="hidden sm:flex basis-1/5 sm:basis-full"
         justify="end"
       >
-        <Button variant="bordered" color="primary">{t("Login")}</Button>
+        {user ? <Button variant="bordered" color="primary" onClick={handleLogout}>{t("Logout")}</Button> : <Button variant="bordered" color="primary" as={NextLink} href="/auth/login">{t("Login")}</Button>}
         <NavbarItem className="max-md:hidden">
           <Select aria-label="lang" classNames={{ value: "whitespace-normal overflow-visible text-clip", selectorIcon: "hidden" }} defaultSelectedKeys={["en"]} placeholder="Select" onChange={(e) => {
             setLanguage(e.target.value)
