@@ -2,12 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardHeader, CardBody, Input, Button, Link, Checkbox, Alert, addToast } from "@heroui/react";
+import { Card, CardHeader, CardBody, Input, Button, Link, Checkbox, addToast } from "@heroui/react";
 import { useTranslation } from 'react-i18next';
 import { signUp } from '@/app/api';
-import { useAuth } from '@/contexts/AuthContext';
 const RegisterPage: React.FC = () => {
-    const { user } = useAuth();
     const router = useRouter();
     const [mounted, setMounted] = useState(false);
     const { t } = useTranslation();
