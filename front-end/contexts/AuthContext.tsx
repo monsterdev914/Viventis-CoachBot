@@ -8,6 +8,8 @@ type AuthContextType = {
     user: User | null
     loading: boolean
     emailVerified: boolean
+    setUser: (user: User | null) => void
+    setLoading: (loading: boolean) => void
     setEmailVerified: (emailVerified: boolean) => void
 }
 
@@ -18,9 +20,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [loading, setLoading] = useState(true)
     const [emailVerified, setEmailVerified] = useState(false)
     const router = useRouter()
-
     useEffect(() => {
         const token = localStorage.getItem('token')
+        console.log(token)
         if (token) {
             supabase.auth.getUser(token).then(({ data }) => {
                 if (data.user) {
@@ -34,7 +36,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, [router])
 
     return (
-        <AuthContext.Provider value={{ user, loading, emailVerified, setEmailVerified }}>
+        <AuthContext.Provider value={{ user, loading, emailVerified, setUser, setLoading, setEmailVerified }}>
             {children}
         </AuthContext.Provider>
     )

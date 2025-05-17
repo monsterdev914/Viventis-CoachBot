@@ -3,9 +3,19 @@
 import { Link } from "@heroui/link";
 import { Navbar } from "./navbar";
 import { useTranslation } from 'react-i18next';
+import { Spinner } from "@heroui/react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const { loading } = useAuth();
     const { t } = useTranslation();
+
+    if (loading) {
+        return <div className="flex justify-center items-center h-screen">
+            <Spinner size="lg" color="primary" />
+        </div>;
+    }
+
     return (
         <section className="relative flex flex-col h-screen">
             <Navbar />

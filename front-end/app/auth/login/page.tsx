@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Card, CardHeader, CardBody, Input, Button, Link, Avatar } from "@heroui/react";
 import { useTranslation } from 'react-i18next';
 import { signIn } from '@/app/api/auth';
+import { useAuth } from '@/contexts/AuthContext';
 const LoginPage: React.FC = () => {
     const router = useRouter();
     const [mounted, setMounted] = useState(false);
@@ -15,7 +16,13 @@ const LoginPage: React.FC = () => {
     });
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
-
+    const [loading, setLoading] = useState(false);
+    const { setUser, user } = useAuth();
+    useEffect(() => {
+        if (user) {
+            router.replace('/dashboard');
+        }
+    }, [user, router]);
     useEffect(() => {
         setMounted(true);
         // Check for verification success
@@ -28,12 +35,13 @@ const LoginPage: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
-
+        setLoading(true);
         try {
             const response = await signIn(formData.email, formData.password);
             if (response.status === 200) {
                 setSuccess('Login successful');
                 localStorage.setItem('token', response.data.token);
+                setUser(response.data.user);
                 router.push('/dashboard');
             } else {
                 setError(response.data.error);
@@ -41,6 +49,7 @@ const LoginPage: React.FC = () => {
         } catch (err) {
             setError('An error occurred during login');
         }
+        setLoading(false);
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -111,6 +120,7 @@ const LoginPage: React.FC = () => {
                             type="submit"
                             className="w-full bg-gradient-primary hover:opacity-90 transition-opacity text-[black]"
                             size="lg"
+                            isLoading={loading}
                         >
                             {t('Sign in')}
                         </Button>

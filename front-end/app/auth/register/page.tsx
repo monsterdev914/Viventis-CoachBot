@@ -5,8 +5,13 @@ import { useRouter } from 'next/navigation';
 import { Card, CardHeader, CardBody, Input, Button, Link, Checkbox, addToast } from "@heroui/react";
 import { useTranslation } from 'react-i18next';
 import { signUp } from '@/app/api';
+import NextLink from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
+
 const RegisterPage: React.FC = () => {
     const router = useRouter();
+    const { user } = useAuth();
+    const [loading, setLoading] = useState(false);
     const [mounted, setMounted] = useState(false);
     const { t } = useTranslation();
     const [formData, setFormData] = useState({
@@ -16,6 +21,13 @@ const RegisterPage: React.FC = () => {
     });
     const [error, setError] = useState('');
 
+    // Check for existing user and redirect immediately
+    useEffect(() => {
+        if (user) {
+            router.replace('/dashboard');
+        }
+    }, [user, router]);
+
     useEffect(() => {
         setMounted(true);
     }, []);
@@ -23,20 +35,20 @@ const RegisterPage: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+        setLoading(true);
         if (formData.password !== formData.confirmPassword) {
             setError('Passwords do not match');
+            setLoading(false);
             return;
         }
 
         try {
             const response = await signUp(formData.email, formData.password);
-            console.log(response.status)
             if (response.status === 200) {
                 setError('');
                 router.push('/auth/verify-email');
             }
             else if (response.status === 405) {
-                //Alert
                 addToast({ title: "System Notification", description: response.data.error, color: "danger" });
                 setError('You have already registered');
                 router.push('/auth/login');
@@ -44,10 +56,10 @@ const RegisterPage: React.FC = () => {
             else if (response.status === 409) {
                 addToast({ title: "System Notification", description: response.data.error, color: "danger" });
             }
-
         } catch (err: any) {
             setError(err.response.data.error);
         }
+        setLoading(false);
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,7 +70,8 @@ const RegisterPage: React.FC = () => {
         }));
     };
 
-    if (!mounted) {
+    // Don't render anything if not mounted or if user exists
+    if (!mounted || user) {
         return null;
     }
 
@@ -69,7 +82,7 @@ const RegisterPage: React.FC = () => {
                     <h1 className="text-2xl font-bold text-center">{t('Create your account')}</h1>
                     <p className="text-center text-default-500">
                         {t('Already have an account?')}{' '}
-                        <Link href="/auth/login" color="primary">
+                        <Link href="/auth/login" color="primary" className='text-secondary hover:text-primary transition-colors' as={NextLink}>
                             {t('Sign in')}
                         </Link>
                     </p>
@@ -115,6 +128,7 @@ const RegisterPage: React.FC = () => {
                             type="submit"
                             className="w-full bg-gradient-primary hover:opacity-90 transition-opacity text-[black]"
                             size="lg"
+                            isLoading={loading}
                         >
                             {t('register')}
                         </Button>
