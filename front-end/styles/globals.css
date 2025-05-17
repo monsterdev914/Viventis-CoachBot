@@ -1,3 +1,30 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@layer base {
+
+    html {
+        @apply text-white;
+    }
+    body {
+
+        @apply text-white;
+    }
+}
+.bg-color {
+    background-color: #164038;
+}
+.bg-primary {
+    background-image: linear-gradient(39deg, #C4B200 0%, #F8EB69 70%);
+}
+.text-primary-foreground{
+    color: black;
+}
+.text-primary{
+    color: white;
+}
+.border-primary{
+    border-color: white;
+}
+
+

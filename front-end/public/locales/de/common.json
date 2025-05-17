@@ -74,6 +74,7 @@
     "Blog": "Blog",
     "About": "Über uns",
     "Contact": "Kontakt",
-    "Login": "Login",
-    "Sign up": "Registrieren"
+    "Login": "Anmelden",
+    "Sign up": "Registrieren",
+    "Login to your account": "Login zu Ihrem Konto"
 }

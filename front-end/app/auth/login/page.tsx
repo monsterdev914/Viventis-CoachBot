@@ -56,12 +56,12 @@ const LoginPage: React.FC = () => {
     }
 
     return (
-        <div className="flex justify-center bg-background">
+        <div className="flex justify-center ">
             <Card className="w-full max-w-md min-w-fit mx-auto px-5 pt-10 pb-5">
                 <div className="flex justify-center mb-4">
                     <Avatar
                         className="w-20 h-20"
-                        src="/images/user-avatar.png"
+                        src="/images/logo.png"
                         fallback="U"
                         size="lg"
                     />
@@ -109,8 +109,7 @@ const LoginPage: React.FC = () => {
                         )}
                         <Button
                             type="submit"
-                            color="primary"
-                            className="w-full"
+                            className="w-full bg-gradient-primary hover:opacity-90 transition-opacity text-[black]"
                             size="lg"
                         >
                             {t('Sign in')}

@@ -1,4 +1,4 @@
-import {heroui} from "@heroui/theme"
+import { heroui } from "@heroui/theme"
 
 /** @type {import('tailwindcss').Config} */
 const config = {
@@ -12,6 +12,20 @@ const config = {
       fontFamily: {
         sans: ["var(--font-sans)"],
         mono: ["var(--font-mono)"],
+      },
+      colors: {
+        "c-primary": "#FFFFFF",
+      },
+      button: {
+        "solid": "bg-gradient-primary hover:opacity-90 transition-opacity text-[black]",
+        "bordered": "hover:opacity-90 transition-opacity text-[white]",
+      },
+      backgroundImage: {
+        'gradient-primary': 'linear-gradient(39deg, #C4B200 0%, #F8EB69 70%)',
+        'gradient-secondary': 'linear-gradient(39deg, #C4B200 0%, #F8EB69 70%)',
+        'gradient-success': 'linear-gradient(39deg, #C4B200 0%, #F8EB69 70%)',
+        'gradient-warning': 'linear-gradient(39deg, #C4B200 0%, #F8EB69 70%)',
+        'gradient-danger': 'linear-gradient(39deg, #C4B200 0%, #F8EB69 70%)',
       },
     },
   },

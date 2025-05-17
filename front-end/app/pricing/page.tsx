@@ -69,21 +69,23 @@ const PricingPage = () => {
   ];
 
   return (
-    <div className="flex flex-col w-full items-center justify-center gap-8 py-8 md:py-10">
+    <div className="flex flex-col w-full items-center justify-center gap-8">
       <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">{t('Choose Your Plan')}</h1>
+        <h1 className="text-4xl font-bold">{t('Choose Your Plan')}</h1>
         <p className="text-default-500 mb-8">{t('Select the perfect plan for your needs')}</p>
 
         <div className="flex justify-center gap-4 mb-8">
           <Button
             variant={billingCycle === 'monthly' ? 'solid' : 'bordered'}
             onClick={() => setBillingCycle('monthly')}
+            className={billingCycle === 'monthly' ? "bg-gradient-primary hover:opacity-90 transition-opacity text-[black]" : "hover:opacity-90 transition-opacity text-[white]"}
           >
             {t('Monthly')}
           </Button>
           <Button
             variant={billingCycle === 'yearly' ? 'solid' : 'bordered'}
             onClick={() => setBillingCycle('yearly')}
+            className={billingCycle === 'yearly' ? "bg-gradient-primary hover:opacity-90 transition-opacity text-[black]" : "hover:opacity-90 transition-opacity text-[white]"}
           >
             {t('Yearly')} <Chip className="ml-2" size="sm" variant="flat">-20%</Chip>
           </Button>
@@ -138,15 +140,6 @@ const PricingPage = () => {
             </CardFooter>
           </Card>
         ))}
-      </div>
-
-      <div className="text-center mt-8">
-        <p className="text-default-500">
-          {t('Need a custom plan?')}{' '}
-          <Button variant="light" color="primary">
-            {t('Contact Sales')}
-          </Button>
-        </p>
       </div>
     </div>
   );

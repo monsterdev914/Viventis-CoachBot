@@ -10,12 +10,11 @@ import {
   NavbarMenuItem,
 } from "@heroui/navbar";
 import { Link } from "@heroui/link";
-import { Select, SelectItem } from "@heroui/react";
+import { Button, Select, SelectItem } from "@heroui/react";
 import { link as linkStyles } from "@heroui/theme";
 import NextLink from "next/link";
 import clsx from "clsx";
 import { siteConfig } from "@/config/site";
-import { ThemeSwitch } from "@/components/theme-switch";
 import {
   TwitterIcon,
   GithubIcon,
@@ -29,7 +28,7 @@ export const Navbar = () => {
   const { setLanguage } = useContext(TranslateContext);
   const { t } = useTranslation();
   return (
-    <HeroUINavbar maxWidth="xl" position="sticky">
+    <HeroUINavbar maxWidth="xl" className="p-2 bg-[transparent] border-b border-b-color" position="sticky">
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
         <NavbarBrand as="li" className="gap-3 max-w-fit">
           <NextLink className="flex justify-start items-center gap-1" href="/">
@@ -42,7 +41,7 @@ export const Navbar = () => {
             <NavbarItem key={item.href}>
               <NextLink
                 className={clsx(
-                  linkStyles({ color: "foreground" }),
+                  "c-primary",
                   "data-[active=true]:text-primary data-[active=true]:font-medium",
                 )}
                 color="foreground"
@@ -59,24 +58,13 @@ export const Navbar = () => {
         className="hidden sm:flex basis-1/5 sm:basis-full"
         justify="end"
       >
-        <NavbarItem className="hidden sm:flex gap-2">
-          <Link isExternal aria-label="Twitter" href={siteConfig.links.twitter}>
-            <TwitterIcon className="text-default-500" />
-          </Link>
-          <Link isExternal aria-label="Discord" href={siteConfig.links.discord}>
-            <DiscordIcon className="text-default-500" />
-          </Link>
-          <Link isExternal aria-label="Github" href={siteConfig.links.github}>
-            <GithubIcon className="text-default-500" />
-          </Link>
-          <ThemeSwitch />
-        </NavbarItem>
+        <Button variant="bordered" color="primary">{t("Login")}</Button>
         <NavbarItem className="max-md:hidden">
           <Select aria-label="lang" classNames={{ value: "whitespace-normal overflow-visible text-clip", selectorIcon: "hidden" }} defaultSelectedKeys={["en"]} placeholder="Select" onChange={(e) => {
             setLanguage(e.target.value)
           }}>
-            <SelectItem key="en" textValue="English">English</SelectItem>
-            <SelectItem key="de" textValue="German">German</SelectItem>
+            <SelectItem key="en" textValue="English" className="text-[black]">English</SelectItem>
+            <SelectItem key="de" textValue="German" className="text-[black]">German</SelectItem>
           </Select>
         </NavbarItem>
       </NavbarContent>
@@ -85,7 +73,6 @@ export const Navbar = () => {
         <Link isExternal aria-label="Github" href={siteConfig.links.github}>
           <GithubIcon className="text-default-500" />
         </Link>
-        <ThemeSwitch />
         <NavbarMenuToggle />
       </NavbarContent>
 

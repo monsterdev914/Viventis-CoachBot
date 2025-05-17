@@ -65,7 +65,7 @@ const RegisterPage: React.FC = () => {
     }
 
     return (
-        <div className="flex justify-center bg-background">
+        <div className="flex justify-center">
             <Card className="w-full max-w-md min-w-fit mx-auto px-5 pt-10 pb-5">
                 <CardHeader className="flex flex-col gap-1">
                     <h1 className="text-2xl font-bold text-center">{t('Create your account')}</h1>
@@ -115,8 +115,7 @@ const RegisterPage: React.FC = () => {
                         )}
                         <Button
                             type="submit"
-                            color="primary"
-                            className="w-full"
+                            className="w-full bg-gradient-primary hover:opacity-90 transition-opacity text-[black]"
                             size="lg"
                         >
                             {t('register')}
