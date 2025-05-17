@@ -2,7 +2,6 @@
 
 const nextConfig = {
     output: "standalone",
-    basePath: "/front-end",
 };
 
 module.exports = nextConfig;
