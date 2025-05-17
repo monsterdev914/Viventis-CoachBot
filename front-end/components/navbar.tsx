@@ -11,14 +11,11 @@ import {
 } from "@heroui/navbar";
 import { Link } from "@heroui/link";
 import { Button, Select, SelectItem } from "@heroui/react";
-import { link as linkStyles } from "@heroui/theme";
 import NextLink from "next/link";
 import clsx from "clsx";
 import { siteConfig } from "@/config/site";
 import {
-  TwitterIcon,
   GithubIcon,
-  DiscordIcon,
   Logo,
 } from "@/components/icons";
 import { TranslateContext } from "@/app/TranslateProvider";

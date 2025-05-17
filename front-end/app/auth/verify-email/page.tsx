@@ -11,9 +11,9 @@ export default function VerifyEmailPage() {
     const { t } = useTranslation();
     const router = useRouter();
     const [email, setEmail] = useState('');
-    const [token, setToken] = useState('');
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
+    const [, setToken] = useState('');
+    const [, setError] = useState('');
+    const [, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
     const searchParams = useSearchParams();
     const handleResendVerification = async () => {
