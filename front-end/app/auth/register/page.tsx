@@ -127,13 +127,13 @@ const RegisterPage: React.FC = () => {
                             {/* Check Box */}
                             <Checkbox />
                             <p className="text-sm text-default-500">
-                                {t('I agree to the')} <Link href="/policy">{t('Privacy Policy')}</Link> {t('and')} <Link href="/terms">{t('Terms of Service')}</Link>.
+                                {t('I agree to the')} <Link href="/policy" className="text-secondary">{t('Privacy Policy')}</Link> {t('and')} <Link href="/terms" className="text-secondary">{t('Terms of Service')}</Link>.
                             </p>
                         </div>
                         <div className="flex flex-row gap-2">
                             <Checkbox />
                             <p className="text-sm text-default-500">
-                                {t('We are compliant with')} <Link href="/policy">{t('GDPR')}</Link> {t('and')} <Link href="/terms">{t('CCPA')}</Link>.
+                                {t('We are compliant with')} <Link href="/policy" className="text-secondary">{t('GDPR')}</Link> {t('and')} <Link href="/terms" className="text-secondary">{t('CCPA')}</Link>.
                             </p>
                         </div>
                     </div>

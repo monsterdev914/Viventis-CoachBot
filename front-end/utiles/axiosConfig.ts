@@ -1,9 +1,9 @@
 import axios, { InternalAxiosRequestConfig, AxiosResponse } from 'axios';
-import { supabase } from '../lib/supabase';
 
 // Create axios instance  
 const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001/api',
+    //If production, use the production backend url
+    baseURL: process.env.NODE_ENV === 'production' ? process.env.NEXT_PUBLIC_BACKEND_URL : 'http://localhost:3001/api',
     headers: {
         'Content-Type': 'application/json'
     }
