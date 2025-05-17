@@ -8,6 +8,7 @@ type AuthContextType = {
     user: User | null
     loading: boolean
     emailVerified: boolean
+    setEmailVerified: (emailVerified: boolean) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -33,7 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, [router])
 
     return (
-        <AuthContext.Provider value={{ user, loading, emailVerified }}>
+        <AuthContext.Provider value={{ user, loading, emailVerified, setEmailVerified }}>
             {children}
         </AuthContext.Provider>
     )
