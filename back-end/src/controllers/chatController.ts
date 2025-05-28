@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import { supabase } from "../supabaseClient";
 import chain from "../lib/langChain";
-import { HumanMessage } from "@langchain/core/messages";
+import { ChatOpenAI } from "@langchain/openai";
+import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 
 
 class ChatController {
@@ -133,9 +134,36 @@ class ChatController {
             res.setHeader('Connection', 'keep-alive');
 
             // Use LangChain's streaming with proper message format
-            const stream = await chain.stream([
-                new HumanMessage(message)
+            // Get bot settings
+            const { data: botSettings, error: botSettingsError } = await supabase.from('bot_settings').select('*').maybeSingle();
+            if (botSettingsError) throw botSettingsError;
+
+
+            // I will add bot info to the system prompt
+            const botInfo = `
+            You are a helpful assistant named ${botSettings?.name}.
+            Welcome message: ${botSettings?.welcome_message}
+            ${botSettings?.description}
+            `;
+
+            const model = botSettings?.model;
+            const chatModel = new ChatOpenAI({
+                temperature: botSettings?.temperature || 0.7, // Adjust creativity (0 = deterministic, 1 = more random)
+                maxTokens: botSettings?.max_tokens || 100,   // Limit response length
+                modelName: model || "gpt-3.5-turbo", // Optional: specify the model
+            });
+
+            const systemPrompt = botInfo + botSettings?.system_prompt;
+            const stream = await chatModel.stream([
+                new HumanMessage(message),
+                new SystemMessage(systemPrompt),
             ]);
+
+            // const stream = await chain.stream([
+            //     new HumanMessage(message),
+            //     new SystemMessage(systemPrompt),
+
+            // ]);
 
             for await (const chunk of stream) {
                 if (chunk.content) {
