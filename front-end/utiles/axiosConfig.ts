@@ -3,7 +3,7 @@ import axios, { InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 // Create axios instance  
 const api = axios.create({
     //If production, use the production backend url
-    baseURL: process.env.NODE_ENV === 'production' ? process.env.NEXT_PUBLIC_BACKEND_URL : 'http://localhost:3001/api',
+    baseURL: process.env.NODE_ENV === 'production' ? process.env.NEXT_PUBLIC_BACKEND_URL : 'http://localhost:3457/api',
     headers: {
         'Content-Type': 'application/json'
     },

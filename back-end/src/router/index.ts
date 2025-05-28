@@ -15,6 +15,7 @@ import AuthController, { VerifyEmailRequest } from "../controllers/authControlle
 import ChatController from "../controllers/chatController";
 import UserProfileController from "../controllers/userProfileController";
 import { DocumentController } from "../controllers/documentController";
+import BotSettingController from "../controllers/botSettingController";
 const router = express.Router();
 
 /**
@@ -281,5 +282,9 @@ router.get('/userProfile', auth, UserProfileController.getUserProfile as unknown
 router.post('/documents', auth, DocumentController.uploadDocument as unknown as RequestHandler);
 router.get('/documents', auth, DocumentController.getDocuments as unknown as RequestHandler);
 router.delete('/documents/:id', auth, DocumentController.deleteDocument as unknown as RequestHandler);
+
+//bot setting routes
+router.get('/bot-settings', auth, BotSettingController.getBotSettings as unknown as RequestHandler);
+router.post('/bot-settings', auth, BotSettingController.saveBotSettings as unknown as RequestHandler);
 
 export default router;
