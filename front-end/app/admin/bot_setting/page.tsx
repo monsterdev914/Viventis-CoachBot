@@ -3,9 +3,7 @@ import { useState, useEffect } from 'react'
 import { Card, CardBody, CardHeader } from "@heroui/react"
 import { Input, Textarea } from "@heroui/input"
 import { Button } from "@heroui/react"
-import axios from 'axios'
-import api from '@/utiles/axiosConfig'
-
+import { getBotSettings, saveBotSettings } from '@/app/api/botSetting'
 interface BotSettings {
     name: string;
     description: string;
@@ -36,10 +34,15 @@ const BotSetting = () => {
 
     const fetchSettings = async () => {
         try {
-            const response = await api(`${process.env.NEXT_PUBLIC_BACKEND_URL}/bot/settings`);
-            setSettings(response.data);
+            const settings = await getBotSettings();
+            if (settings) {
+                setSettings(settings);
+            }
+            else {
+                setError('No settings found');
+            }
         } catch (error: any) {
-            setError(error.response?.data?.error || 'Failed to fetch settings');
+            setError(error?.data?.error || 'Failed to fetch settings');
         }
     };
 
@@ -58,7 +61,7 @@ const BotSetting = () => {
         setSuccess(null);
 
         try {
-            await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/bot/settings`, settings);
+            await saveBotSettings(settings);
             setSuccess('Settings updated successfully');
         } catch (error: any) {
             setError(error.response?.data?.error || 'Failed to update settings');
