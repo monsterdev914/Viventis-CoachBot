@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { supabase } from '../supabaseClient';
-import { UserProfile } from '../types/supabase/userProfile';
+import { UserProfile, UserRole } from '../types/supabase/userProfile';
 import { PublicUser } from '../types/supabase/publicUser';
 
 interface AuthRequest extends Request {
@@ -31,7 +31,6 @@ class AuthController {
                 email,
                 password
             });
-
             if (error) {
                 if (error.message.includes('Email not confirmed')) {
                     return res.status(401).json({ error: 'Please confirm your email before signing in' });
@@ -42,14 +41,25 @@ class AuthController {
             }
 
             else {
-
+                const { data: userProfile, error: userProfileError } = await supabase.from("user_profile").upsert({
+                    user_id: data.user?.id,
+                    email: data.user?.email,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString(),
+                }, {
+                    onConflict: 'user_id'
+                }).select("role").single()
+                if (userProfileError) {
+                    throw new Error(userProfileError.message);
+                }
                 return res.status(200).json({
                     message: 'Sign in successful',
-                    user: data.user,
+                    user: userProfile,
                     token: data.session?.access_token
                 });
             }
         } catch (error) {
+            console.log(error)
             return res.status(401).json({ error: 'Invalid credentials' });
         }
     }
@@ -82,27 +92,32 @@ class AuthController {
                 }
             }
             else {
-                const { data, error: signUpError } = await supabase.auth.signUp({
-                    email,
-                    password,
-                    options: {
-                        emailRedirectTo: `${process.env.FRONTEND_URL}/auth/verify-email`
+                try {
+                    const { data, error: signUpError } = await supabase.auth.signUp({
+                        email,
+                        password,
+                        options: {
+                            emailRedirectTo: `${process.env.FRONTEND_URL}/auth/verify-email`
+                        }
+                    })
+                    if (signUpError) {
+                        throw new Error(signUpError.message);
                     }
-                })
-                if (signUpError) {
-                    return res.status(500).json({ error: signUpError.message });
-                }
 
-                const { data: __, error: userError } = await supabase.from("pb_user").insert({
-                    email,
-                    user_id: data.user?.id,
-                    confirmed_at: null,
-                    created_at: new Date().toISOString(),
-                })
-                if (userError) {
-                    return res.status(500).json({ error: userError.message });
+                    const { data: __, error: userError } = await supabase.from("pb_user").insert({
+                        email,
+                        user_id: data.user?.id,
+                        confirmed_at: null,
+                        created_at: new Date().toISOString(),
+                    })
+                    if (userError) {
+                        throw new Error(userError.message);
+                    }
+                    return res.status(200).json({ message: 'User created successfully', user: data.user });
                 }
-                return res.status(200).json({ message: 'User created successfully', user: data.user });
+                catch (error: any) {
+                    return res.status(500).json({ error: error.message });
+                }
             }
         } catch (error: any) {
             return res.status(500).json({ error: error.message });
@@ -172,7 +187,6 @@ class AuthController {
         if (!email || !token) {
             return res.status(400).json({ error: 'Email and token are required' });
         }
-
         try {
             // First check if user exists and is not already verified
             const { data: user, error: userError } = await supabase
@@ -198,9 +212,8 @@ class AuthController {
                 token,
                 type: 'signup'
             });
-
             if (error) {
-                return res.status(400).json({ error: error.message });
+                return res.status(403).json({ error: 'Invalid token' });
             }
 
             // Update the user's confirmed_at timestamp in the database
