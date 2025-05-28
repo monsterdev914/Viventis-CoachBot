@@ -75,5 +75,18 @@
     "About": "About",
     "Contact": "Contact",
     "Login": "Login",
-    "Sign up": "Sign up"
+    "Sign up": "Sign up",
+    "Delete": "Delete",
+    "Documents": "Documents",
+    "Name": "Name",
+    "Type": "Type",
+    "Size": "Size",
+    "Created at": "Created at",
+    "Status": "Status",
+    "Processing": "Processing",
+    "Ready": "Ready",
+    "Error": "Error",
+    "Upload": "Upload",
+    "Upload a document": "Upload a document",
+    "Uploaded": "Uploaded"
 }

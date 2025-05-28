@@ -1,11 +1,11 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { Card, CardBody, CardHeader } from "@heroui/react"
+import { Card, CardBody, CardHeader, Spinner } from "@heroui/react"
 import { Button } from "@heroui/react"
 import { Input } from "@heroui/input"
 import { Table, TableHeader, TableBody, TableColumn, TableRow, TableCell } from "@heroui/react"
-import api from '@/utiles/axiosConfig'
-
+import { getDocuments, uploadDocument, deleteDocument } from '@/app/api/document'
+import { useTranslation } from 'react-i18next';
 interface Document {
     id: string;
     name: string;
@@ -22,7 +22,7 @@ const KnowledgeBase = () => {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const [uploading, setUploading] = useState(false);
-
+    const { t } = useTranslation();
     useEffect(() => {
         fetchDocuments();
     }, []);
@@ -30,8 +30,8 @@ const KnowledgeBase = () => {
     const fetchDocuments = async () => {
         try {
             setLoading(true);
-            const response = await api.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/knowledge/documents`);
-            setDocuments(response.data);
+            const response = await getDocuments();
+            setDocuments(response);
         } catch (error: any) {
             setError(error.response?.data?.error || 'Failed to fetch documents');
         } finally {
@@ -53,11 +53,7 @@ const KnowledgeBase = () => {
                 formData.append('documents', files[i]);
             }
 
-            await api.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/documents`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
+            await uploadDocument(formData);
 
             setSuccess('Documents uploaded successfully');
             fetchDocuments(); // Refresh the list
@@ -70,7 +66,7 @@ const KnowledgeBase = () => {
 
     const handleDelete = async (id: string) => {
         try {
-            await api.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/documents/${id}`);
+            await deleteDocument(id);
             setSuccess('Document deleted successfully');
             fetchDocuments(); // Refresh the list
         } catch (error: any) {
@@ -141,34 +137,44 @@ const KnowledgeBase = () => {
                             ))}
                         </TableHeader>
                         <TableBody>
-                            {documents.map((doc) => (
-                                <TableRow key={doc.id}>
-                                    <TableCell>{doc.name}</TableCell>
-                                    <TableCell>{doc.type}</TableCell>
-                                    <TableCell>{formatFileSize(doc.size)}</TableCell>
-                                    <TableCell>{new Date(doc.created_at).toLocaleDateString()}</TableCell>
-                                    <TableCell>
-                                        <span className={`px-2 py-1 rounded-full text-xs ${doc.status === 'ready' ? 'bg-success/20 text-success' :
-                                            doc.status === 'processing' ? 'bg-warning/20 text-warning' :
-                                                'bg-danger/20 text-danger'
-                                            }`}>
-                                            {doc.status}
-                                            {doc.error_message && (
-                                                <span className="ml-2" title={doc.error_message}>⚠️</span>
-                                            )}
-                                        </span>
-                                    </TableCell>
-                                    <TableCell>
-                                        <Button
-                                            color="danger"
-                                            size="sm"
-                                            onClick={() => handleDelete(doc.id)}
-                                        >
-                                            Delete
-                                        </Button>
+                            {loading ? (
+                                <TableRow>
+                                    <TableCell colSpan={columns.length}>
+                                        <div className="flex items-center justify-center py-4">
+                                            <Spinner size="sm" />
+                                        </div>
                                     </TableCell>
                                 </TableRow>
-                            ))}
+                            ) : (
+                                documents.map((doc) => (
+                                    <TableRow key={doc.id}>
+                                        <TableCell>{doc.name}</TableCell>
+                                        <TableCell>{doc.type}</TableCell>
+                                        <TableCell>{formatFileSize(doc.size)}</TableCell>
+                                        <TableCell>{new Date(doc.created_at).toLocaleDateString()}</TableCell>
+                                        <TableCell>
+                                            <span className={`px-2 py-1 rounded-full text-xs ${doc.status === 'ready' ? 'bg-success/20 text-success' :
+                                                doc.status === 'processing' ? 'bg-warning/20 text-warning' :
+                                                    'bg-danger/20 text-danger'
+                                                }`}>
+                                                {doc.status}
+                                                {doc.error_message && (
+                                                    <span className="ml-2" title={doc.error_message}>⚠️</span>
+                                                )}
+                                            </span>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Button
+                                                color="danger"
+                                                size="sm"
+                                                onClick={() => handleDelete(doc.id)}
+                                            >
+                                                {t("Delete")}
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            )}
                         </TableBody>
                     </Table>
                 </CardBody>

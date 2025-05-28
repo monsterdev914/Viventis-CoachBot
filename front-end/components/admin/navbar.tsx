@@ -9,12 +9,13 @@ import { useTranslation } from 'react-i18next';
 import { Select } from "@heroui/react"
 import { Button } from "@heroui/button"
 import { SelectItem } from "@heroui/react"
-import { useState } from "react"
+import { useContext } from "react"
+import { TranslateContext } from "@/app/TranslateProvider"
 
 const Navbar: React.FC = () => {
     const { t } = useTranslation()
     const { user } = useAdminAuth()
-    const [language, setLanguage] = useState("en")
+    const { setLanguage } = useContext(TranslateContext)
     const handleLogout = () => {
         handleLogout()
     }
