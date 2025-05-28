@@ -74,8 +74,14 @@ export class DocumentController {
                 .from('documents')
                 .delete()
                 .eq('id', id);
-
+            //delete chunks
             if (error) throw error;
+
+            const { error: chunkError } = await supabase
+                .from('document_chunks')
+                .delete()
+                .eq('document_id', id);
+            if (chunkError) throw chunkError;
 
             res.json({ message: 'Document deleted successfully' });
         } catch (error: any) {
