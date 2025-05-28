@@ -13,6 +13,14 @@ const LeftSideBar: React.FC = () => {
                 <div
                     className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-40"
                     onClick={() => setIsSidebarOpen(false)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Escape') {
+                            setIsSidebarOpen(false);
+                        }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label="Close sidebar"
                 />
             )}
             {!isSidebarOpen && (
