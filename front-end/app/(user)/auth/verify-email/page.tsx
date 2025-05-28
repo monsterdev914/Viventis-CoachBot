@@ -12,7 +12,7 @@ export default function VerifyEmailPage() {
     const router = useRouter();
     const [email, setEmail] = useState('');
     const [, setToken] = useState('');
-    const [, setError] = useState('');
+    const [error, setError] = useState('');
     const [, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
     const searchParams = useSearchParams();
@@ -21,6 +21,7 @@ export default function VerifyEmailPage() {
         try {
             const response = await resendVerification(email);
             setSuccess(response.data.message);
+            setError('');
         } catch (error: any) {
             setError(error.response.data.error);
         } finally {
@@ -45,6 +46,15 @@ export default function VerifyEmailPage() {
                     setError(response.data.error);
                 }
                 setLoading(false);
+            }).catch((error: any) => {
+                if (error.response.data.error === 'Invalid token') {
+                    console.log('invalid token')
+                    setError(error.response.data.error);
+                }
+                else {
+                    setError(error.response.data.error);
+                }
+                setLoading(false);
             })
         }
         // if (emailVerified) {
@@ -63,6 +73,7 @@ export default function VerifyEmailPage() {
             </div>
         );
     }
+
     return (
         <div className="flex justify-center">
             <Card className="w-full max-w-md min-w-fit mx-auto px-5 pt-10 pb-5">
@@ -73,6 +84,11 @@ export default function VerifyEmailPage() {
                     <p className="text-center text-default-500">
                         {t('We have sent you a confirmation email. Please check your inbox and click the verification link to activate your account.')}
                     </p>
+                    {error && (
+                        <p className="text-center text-danger-500">
+                            {error}
+                        </p>
+                    )}
                     <div className="flex flex-col gap-2">
                         <Button
                             color="primary"
@@ -83,7 +99,7 @@ export default function VerifyEmailPage() {
                         </Button>
                         <p className="text-center text-default-500">
                             {t('Didn\'t receive the email?')}{' '}
-                            <Link href="#" color="primary" onClick={handleResendVerification}>
+                            <Link href="#" color="secondary" onClick={handleResendVerification}>
                                 {t('Resend verification email')}
                             </Link>
                         </p>

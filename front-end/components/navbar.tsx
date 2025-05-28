@@ -10,12 +10,11 @@ import {
   NavbarMenuItem,
 } from "@heroui/navbar";
 import { Link } from "@heroui/link";
-import { Button, Select, SelectItem, user } from "@heroui/react";
+import { Button, Select, SelectItem } from "@heroui/react";
 import NextLink from "next/link";
 import clsx from "clsx";
 import { siteConfig } from "@/config/site";
 import {
-  GithubIcon,
   Logo,
 } from "@/components/icons";
 import { TranslateContext } from "@/app/TranslateProvider";
@@ -38,7 +37,7 @@ export const Navbar = () => {
   }, []);
   const { t } = useTranslation();
   return (
-    <HeroUINavbar maxWidth="xl" className="p-2 bg-[transparent] border-b border-b-color" position="sticky">
+    <HeroUINavbar maxWidth="xl" className="p-2 bg-color border-b border-b-color" position="sticky">
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
         <NavbarBrand as="li" className="gap-3 max-w-fit">
           <NextLink className="flex justify-start items-center gap-1" href="/">
@@ -80,9 +79,6 @@ export const Navbar = () => {
       </NavbarContent>
 
       <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
-        <Link isExternal aria-label="Github" href={siteConfig.links.github}>
-          <GithubIcon className="text-default-500" />
-        </Link>
         <NavbarMenuToggle />
       </NavbarContent>
 

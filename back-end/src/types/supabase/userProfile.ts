@@ -1,3 +1,8 @@
+export enum UserRole {
+    USER = "user",
+    ADMIN = "admin",
+    SUPER_ADMIN = "super_admin",
+}
 export interface UserProfile {
     id: string;
     user_id: string;
@@ -11,4 +16,5 @@ export interface UserProfile {
     stripe_customer_id: string;
     subscription_status: string;
     email_confirmed_date: string;
+    role: UserRole;
 }

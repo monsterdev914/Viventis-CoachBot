@@ -6,7 +6,11 @@ const api = axios.create({
     baseURL: process.env.NODE_ENV === 'production' ? process.env.NEXT_PUBLIC_BACKEND_URL : 'http://localhost:3001/api',
     headers: {
         'Content-Type': 'application/json'
-    }
+    },
+    // Enable streaming responses
+    // responseType: 'stream',
+    // Don't transform the response
+    // transformResponse: [(data) => data]
 });
 
 // Request interceptor for adding auth token  

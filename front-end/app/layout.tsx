@@ -34,15 +34,11 @@ export default function RootLayout({
       <body
         suppressHydrationWarning
         className={clsx(
-          "min-h-screen bg-color font-sans antialiased relative before:absolute before:inset-0 before:bg-[url('/images/bg-img.png')] before:bg-cover before:bg-center before:opacity-25",
+          "min-h-screen font-sans antialiased",
           fontSans.variable,
         )}
       >
-        <Providers>
-          <Layout>
-            {children}
-          </Layout>
-        </Providers>
+        {children}
       </body>
     </html>
   );

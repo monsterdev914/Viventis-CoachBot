@@ -12,6 +12,9 @@ import { extractTattooShopInfo } from "../lib/firecrawl";
 import { buyTwilioPhoneNumber } from "../lib/twilio";
 import PhoneNumberController from "../controllers/phoneNumberController";
 import AuthController, { VerifyEmailRequest } from "../controllers/authController";
+import ChatController from "../controllers/chatController";
+import UserProfileController from "../controllers/userProfileController";
+import { DocumentController } from "../controllers/documentController";
 const router = express.Router();
 
 /**
@@ -260,5 +263,23 @@ router.get('/auth/verify-email', AuthController.verifyEmail as unknown as Reques
 router.post("/auth/signin", AuthController.signIn as unknown as RequestHandler);
 router.post("/auth/signup", AuthController.signUp as unknown as RequestHandler);
 router.post("/auth/signout", AuthController.signOut as unknown as RequestHandler);
+
+// Chat routes
+router.post('/chats', auth, ChatController.createChat as unknown as RequestHandler);
+router.get('/chats', auth, ChatController.getChats as unknown as RequestHandler);
+router.get('/chats/:chatId/messages', auth, ChatController.getMessages as unknown as RequestHandler);
+router.post('/chats/:chatId/messages', auth, ChatController.createMessage as unknown as RequestHandler);
+router.delete('/chats/:chatId', auth, ChatController.deleteChat as unknown as RequestHandler);
+router.post('/chat/stream', auth, ChatController.streamChat as unknown as RequestHandler);
+
+// User Profile routes
+router.get('/userProfile', auth, UserProfileController.getUserProfile as unknown as RequestHandler);
+
+
+
+//document routes
+router.post('/documents', auth, DocumentController.uploadDocument as unknown as RequestHandler);
+router.get('/documents', auth, DocumentController.getDocuments as unknown as RequestHandler);
+router.delete('/documents/:id', auth, DocumentController.deleteDocument as unknown as RequestHandler);
 
 export default router;

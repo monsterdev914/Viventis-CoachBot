@@ -17,9 +17,9 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     }
 
     return (
-        <section className="relative flex flex-col h-screen">
+        <section className="relative flex flex-col h-screen bg-color">
             <Navbar />
-            <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow ">
+            <main className="container mx-auto max-w-7xl pt-16 px-4 flex-grow ">
                 {children}
             </main>
             <footer className="w-full flex items-center bg-color justify-center py-3">
