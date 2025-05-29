@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { supabase } from "../supabaseClient";
 import chain from "../lib/langChain";
 import { ChatOpenAI } from "@langchain/openai";
-import { HumanMessage, SystemMessage } from "@langchain/core/messages";
+import { AIMessage, HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { DocumentController } from "./documentController";
 
 class ChatController {
@@ -125,7 +125,7 @@ class ChatController {
 
     static streamChat = async (req: Request, res: Response) => {
         try {
-            const { message } = req.body;
+            const { oldMessages, message } = req.body;
 
             // Set headers for SSE
             res.setHeader('Content-Type', 'text/event-stream');
@@ -165,10 +165,16 @@ class ChatController {
                 modelName: botSettings?.model || "gpt-3.5-turbo",
                 streaming: true
             });
-
+            // Add chat history to the system prompt
+            const chatHistory = oldMessages.map((msg: string) => {
+                const [role, content] = msg.split(": ");
+                return role === "user" ? new HumanMessage(content) : new AIMessage(content);
+            });
+            console.log(chatHistory);
             // Stream the response
             const stream = await chatModel.stream([
                 new SystemMessage(systemPrompt),
+                ...chatHistory,
                 new HumanMessage(message)
             ]);
 

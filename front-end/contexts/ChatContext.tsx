@@ -49,7 +49,13 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         setMessages(prev => [...prev, assistantMessage]);
 
         try {
-            await sendMessage(content, (chunk) => {
+            // Like this:
+            // role: user, content: "Hello"
+            // role: assistant, content: "Hello"
+            // Just 5 messages latest
+            const oldMessages = messages.slice(-10).map(msg => `${msg.role}: ${msg.content}`);
+
+            await sendMessage(oldMessages, content, (chunk) => {
                 console.log(chunk)
                 setMessages(prev => {
                     return prev.map(msg => {
