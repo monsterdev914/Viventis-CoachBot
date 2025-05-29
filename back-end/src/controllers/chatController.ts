@@ -3,7 +3,7 @@ import { supabase } from "../supabaseClient";
 import chain from "../lib/langChain";
 import { ChatOpenAI } from "@langchain/openai";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
-
+import { DocumentController } from "./documentController";
 
 class ChatController {
     static createChat = async (req: Request, res: Response) => {
@@ -124,46 +124,53 @@ class ChatController {
     };
 
     static streamChat = async (req: Request, res: Response) => {
-        // console.log(req.user);
         try {
             const { message } = req.body;
-            // const user = (req as any).user;
+
             // Set headers for SSE
             res.setHeader('Content-Type', 'text/event-stream');
             res.setHeader('Cache-Control', 'no-cache');
             res.setHeader('Connection', 'keep-alive');
 
-            // Use LangChain's streaming with proper message format
             // Get bot settings
-            const { data: botSettings, error: botSettingsError } = await supabase.from('bot_settings').select('*').maybeSingle();
+            const { data: botSettings, error: botSettingsError } = await supabase
+                .from('bot_settings')
+                .select('*')
+                .maybeSingle();
+
             if (botSettingsError) throw botSettingsError;
 
-
-            // I will add bot info to the system prompt
+            // Create bot info for system prompt
             const botInfo = `
             You are a helpful assistant named ${botSettings?.name}.
             Welcome message: ${botSettings?.welcome_message}
             ${botSettings?.description}
             `;
 
-            const model = botSettings?.model;
+            // Get relevant documents using similarity search
+            const relevantDocs = await DocumentController.similaritySearch(message);
+
+            // Create context from relevant documents
+            const context = relevantDocs
+                .map(doc => doc.pageContent)
+                .join("\n\n");
+
+            // Create system prompt with context
+            const systemPrompt = `${botInfo}\n${botSettings?.system_prompt}\n\nContext:\n${context}`;
+
+            // Initialize chat model with settings
             const chatModel = new ChatOpenAI({
-                temperature: botSettings?.temperature || 0.7, // Adjust creativity (0 = deterministic, 1 = more random)
-                maxTokens: botSettings?.max_tokens || 100,   // Limit response length
-                modelName: model || "gpt-3.5-turbo", // Optional: specify the model
+                temperature: botSettings?.temperature || 0.7,
+                maxTokens: botSettings?.max_tokens || 100,
+                modelName: botSettings?.model || "gpt-3.5-turbo",
+                streaming: true
             });
 
-            const systemPrompt = botInfo + botSettings?.system_prompt;
+            // Stream the response
             const stream = await chatModel.stream([
-                new HumanMessage(message),
                 new SystemMessage(systemPrompt),
+                new HumanMessage(message)
             ]);
-
-            // const stream = await chain.stream([
-            //     new HumanMessage(message),
-            //     new SystemMessage(systemPrompt),
-
-            // ]);
 
             for await (const chunk of stream) {
                 if (chunk.content) {
@@ -174,6 +181,7 @@ class ChatController {
             res.write('data: [DONE]\n\n');
             res.end();
         } catch (error: any) {
+            console.error('Error in streamChat:', error);
             res.status(500).json({ error: error.message });
         }
     };
