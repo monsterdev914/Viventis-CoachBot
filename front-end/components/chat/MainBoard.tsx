@@ -24,9 +24,9 @@ const MainBoard: React.FC = () => {
     };
 
     return (
-        <div className="max-w-[900px] h-full flex items-center justify-center relative">
+        <div className="max-w-[800px] w-full h-full flex items-center justify-center relative">
             <motion.div
-                className="flex flex-col gap-4 p-4"
+                className="flex flex-col gap-4 p-4 w-[inherit]"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
@@ -35,7 +35,7 @@ const MainBoard: React.FC = () => {
                     {messages.length > 0 ? (
                         <motion.div
                             key="messages"
-                            className="flex flex-col gap-4 h-[500px] overflow-y-auto scrollbar-hide"
+                            className="flex flex-col gap-4 w-[inherit] h-[500px] overflow-y-auto scrollbar-hide"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ duration: 0.3 }}
@@ -64,7 +64,7 @@ const MainBoard: React.FC = () => {
                         </motion.div>
                     ) : (
                         <motion.div
-                            className="w-full flex flex-col gap-4 overflow-y-auto max-h-[600px] scrollbar-hide"
+                            className="w-[inherit] flex flex-col gap-4 overflow-y-auto max-h-[600px] scrollbar-hide"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ duration: 0.3 }}

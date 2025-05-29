@@ -1,11 +1,11 @@
 import api from "@/utiles/axiosConfig";
 import axios from "axios";
 
-const sendMessage = async (message: string, onChunk: (chunk: string) => void) => {
+const sendMessage = async (oldMessages: string[], message: string, onChunk: (chunk: string) => void) => {
     try {
         let lastProcessedLength = 0;
         const response = await api.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chat/stream`,
-            { message },
+            { oldMessages, message },
             {
                 responseType: 'stream',
                 transformResponse: [(data) => data],
