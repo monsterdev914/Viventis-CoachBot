@@ -70,8 +70,8 @@ const MainBoard: React.FC = () => {
                             transition={{ duration: 0.3 }}
                         >
                             <div className="w-full h-full flex items-center justify-center flex-col gap-4">
-                                <div className="flex items-center gap-2">
-                                    <Image src="/images/logo.png" alt="logo" width={54} height={54} />
+                                <div className="flex items-center gap-2" role="img" aria-label="Viventis logo and name">
+                                    <Image src="/images/logo.png" alt="Viventis logo" width={54} height={54} />
                                     <p className="text-2xl font-bold">Viventis</p>
                                 </div>
                                 <div>

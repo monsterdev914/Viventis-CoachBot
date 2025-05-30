@@ -5,7 +5,7 @@ import { Button } from "@heroui/button";
 import { MenuIcon, PlusIcon, ArrowLeftIcon } from "@/components/icons";
 import { useEffect, useState } from "react";
 import { ChatMessage } from "@/types";
-import { getChats, createChat } from "@/app/api/chat";
+import { getChats } from "@/app/api/chat";
 import { useRouter } from "next/navigation";
 import { useChat } from "@/contexts/ChatContext";
 import { Spinner } from "@heroui/react";
@@ -38,6 +38,7 @@ const LeftSideBar: React.FC = () => {
     return (
         <>
             {isSidebarOpen && (
+                // eslint-disable-next-line jsx-a11y/no-static-element-interactions
                 <div
                     className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-40"
                     onClick={() => setIsSidebarOpen(false)}
@@ -91,6 +92,7 @@ const LeftSideBar: React.FC = () => {
                             </div>
                         ) : (
                             chats.map((chat) => (
+                                // eslint-disable-next-line jsx-a11y/no-static-element-interactions
                                 <div
                                     key={chat.id}
                                     className="cursor-pointer hover:bg-gray-700 p-2 rounded"

@@ -75,13 +75,13 @@ export default function Dashboard() {
                             <h3 className="text-xl font-semibold mb-4">Letzte Erkenntnisse</h3>
                             <ul className="space-y-4">
                                 <li className="text-gray-600 italic">
-                                    "Authentische Führung beginnt mit Selbstreflexion"
+                                    &ldquo;Authentische Führung beginnt mit Selbstreflexion&rdquo;
                                 </li>
                                 <li className="text-gray-600 italic">
-                                    "Balance zwischen Effektivität und Menschlichkeit"
+                                    &ldquo;Balance zwischen Effektivität und Menschlichkeit&rdquo;
                                 </li>
                                 <li className="text-gray-600 italic">
-                                    "Stärken-basierte Teamführung"
+                                    &ldquo;Stärken-basierte Teamführung&rdquo;
                                 </li>
                             </ul>
                         </div>
