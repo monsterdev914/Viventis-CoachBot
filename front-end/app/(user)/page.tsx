@@ -9,14 +9,14 @@ export default function Home() {
                 <div className="container mx-auto px-4">
                     <div className="flex flex-col items-center text-center">
                         <div className="flex items-center gap-2 mb-8">
-                            <Image src="/images/logo.png" alt="Viventis Logo" width={54} height={54} className="rounded-lg shadow-lg" />
+                            <Image alt="Viventis Logo" className="rounded-lg shadow-lg" height={54} src="/images/logo.png" width={54} />
                             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Viventis CoachBot</h1>
                         </div>
                         <h2 className="text-3xl font-semibold mb-6 max-w-3xl">
                             Dein wahres Ich wartet auf dich – Bist du bereit für den ersten Schritt?
                         </h2>
                         <p className="text-xl text-gray-600 mb-8 max-w-2xl">
-                            „Weisst du, was passiert, wenn du aufhörst, anderen zu folgen, und anfängst, deinem eigenen Weg zu vertrauen?"
+                            &ldquo;Weisst du, was passiert, wenn du aufhörst, anderen zu folgen, und anfängst, deinem eigenen Weg zu vertrauen?&rdquo;
                         </p>
                         <Link
                             href="/chat"
