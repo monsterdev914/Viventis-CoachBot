@@ -1,84 +1,138 @@
 'use client'
-import { Message } from "@/types";
-import React, { createContext, useContext, useState } from "react";
-import { sendMessage } from "@/app/api/chat";
+import { ChatMessage, Message } from "@/types";
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { sendMessage, createMessage, createChat, updateMessage, updateChat, getChats } from "@/app/api/chat";
+import { useParams, useRouter } from "next/navigation";
 
 type ChatContextType = {
     messages: Message[];
     setMessages: (messages: Message[]) => void;
-    addMessage: (message: Omit<Message, 'id' | 'chat_id' | 'created_at' | 'updated_at'>) => void;
     isLoading: boolean;
     setIsLoading: (isLoading: boolean) => void;
-    sendStreamMessage: (content: string) => Promise<void>;
+    sendStreamMessage: (newMessage: string) => Promise<void>;
+    pendingMessage: string | null;
+    setPendingMessage: (message: string | null) => void;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
+    const params = useParams();
+    const router = useRouter();
+    const chatId = params?.id as string;
     const [messages, setMessages] = useState<Message[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [pendingMessage, setPendingMessage] = useState<string | null>(null);
 
-    const addMessage = (newMessage: Omit<Message, 'id' | 'chat_id' | 'created_at' | 'updated_at'>) => {
-        const message: Message = {
-            ...newMessage,
-            id: Date.now().toString(),
-            chat_id: "1",
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-        };
-        setMessages(prev => [...prev, message]);
-    };
+    // Handle pending message when URL changes
+    useEffect(() => {
+        if (chatId && pendingMessage) {
+            setPendingMessage(null);
+            sendStreamMessage(pendingMessage);
+        }
+    }, [chatId]);
 
-    const sendStreamMessage = async (content: string) => {
+    const sendStreamMessage = async (newMessage: string) => {
         setIsLoading(true);
-
-        // Add user message
-        addMessage({ content, role: "user" });
-
-        // Create assistant message placeholder
-        const assistantMessageId = Date.now().toString() + 1;
-        const assistantMessage: Message = {
-            id: assistantMessageId,
-            chat_id: "1",
-            content: "",
-            role: "assistant",
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-        };
-
-        setMessages(prev => [...prev, assistantMessage]);
+        let assistantMessage: Message | null = null;
 
         try {
-            // Like this:
-            // role: user, content: "Hello"
-            // role: assistant, content: "Hello"
-            // Just 5 messages latest
-            const oldMessages = messages.slice(-10).map(msg => `${msg.role}: ${msg.content}`);
+            // If we're at the root chat route, create a new chat and store the message
+            if (!chatId) {
+                const response = await createChat();
+                if (!response) {
+                    throw new Error('Failed to create chat');
+                }
+                const newChatId = response.data.id;
+                setPendingMessage(newMessage);
+                router.push(`/chat/${newChatId}`);
+                return;
+            }
 
-            await sendMessage(oldMessages, content, (chunk) => {
-                console.log(chunk)
-                setMessages(prev => {
-                    return prev.map(msg => {
-                        if (msg.id === assistantMessageId) {
-                            return {
-                                ...msg,
-                                content: msg.content + chunk,
-                                updated_at: new Date().toISOString()
-                            };
-                        }
-                        return msg;
-                    });
-                });
+            // Add user message 
+            await updateChat({
+                id: chatId,
+                updated_at: new Date().toISOString(),
+                title: newMessage
             });
+
+            // Async Sidebar
+            const userResponse = await createMessage({
+                chat_id: chatId,
+                content: newMessage,
+                role: "user",
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+                status: "done"
+            });
+            setMessages(prev => [...prev, userResponse.data]);
+
+            // Create assistant message placeholder
+            const assistantResponse = await createMessage({
+                chat_id: chatId,
+                content: "",
+                role: "assistant",
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+                status: "pending"
+            });
+            assistantMessage = assistantResponse.data;
+            if (assistantMessage) {
+                setMessages(prev => [...prev, assistantMessage!]);
+
+                let finalContent = "";
+                await sendMessage(
+                    messages.slice(-10).map(msg => `${msg.role}: ${msg.content}`),
+                    newMessage,
+                    (chunk) => {
+                        finalContent += chunk;
+                        setMessages(prev => {
+                            return prev.map(msg => {
+                                if (msg.id === assistantMessage!.id) {
+                                    return {
+                                        ...msg,
+                                        content: finalContent,
+                                        updated_at: new Date().toISOString()
+                                    };
+                                }
+                                return msg;
+                            });
+                        });
+                    }
+                );
+
+                // Update the final message state
+                const updatedMessage: Message = {
+                    ...assistantMessage,
+                    content: finalContent,
+                    status: "done" as const,
+                    updated_at: new Date().toISOString()
+                };
+                await updateMessage(updatedMessage);
+                setMessages(prev => prev.map(msg =>
+                    msg.id === assistantMessage!.id ? updatedMessage : msg
+                ));
+            }
         } catch (error) {
             console.error('Error sending message:', error);
+            if (assistantMessage) {
+                const errorMessage: Message = {
+                    ...assistantMessage,
+                    status: "error" as const,
+                    updated_at: new Date().toISOString()
+                };
+                await updateMessage(errorMessage);
+                setMessages(prev => prev.map(msg =>
+                    msg.id === assistantMessage!.id ? errorMessage : msg
+                ));
+            }
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <ChatContext.Provider value={{ messages, setMessages, addMessage, isLoading, setIsLoading, sendStreamMessage }}>
+        <ChatContext.Provider value={{ messages, setMessages, isLoading, setIsLoading, sendStreamMessage, pendingMessage, setPendingMessage }}>
             {children}
         </ChatContext.Provider>
     );

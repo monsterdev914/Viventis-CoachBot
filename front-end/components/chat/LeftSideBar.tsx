@@ -3,10 +3,38 @@
 import Image from "next/image";
 import { Button } from "@heroui/button";
 import { MenuIcon, PlusIcon, ArrowLeftIcon } from "@/components/icons";
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
+import { ChatMessage } from "@/types";
+import { getChats, createChat } from "@/app/api/chat";
+import { useRouter } from "next/navigation";
+import { useChat } from "@/contexts/ChatContext";
+import { Spinner } from "@heroui/react";
 const LeftSideBar: React.FC = () => {
+    const router = useRouter();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [chats, setChats] = useState<ChatMessage[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const { setMessages } = useChat();
+    useEffect(() => {
+        const fetchChats = async () => {
+            setIsLoading(true);
+            const response = await getChats();
+            console.log(response.data);
+            setChats(response.data);
+            setIsLoading(false);
+        };
+        fetchChats();
+    }, []);
+    const handleCreateChat = async () => {
+        setMessages([]);
+        router.push("/chat");
+    };
+
+    const handleChatClick = (chatId: string) => {
+        setMessages([]);
+        router.push(`/chat/${chatId}`);
+    };
+
     return (
         <>
             {isSidebarOpen && (
@@ -49,10 +77,29 @@ const LeftSideBar: React.FC = () => {
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
-                        <Button variant="solid" className="gap-2">
+                        <Button variant="solid" className="gap-2" onClick={() => handleCreateChat()}>
                             <PlusIcon />
                             <h1>New Chat</h1>
                         </Button>
+
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                        {isLoading ? <Spinner /> : chats.length === 0 ? (
+                            <div className="flex items-center justify-center">
+                                <h6 className="text-white font-bold">No chats found</h6>
+                            </div>
+                        ) : (
+                            chats.map((chat) => (
+                                <div
+                                    key={chat.id}
+                                    className="cursor-pointer hover:bg-gray-700 p-2 rounded"
+                                    onClick={() => handleChatClick(chat.id)}
+                                >
+                                    <h6 className="text-white">{chat.title ? chat.title : "Untitled"}</h6>
+                                </div>
+                            ))
+                        )}
                     </div>
                 </div>
             </section>

@@ -29,7 +29,7 @@ class AuthController {
         try {
             const { data, error } = await supabase.auth.signInWithPassword({
                 email,
-                password
+                password,
             });
             if (error) {
                 if (error.message.includes('Email not confirmed')) {
@@ -52,10 +52,14 @@ class AuthController {
                 if (userProfileError) {
                     throw new Error(userProfileError.message);
                 }
+                await supabase.auth.updateUser({
+                    data: {
+                        ...data, user_role: userProfile?.role
+                    }
+                })
                 return res.status(200).json({
                     message: 'Sign in successful',
-                    user: userProfile,
-                    token: data.session?.access_token
+                    token: data.session?.access_token,
                 });
             }
         } catch (error) {

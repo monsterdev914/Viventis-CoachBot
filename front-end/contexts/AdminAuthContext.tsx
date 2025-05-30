@@ -28,8 +28,8 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
                 const { data: { session } } = await supabase.auth.getSession()
                 if (session) {
                     setUser(session.user)
-                    const response = await getUserProfile()
-                    setIsSuperAdmin(response.data.role === 'super_admin')
+                    console.log(session.user.user_metadata)
+                    setIsSuperAdmin(session.user.user_metadata.user_role === 'super_admin')
                 }
             } catch (error) {
                 console.error('Auth error:', error)

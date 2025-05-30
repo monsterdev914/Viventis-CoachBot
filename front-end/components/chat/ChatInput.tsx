@@ -6,7 +6,7 @@ import { SendIcon } from "../icons";
 import { Message } from "@/types";
 
 interface ChatInputProps {
-    onSendMessage: (message: Omit<Message, 'id' | 'chat_id' | 'created_at' | 'updated_at'>) => void;
+    onSendMessage: (message: string) => void;
     disabled: boolean;
     props?: {
         className?: string;
@@ -18,10 +18,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled, props })
 
     const handleSend = () => {
         if (input.trim()) {
-            onSendMessage({
-                content: input.trim(),
-                role: "user"
-            });
+            onSendMessage(input.trim());
             setInput("");
         }
     };

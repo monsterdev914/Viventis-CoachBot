@@ -1,8 +1,10 @@
-const ChatLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+import { ChatProvider } from "@/contexts/ChatContext";
+
+const ChatLayout = ({ children }: { children: React.ReactNode }) => {
     return (
-        <section className="w-full h-full flex items-center justify-center flex items-center justify-center flex items-center justify-center">
+        <ChatProvider>
             {children}
-        </section>
+        </ChatProvider>
     );
 };
 

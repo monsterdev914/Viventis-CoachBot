@@ -18,4 +18,5 @@ export type Message = {
   role: "user" | "assistant";
   created_at: string;
   updated_at: string;
+  status: "pending" | "done" | "error";
 }

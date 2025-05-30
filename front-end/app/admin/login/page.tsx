@@ -21,10 +21,10 @@ const AdminLoginPage = () => {
         try {
             // First check if user exists in pb_user table
             const response = await signIn(email, password);
-            const userProfile = response.data.user
-            if (userProfile.role === 'super_admin') {
+            console.log(response)
+            if (response.data.user.user_role === 'super_admin') {
                 localStorage.setItem('token', response.data.token)
-                setUser(userProfile)
+                setUser(response.data.user)
                 setIsSuperAdmin(true)
                 router.push('/admin')
             } else {
