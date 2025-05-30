@@ -15,13 +15,20 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
             (req as any).user = {
                 ...data.user,
                 id: data.user.id,
-                role: 'user' // You can set roles dynamically  
+                role: data.user.user_metadata.user_role // You can set roles dynamically  
             };
-            (req as any).user = data.user
         }
 
         next();
     } catch (err) {
         next(err);
     }
-};  
+};
+
+export const isAdmin = async (req: Request, res: Response, next: NextFunction) => {
+    const user = (req as any).user;
+    if (user?.role !== 'super_admin') {
+        next(new Error('Unauthorized'));
+    }
+    next();
+}; 

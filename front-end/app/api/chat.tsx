@@ -1,5 +1,5 @@
+import { ChatMessage, Message } from "@/types";
 import api from "@/utiles/axiosConfig";
-import axios from "axios";
 
 const sendMessage = async (oldMessages: string[], message: string, onChunk: (chunk: string) => void) => {
     try {
@@ -48,23 +48,36 @@ const sendMessage = async (oldMessages: string[], message: string, onChunk: (chu
 }
 
 const createChat = async () => {
-    const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chats`, {})
+    const response = await api.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chats`, {})
     return response
 }
-
+const updateChat = async (chat: Partial<ChatMessage>) => {
+    const response = await api.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chats/${chat.id}`, { chat })
+    return response
+}
 const getChats = async () => {
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chats`)
+    const response = await api.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chats`)
     return response
 }
 
 const getMessages = async (chatId: string) => {
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chats/${chatId}/messages`)
+    const response = await api.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chats/${chatId}/messages`)
     return response
 }
 
 const deleteChat = async (chatId: string) => {
-    const response = await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chats/${chatId}`)
+    const response = await api.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chats/${chatId}`)
     return response
 }
 
-export { sendMessage, createChat, getChats, getMessages, deleteChat }
+const createMessage = async (message: Omit<Message, "id">) => {
+    const response = await api.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chats/${message.chat_id}/messages`, { message })
+    return response
+}
+
+const updateMessage = async (message: Message) => {
+    const response = await api.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chats/${message.chat_id}/messages/${message.id}`, { message })
+    return response
+}
+
+export { sendMessage, createChat, getChats, getMessages, deleteChat, createMessage, updateMessage, updateChat }

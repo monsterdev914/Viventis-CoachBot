@@ -1,7 +1,7 @@
 import express, { Request, Response, RequestHandler } from "express";
 import { handleWebhook } from "../controllers/webhookController";
 import ProfileController from "../controllers/profile";
-import { auth } from "../auth";
+import { auth, isAdmin } from "../middleware";
 import { attachAction, createAssistant, createSynthflowAction, getAction, getAssistant, listCalls, updateAssistant } from "../lib/synthflow";
 import OptionalPreferenceController from "../controllers/optionalPreferenceController";
 import { createPaymentIntent, paymentValidate } from "../lib/stripe";
@@ -270,6 +270,8 @@ router.post('/chats', auth, ChatController.createChat as unknown as RequestHandl
 router.get('/chats', auth, ChatController.getChats as unknown as RequestHandler);
 router.get('/chats/:chatId/messages', auth, ChatController.getMessages as unknown as RequestHandler);
 router.post('/chats/:chatId/messages', auth, ChatController.createMessage as unknown as RequestHandler);
+router.put('/chats/:chatId', auth, ChatController.updateChat as unknown as RequestHandler);
+router.put('/chats/:chatId/messages/:messageId', auth, ChatController.updateMessage as unknown as RequestHandler);
 router.delete('/chats/:chatId', auth, ChatController.deleteChat as unknown as RequestHandler);
 router.post('/chat/stream', auth, ChatController.streamChat as unknown as RequestHandler);
 
@@ -279,12 +281,12 @@ router.get('/userProfile', auth, UserProfileController.getUserProfile as unknown
 
 
 //document routes
-router.post('/documents', auth, DocumentController.uploadDocument as unknown as RequestHandler);
-router.get('/documents', auth, DocumentController.getDocuments as unknown as RequestHandler);
-router.delete('/documents/:id', auth, DocumentController.deleteDocument as unknown as RequestHandler);
+router.post('/documents', auth, isAdmin, DocumentController.uploadDocument as unknown as RequestHandler);
+router.get('/documents', auth, isAdmin, DocumentController.getDocuments as unknown as RequestHandler);
+router.delete('/documents/:id', auth, isAdmin, DocumentController.deleteDocument as unknown as RequestHandler);
 
 //bot setting routes
-router.get('/bot-settings', auth, BotSettingController.getBotSettings as unknown as RequestHandler);
-router.post('/bot-settings', auth, BotSettingController.saveBotSettings as unknown as RequestHandler);
+router.get('/bot-settings', auth, isAdmin, BotSettingController.getBotSettings as unknown as RequestHandler);
+router.post('/bot-settings', auth, isAdmin, BotSettingController.saveBotSettings as unknown as RequestHandler);
 
 export default router;

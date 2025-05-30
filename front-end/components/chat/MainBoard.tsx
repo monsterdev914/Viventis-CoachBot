@@ -19,8 +19,8 @@ const MainBoard: React.FC = () => {
         scrollToBottom();
     }, [messages]);
 
-    const handleSendMessage = (newMessage: { content: string; role: "user" | "assistant" }) => {
-        sendStreamMessage(newMessage.content);
+    const handleSendMessage = async (message: string) => {
+        sendStreamMessage(message);
     };
 
     return (

@@ -20,6 +20,7 @@ class ChatController {
             if (error) throw error;
             res.status(200).json(data);
         } catch (error: any) {
+            console.log(error);
             res.status(400).json({ error: error.message });
         }
     };
@@ -44,29 +45,17 @@ class ChatController {
     static getMessages = async (req: Request, res: Response) => {
         try {
             const { chatId } = req.params;
-            const user = (req as any).user;
-
-            // First verify the chat belongs to the user
-            const { data: chat, error: chatError } = await supabase
-                .from('chats')
-                .select('id')
-                .eq('id', chatId)
-                .eq('user_id', user.id)
-                .single();
-
-            if (chatError || !chat) {
-                return res.status(404).json({ error: 'Chat not found' });
-            }
-
             const { data, error } = await supabase
                 .from('messages')
                 .select('*')
                 .eq('chat_id', chatId)
-                .order('timestamp', { ascending: true });
+                .order('created_at', { ascending: true }).limit(50);
 
             if (error) throw error;
+            console.log(data);
             res.status(200).json(data);
         } catch (error: any) {
+            console.log(error);
             res.status(400).json({ error: error.message });
         }
     };
@@ -74,33 +63,19 @@ class ChatController {
     static createMessage = async (req: Request, res: Response) => {
         try {
             const { chatId } = req.params;
-            const user = (req as any).user;
-            const message = req.body;
+            const message = req.body.message;
 
             // Verify chat ownership
-            const { data: chat, error: chatError } = await supabase
-                .from('chats')
-                .select('id')
-                .eq('id', chatId)
-                .eq('user_id', user.id)
-                .single();
-
-            if (chatError || !chat) {
-                return res.status(404).json({ error: 'Chat not found' });
-            }
-
-            //Get response from langChain
-            const response = await chain.invoke(message);
-
             const { data, error } = await supabase
                 .from('messages')
-                .insert({ ...message, chat_id: chatId, response })
+                .insert({ ...message, chat_id: chatId })
                 .select()
                 .single();
 
             if (error) throw error;
             res.status(200).json(data);
         } catch (error: any) {
+            console.log(error);
             res.status(400).json({ error: error.message });
         }
     };
@@ -191,6 +166,36 @@ class ChatController {
             res.status(500).json({ error: error.message });
         }
     };
+    static updateMessage = async (req: Request, res: Response) => {
+        try {
+            const { messageId } = req.params;
+            const { message } = req.body;
+            const { error } = await supabase
+                .from('messages')
+                .update(message)
+                .eq('id', messageId);
+
+            if (error) throw error;
+            res.status(200).json({ message: 'Message updated successfully' });
+        } catch (error: any) {
+            res.status(400).json({ error: error.message });
+        }
+    };
+    static updateChat = async (req: Request, res: Response) => {
+        try {
+            const { chatId } = req.params;
+            const { chat } = req.body;
+            const { error } = await supabase
+                .from('chats')
+                .update(chat)
+                .eq('id', chatId);
+
+            if (error) throw error;
+            res.status(200).json({ message: 'Chat updated successfully' });
+        } catch (error: any) {
+            res.status(400).json({ error: error.message });
+        }
+    }
 }
 
 export default ChatController; 

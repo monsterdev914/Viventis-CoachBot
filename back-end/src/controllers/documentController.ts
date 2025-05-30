@@ -22,7 +22,7 @@ export class DocumentController {
     });
 
     // Get all documents
-    static getDocuments = async (req: Request, res: Response) => {
+    static getDocuments = async (req: Request, res: Response): Promise<void> => {
         try {
             const { data: documents, error } = await supabase
                 .from('documents')
@@ -38,9 +38,10 @@ export class DocumentController {
     }
 
     // Upload and process document
-    static uploadDocument = async (req: Request, res: Response) => {
+    static uploadDocument = async (req: Request, res: Response): Promise<void> => {
         if (!req.files || !req.files.documents) {
-            return res.status(400).json({ error: 'No files uploaded' });
+            res.status(400).json({ error: 'No files uploaded' });
+            return;
         }
 
         const files = Array.isArray(req.files.documents)
@@ -73,7 +74,7 @@ export class DocumentController {
     }
 
     // Delete document
-    static deleteDocument = async (req: Request, res: Response) => {
+    static deleteDocument = async (req: Request, res: Response): Promise<void> => {
         const { id } = req.params;
 
         try {
@@ -151,15 +152,16 @@ export class DocumentController {
             });
 
             // Add documents to vector store with metadata
-            const docsWithMetadata = chunks.map(doc => ({
+            const docsWithMetadata = chunks.map((doc, index) => ({
                 ...doc,
                 metadata: {
                     ...doc.metadata,
-                    document_id: documentId
+                    document_id: documentId,
+                    chunk_id: `${documentId}_${index}`
                 }
             }));
 
-            await this.vectorStore.addDocuments(docsWithMetadata, { ids: [documentId] });
+            await this.vectorStore.addDocuments(docsWithMetadata);
             // Update document status
             await supabase
                 .from('documents')
