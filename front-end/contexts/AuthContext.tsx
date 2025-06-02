@@ -21,13 +21,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const router = useRouter()
     useEffect(() => {
         const token = localStorage.getItem('token')
-        console.log(token)
         if (token) {
+            setLoading(true)
             supabase.auth.getUser(token).then(({ data }) => {
                 if (data.user) {
                     console.log(data.user)
                     setUser(data.user)
                 }
+                setLoading(false)
+            }).catch((error) => {
+                console.log(error)
                 setLoading(false)
             })
         } else {

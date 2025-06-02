@@ -54,9 +54,11 @@ class AuthController {
                 }
                 await supabase.auth.updateUser({
                     data: {
-                        ...data, user_role: userProfile?.role
+                        user_role: userProfile?.role
                     }
                 })
+
+                console.log(data)
                 return res.status(200).json({
                     message: 'Sign in successful',
                     token: data.session?.access_token,
@@ -105,6 +107,7 @@ class AuthController {
                         }
                     })
                     if (signUpError) {
+                        console.log(signUpError)
                         throw new Error(signUpError.message);
                     }
 

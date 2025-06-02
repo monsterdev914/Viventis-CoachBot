@@ -24,12 +24,16 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         const checkAuth = async () => {
+            const token = localStorage.getItem('token')
+            if (!token) {
+                setLoading(false)
+                return
+            }
             try {
-                const { data: { session } } = await supabase.auth.getSession()
-                if (session) {
-                    setUser(session.user)
-                    console.log(session.user.user_metadata)
-                    setIsSuperAdmin(session.user.user_metadata.user_role === 'super_admin')
+                const { data: { user } } = await supabase.auth.getUser(token)
+                if (user) {
+                    setUser(user)
+                    setIsSuperAdmin(user.user_metadata.user_role === 'super_admin')
                 }
             } catch (error) {
                 console.error('Auth error:', error)

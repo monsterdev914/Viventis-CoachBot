@@ -5,6 +5,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAdminAuth } from "@/contexts/AdminAuthContext"
 import { signIn } from "@/app/api/auth"
+import { supabase } from "@/lib/supabase"
 const AdminLoginPage = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -21,10 +22,10 @@ const AdminLoginPage = () => {
         try {
             // First check if user exists in pb_user table
             const response = await signIn(email, password);
-            console.log(response)
-            if (response.data.user.user_role === 'super_admin') {
+            const { data: { user } } = await supabase.auth.getUser(response.data.token)
+            if (user?.user_metadata.user_role === 'super_admin') {
                 localStorage.setItem('token', response.data.token)
-                setUser(response.data.user)
+                setUser(user)
                 setIsSuperAdmin(true)
                 router.push('/admin')
             } else {
