@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function Docs() {
   return (
-    <main className="flex flex-col items-center">
+    <main className="flex flex-col items-center min-h-screen py-20">
       <div className="mx-auto px-4">
         {/* Hero Section */}
         <section className="mb-20">

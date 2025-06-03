@@ -62,6 +62,7 @@ class AuthController {
                 return res.status(200).json({
                     message: 'Sign in successful',
                     token: data.session?.access_token,
+                    user: data.session?.user
                 });
             }
         } catch (error) {

@@ -8,7 +8,7 @@ import { getMessages } from "@/app/api/chat";
 
 const ChatPage: React.FC = () => {
     const { id } = useParams();
-    const { messages, setMessages } = useChat();
+    const { setMessages } = useChat();
     useEffect(() => {
         const fetchChat = async () => {
             const response = await getMessages(id as string);

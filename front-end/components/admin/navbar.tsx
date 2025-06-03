@@ -11,16 +11,20 @@ import { Button } from "@heroui/button"
 import { SelectItem } from "@heroui/react"
 import { useContext } from "react"
 import { TranslateContext } from "@/app/TranslateProvider"
-
+import clsx from "clsx"
+import { signOut } from "@/app/api"
+import { useRouter } from "next/navigation"
 const Navbar: React.FC = () => {
     const { t } = useTranslation()
     const { user } = useAdminAuth()
     const { setLanguage } = useContext(TranslateContext)
+    const router = useRouter()
     const handleLogout = () => {
-        handleLogout()
+        signOut()
+        router.push("/admin/login")
     }
     return (
-        <HeroUINavbar maxWidth="xl" className="p-2 bg-color border-b border-b-color w-full" position="sticky">
+        <HeroUINavbar maxWidth="xl" className="p-2 bg-color border-b border-b-color w-full" classNames={{ menu: "bg-[#FFFFFF] bg-opacity-15 backdrop-blur-[10px] border-t border-t-color" }} position="sticky">
             <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
                 <NavbarBrand as="li" className="gap-3 max-w-fit">
                     <NextLink className="flex justify-start items-center gap-1" href="/">
@@ -35,6 +39,34 @@ const Navbar: React.FC = () => {
                         </NextLink>
                     </NavbarMenuItem>
                 </NavbarMenu>
+                {user && (
+                    <ul className="hidden lg:flex gap-4 justify-start ml-2">
+                        <NavbarItem>
+                            <NextLink
+                                className={clsx(
+                                    "c-primary",
+                                    "data-[active=true]:text-primary data-[active=true]:font-medium",
+                                )}
+                                color="foreground"
+                                href="/admin/bot_setting"
+                            >
+                                Settings
+                            </NextLink>
+                        </NavbarItem>
+                        <NavbarItem>
+                            <NextLink
+                                className={clsx(
+                                    "c-primary",
+                                    "data-[active=true]:text-primary data-[active=true]:font-medium",
+                                )}
+                                color="foreground"
+                                href="/admin/knowledge_base"
+                            >
+                                Knowledge Base
+                            </NextLink>
+                        </NavbarItem>
+                    </ul>
+                )}
             </NavbarContent>
             <NavbarContent
                 className="hidden sm:flex basis-1/5 sm:basis-full"
@@ -53,25 +85,31 @@ const Navbar: React.FC = () => {
             <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
                 <NavbarMenuToggle />
             </NavbarContent>
-            <NavbarMenu>
-                <div className="mx-4 mt-2 flex flex-col gap-2">
-                    {siteConfig.navMenuItems.map((item, index) => (
-                        <NavbarMenuItem key={`${item}-${index}`}>
-                            <Link
-                                color={
-                                    index === 2
-                                        ? "primary"
-                                        : index === siteConfig.navMenuItems.length - 1
-                                            ? "danger"
-                                            : "foreground"
-                                }
-                                href="#"
-                                size="lg"
-                            >
-                                {t(item.label)}
-                            </Link>
+            <NavbarMenu className="">
+                <div className="mx-4 mt-2 flex flex-col gap-2 py-2">
+                    {user ? <NavbarMenuItem>
+                        <NextLink href="javascript:void(0)" onClick={handleLogout}>
+                            Logout
+                        </NextLink>
+                    </NavbarMenuItem> : <NavbarMenuItem>
+                        <NextLink href="/admin/login">
+                            Login
+                        </NextLink>
+                    </NavbarMenuItem>}
+                    {user && (
+                        <NavbarMenuItem>
+                            <NextLink href="/admin/bot_setting">
+                                Settings
+                            </NextLink>
                         </NavbarMenuItem>
-                    ))}
+                    )}
+                    {user && (
+                        <NavbarMenuItem>
+                            <NextLink href="/admin/knowledge_base">
+                                Knowledge Base
+                            </NextLink>
+                        </NavbarMenuItem>
+                    )}
                 </div>
             </NavbarMenu>
         </HeroUINavbar>

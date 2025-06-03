@@ -1,11 +1,11 @@
 "use client"
 import Image from "next/image";
-import Link from "next/link";
 import { Button } from "@heroui/react";
+import { FloatingLanguageSwitcher } from "@/components/FloatingLanguageSwitcher";
 
 export default function Home() {
     return (
-        <main className="flex flex-col items-center">
+        <main className="flex flex-col items-center min-h-screen py-20">
             {/* Hero Section */}
             <section className="w-ful">
                 <div className="container mx-auto px-4">
@@ -84,6 +84,7 @@ export default function Home() {
                     <Button variant="solid" color="primary" className="rounded-full px-8 py-6 text-lg font-semibold">Kostenloses Erstgespräch vereinbaren</Button>
                 </div>
             </section>
+            <FloatingLanguageSwitcher />
         </main>
     );
 }

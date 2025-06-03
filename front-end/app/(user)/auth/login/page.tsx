@@ -41,7 +41,6 @@ const LoginPage: React.FC = () => {
             if (response.status === 200) {
                 setSuccess('Login successful');
                 localStorage.setItem('token', response.data.token);
-                localStorage.setItem('user', JSON.stringify(response.data.user));
                 setUser(response.data.user);
                 router.push('/dashboard');
             } else {

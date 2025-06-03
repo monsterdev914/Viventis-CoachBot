@@ -59,6 +59,10 @@ const getChats = async () => {
     const response = await api.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chats`)
     return response
 }
+const getChat = async (chatId: string) => {
+    const response = await api.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chats/${chatId}`)
+    return response
+}
 
 const getMessages = async (chatId: string) => {
     const response = await api.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chats/${chatId}/messages`)
@@ -80,4 +84,4 @@ const updateMessage = async (message: Message) => {
     return response
 }
 
-export { sendMessage, createChat, getChats, getMessages, deleteChat, createMessage, updateMessage, updateChat }
+export { sendMessage, createChat, getChats, getMessages, deleteChat, createMessage, updateMessage, getChat, updateChat }
