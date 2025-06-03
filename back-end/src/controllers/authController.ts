@@ -7,6 +7,8 @@ interface AuthRequest extends Request {
     body: {
         email: string;
         password: string;
+        gdpr: boolean;
+        privacy: boolean;
     }
 }
 
@@ -44,6 +46,8 @@ class AuthController {
                 const { data: userProfile, error: userProfileError } = await supabase.from("user_profile").upsert({
                     user_id: data.user?.id,
                     email: data.user?.email,
+                    gdpr_consent: true,
+                    privacy: true,
                     created_at: new Date().toISOString(),
                     updated_at: new Date().toISOString(),
                 }, {
@@ -72,7 +76,7 @@ class AuthController {
     }
 
     static async signUp(req: AuthRequest, res: Response) {
-        const { email, password } = req.body
+        const { email, password, gdpr, privacy } = req.body
         try {
             const { data: users, error } = await supabase.from('pb_user').select('*').eq("email", email)
             if (error) {

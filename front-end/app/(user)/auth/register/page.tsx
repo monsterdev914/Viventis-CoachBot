@@ -13,6 +13,8 @@ const RegisterPage: React.FC = () => {
     const { user } = useAuth();
     const [loading, setLoading] = useState(false);
     const [mounted, setMounted] = useState(false);
+    const [isCheckedGDPR, setIsCheckedGDPR] = useState(false);
+    const [isCheckedPrivacy, setIsCheckedPrivacy] = useState(false);
     const { t } = useTranslation();
     const [formData, setFormData] = useState({
         email: '',
@@ -43,7 +45,7 @@ const RegisterPage: React.FC = () => {
         }
 
         try {
-            const response = await signUp(formData.email, formData.password);
+            const response = await signUp(formData.email, formData.password, isCheckedGDPR, isCheckedPrivacy);
             if (response.status === 200) {
                 setError('');
                 router.push('/auth/verify-email');
@@ -129,6 +131,7 @@ const RegisterPage: React.FC = () => {
                             className="w-full bg-gradient-primary hover:opacity-90 transition-opacity text-[black]"
                             size="lg"
                             isLoading={loading}
+                            disabled={!isCheckedPrivacy || !isCheckedGDPR}
                         >
                             {t('register')}
                         </Button>
@@ -137,13 +140,13 @@ const RegisterPage: React.FC = () => {
                     <div className="flex flex-col gap-2 mt-4">
                         <div className="flex flex-row gap-2">
                             {/* Check Box */}
-                            <Checkbox />
+                            <Checkbox checked={isCheckedPrivacy} onChange={() => setIsCheckedPrivacy(!isCheckedPrivacy)} />
                             <p className="text-sm text-default-500">
                                 {t('I agree to the')} <Link href="/policy" className="text-secondary">{t('Privacy Policy')}</Link> {t('and')} <Link href="/terms" className="text-secondary">{t('Terms of Service')}</Link>.
                             </p>
                         </div>
                         <div className="flex flex-row gap-2">
-                            <Checkbox />
+                            <Checkbox checked={isCheckedGDPR} onChange={() => setIsCheckedGDPR(!isCheckedGDPR)} />
                             <p className="text-sm text-default-500">
                                 {t('We are compliant with')} <Link href="/policy" className="text-secondary">{t('GDPR')}</Link> {t('and')} <Link href="/terms" className="text-secondary">{t('CCPA')}</Link>.
                             </p>
