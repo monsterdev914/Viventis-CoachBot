@@ -69,7 +69,7 @@ const PricingPage = () => {
   ];
 
   return (
-    <div className="flex flex-col w-full items-center justify-center gap-8">
+    <div className="flex flex-col w-full items-center justify-center gap-8 ">
       <div className="text-center">
         <h1 className="text-4xl font-bold">{t('Choose Your Plan')}</h1>
         <p className="text-default-500 mb-8">{t('Select the perfect plan for your needs')}</p>

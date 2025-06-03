@@ -1,7 +1,7 @@
 'use client'
 import { ChatMessage, Message } from "@/types";
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { sendMessage, createMessage, createChat, updateMessage, updateChat, getChats } from "@/app/api/chat";
+import { sendMessage, createMessage, createChat, updateMessage, updateChat, getChat, getChats } from "@/app/api/chat";
 import { useParams, useRouter } from "next/navigation";
 
 type ChatContextType = {
@@ -12,6 +12,12 @@ type ChatContextType = {
     sendStreamMessage: (newMessage: string) => Promise<void>;
     pendingMessage: string | null;
     setPendingMessage: (message: string | null) => void;
+    chat: ChatMessage | null;
+    setChat: (chat: ChatMessage | null) => void;
+    chatHistory: ChatMessage[];
+    setChatHistory: (chatHistory: ChatMessage[]) => void;
+    isHistoryLoading: boolean;
+    setIsHistoryLoading: (isHistoryLoading: boolean) => void;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -23,14 +29,28 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     const [messages, setMessages] = useState<Message[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [pendingMessage, setPendingMessage] = useState<string | null>(null);
-
+    const [chat, setChat] = useState<ChatMessage | null>(null);
+    const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
+    const [isHistoryLoading, setIsHistoryLoading] = useState(false);
     // Handle pending message when URL changes
     useEffect(() => {
         if (chatId && pendingMessage) {
             setPendingMessage(null);
             sendStreamMessage(pendingMessage);
         }
+        if (chatId) {
+            getChat(chatId).then(response => {
+                setChat(response.data);
+            });
+        }
     }, [chatId]);
+    useEffect(() => {
+        setIsHistoryLoading(true);
+        getChats().then(response => {
+            setChatHistory(response.data);
+            setIsHistoryLoading(false);
+        });
+    }, []);
 
     const sendStreamMessage = async (newMessage: string) => {
         setIsLoading(true);
@@ -50,11 +70,21 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
             }
 
             // Add user message 
-            await updateChat({
-                id: chatId,
-                updated_at: new Date().toISOString(),
-                title: newMessage
-            });
+            if (chat == null) {
+                await updateChat({
+                    id: chatId,
+                    updated_at: new Date().toISOString(),
+                    title: newMessage
+                });
+                // Update chat history whose chat_id is the same as the chatId
+                setChatHistory(prev => prev.map(chat =>
+                    chat.id === chatId ? {
+                        ...chat,
+                        title: newMessage
+                    } : chat
+                ));
+
+            }
 
             // Async Sidebar
             const userResponse = await createMessage({
@@ -132,7 +162,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     return (
-        <ChatContext.Provider value={{ messages, setMessages, isLoading, setIsLoading, sendStreamMessage, pendingMessage, setPendingMessage }}>
+        <ChatContext.Provider value={{ messages, setMessages, isLoading, setIsLoading, sendStreamMessage, chat, setChat, pendingMessage, setPendingMessage, chatHistory, setChatHistory, isHistoryLoading, setIsHistoryLoading }}>
             {children}
         </ChatContext.Provider>
     );

@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function Blog() {
   return (
-    <main className="flex flex-col items-center py-20">
+    <main className="flex flex-col items-center min-h-screen py-20">
       <div className="mx-auto px-4">
         {/* Hero Section */}
         <section className="mb-20">
@@ -64,7 +64,7 @@ export default function Blog() {
 
         {/* Categories */}
         <section className="mb-20">
-          <h2 className="text-3xl font-bold mb-8">Kategorien</h2>
+          <h2 className="text-3xl font-bold mb-8 text-blue-600">Kategorien</h2>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="group rounded-lg bg-gradient-to-br from-white to-gray-50 p-6 shadow-lg transition-all hover:shadow-xl">
               <h3 className="text-xl font-semibold mb-4 text-blue-600">Führungskompetenz</h3>

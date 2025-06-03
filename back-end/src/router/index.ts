@@ -268,6 +268,7 @@ router.post("/auth/signout", AuthController.signOut as unknown as RequestHandler
 // Chat routes
 router.post('/chats', auth, ChatController.createChat as unknown as RequestHandler);
 router.get('/chats', auth, ChatController.getChats as unknown as RequestHandler);
+router.get('/chats/:chatId', auth, ChatController.getChat as unknown as RequestHandler);
 router.get('/chats/:chatId/messages', auth, ChatController.getMessages as unknown as RequestHandler);
 router.post('/chats/:chatId/messages', auth, ChatController.createMessage as unknown as RequestHandler);
 router.put('/chats/:chatId', auth, ChatController.updateChat as unknown as RequestHandler);

@@ -12,19 +12,8 @@ import { Spinner } from "@heroui/react";
 const LeftSideBar: React.FC = () => {
     const router = useRouter();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [chats, setChats] = useState<ChatMessage[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
+    const { chatHistory, isHistoryLoading } = useChat();
     const { setMessages } = useChat();
-    useEffect(() => {
-        const fetchChats = async () => {
-            setIsLoading(true);
-            const response = await getChats();
-            console.log(response.data);
-            setChats(response.data);
-            setIsLoading(false);
-        };
-        fetchChats();
-    }, []);
     const handleCreateChat = async () => {
         setMessages([]);
         router.push("/chat");
@@ -86,12 +75,12 @@ const LeftSideBar: React.FC = () => {
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        {isLoading ? <Spinner /> : chats.length === 0 ? (
+                        {isHistoryLoading ? <Spinner /> : chatHistory.length === 0 ? (
                             <div className="flex items-center justify-center">
                                 <h6 className="text-white font-bold">No chats found</h6>
                             </div>
                         ) : (
-                            chats.map((chat) => (
+                            chatHistory.map((chat) => (
                                 // eslint-disable-next-line jsx-a11y/no-static-element-interactions
                                 <div
                                     key={chat.id}

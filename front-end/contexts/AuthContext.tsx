@@ -25,7 +25,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setLoading(true)
             supabase.auth.getUser(token).then(({ data }) => {
                 if (data.user) {
-                    console.log(data.user)
                     setUser(data.user)
                 }
                 setLoading(false)

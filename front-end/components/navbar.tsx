@@ -22,6 +22,8 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from "@/contexts/AuthContext";
 import { signOut } from "@/app/api";
 
+
+
 export const Navbar = () => {
   const { user, setUser, setLoading } = useAuth();
   const { setLanguage } = useContext(TranslateContext);
@@ -37,7 +39,7 @@ export const Navbar = () => {
   }, []);
   const { t } = useTranslation();
   return (
-    <HeroUINavbar maxWidth="xl" className="p-2 backdrop-blur-[10px] bg-color/95 border-b border-b-color" position="sticky">
+    <HeroUINavbar maxWidth="xl" className="p-2 backdrop-blur-[10px] bg-color/95 border-b border-b-color" classNames={{ menu: "bg-[#FFFFFF] bg-opacity-15 backdrop-blur-[10px] border-t border-t-color" }} position="sticky">
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
         <NavbarBrand as="li" className="gap-3 max-w-fit">
           <NextLink className="flex justify-start items-center gap-1" href="/">
@@ -67,7 +69,22 @@ export const Navbar = () => {
         className="hidden sm:flex basis-1/5 sm:basis-full"
         justify="end"
       >
-        {user ? <Button variant="bordered" color="primary" onClick={handleLogout}>{t("Logout")}</Button> : <Button variant="bordered" color="primary" as={NextLink} href="/auth/login">{t("Login")}</Button>}
+        {user ?
+          <>
+            <NavbarItem>
+              <NextLink href="/chat">
+                <Button variant="solid" color="primary">{t("Chat")}</Button>
+              </NextLink>
+            </NavbarItem>
+            <NavbarItem>
+              <Button variant="bordered" color="primary" onClick={handleLogout}>{t("Logout")}</Button>
+            </NavbarItem>
+          </>
+          : <NavbarItem>
+            <NextLink href="/auth/login">
+              <Button variant="bordered" color="primary">{t("Login")}</Button>
+            </NextLink>
+          </NavbarItem>}
         <NavbarItem className="max-md:hidden">
           <Select aria-label="lang" classNames={{ value: "whitespace-normal overflow-visible text-clip", selectorIcon: "hidden" }} defaultSelectedKeys={["en"]} placeholder="Select" onChange={(e) => {
             setLanguage(e.target.value)
@@ -83,24 +100,89 @@ export const Navbar = () => {
       </NavbarContent>
 
       <NavbarMenu>
-        <div className="mx-4 mt-2 flex flex-col gap-2">
-          {siteConfig.navMenuItems.map((item, index) => (
-            <NavbarMenuItem key={`${item}-${index}`}>
+        <div className="mx-4 mt-2 flex flex-col gap-2 py-2">
+          <NavbarMenuItem>
+            <Link
+              color={
+                "primary"
+              }
+              href="/"
+              size="lg"
+            >
+              {t("Home")}
+            </Link>
+          </NavbarMenuItem>
+          {
+            user && <NavbarMenuItem>
               <Link
                 color={
-                  index === 2
-                    ? "primary"
-                    : index === siteConfig.navMenuItems.length - 1
-                      ? "danger"
-                      : "foreground"
+                  "primary"
                 }
-                href="#"
+                href="/chat"
                 size="lg"
               >
-                {t(item.label)}
+                {t("Chat")}
               </Link>
             </NavbarMenuItem>
-          ))}
+          }
+          {
+            !user ? <NavbarMenuItem>
+              <Link
+                color={
+                  "primary"
+                }
+                href="/auth/login"
+                size="lg"
+              >
+                {t("Login")}
+              </Link>
+            </NavbarMenuItem> :
+              <NavbarMenuItem>
+                <Link
+                  color={
+                    "primary"
+                  }
+                  onClick={handleLogout}
+                  href="javascript:void(0)"
+                  size="lg"
+                >
+                  {t("Logout")}
+                </Link>
+              </NavbarMenuItem>
+          }
+          <NavbarMenuItem>
+            <Link
+              color={
+                "primary"
+              }
+              href="/"
+              size="lg"
+            >
+              {t("Pricing")}
+            </Link>
+          </NavbarMenuItem>
+          <NavbarMenuItem>
+            <Link
+              color={
+                "primary"
+              }
+              href="/"
+              size="lg"
+            >
+              {t("Blog")}
+            </Link>
+          </NavbarMenuItem>
+          <NavbarMenuItem>
+            <Link
+              color={
+                "primary"
+              }
+              href="/"
+              size="lg"
+            >
+              {t("About")}
+            </Link>
+          </NavbarMenuItem>
         </div>
       </NavbarMenu>
     </HeroUINavbar>

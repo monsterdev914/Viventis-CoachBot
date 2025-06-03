@@ -42,6 +42,23 @@ class ChatController {
         }
     };
 
+    static getChat = async (req: Request, res: Response) => {
+        try {
+            const { chatId } = req.params;
+            const { data, error } = await supabase
+                .from('chats')
+                .select('*')
+                .eq('id', chatId)
+                .single();
+
+            if (error) throw error;
+            res.status(200).json(data);
+        } catch (error: any) {
+            res.status(400).json({ error: error.message });
+        }
+    };
+
+
     static getMessages = async (req: Request, res: Response) => {
         try {
             const { chatId } = req.params;

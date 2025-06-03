@@ -55,7 +55,7 @@ export default function About() {
 
         {/* Approach Section */}
         <section className="mb-20">
-          <h2 className="text-3xl font-bold text-center mb-12">Unser Ansatz</h2>
+          <h2 className="text-3xl font-bold text-center text-blue-600 mb-12">Unser Ansatz</h2>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="group rounded-lg bg-gradient-to-br from-white to-gray-50 p-6 shadow-lg transition-all hover:shadow-xl">
               <h3 className="text-xl font-semibold mb-4 text-blue-600">Ganzheitlich</h3>
@@ -80,7 +80,7 @@ export default function About() {
 
         {/* Contact Section */}
         <section>
-          <h2 className="text-3xl font-bold text-center mb-12">Kontakt</h2>
+          <h2 className="text-3xl font-bold text-center text-blue-600 mb-12">Kontakt</h2>
           <div className="max-w-2xl mx-auto text-center">
             <div className="rounded-lg bg-gradient-to-br from-white to-gray-50 p-8 shadow-lg">
               <div className="space-y-6">
