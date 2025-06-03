@@ -48,6 +48,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         setIsHistoryLoading(true);
         getChats().then(response => {
             setChatHistory(response.data);
+            console.log(response.data);
             setIsHistoryLoading(false);
         });
     }, []);

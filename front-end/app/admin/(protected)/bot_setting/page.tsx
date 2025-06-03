@@ -5,6 +5,7 @@ import { Input, Textarea } from "@heroui/input"
 import { Button } from "@heroui/react"
 import { getBotSettings, saveBotSettings } from '@/app/api/botSetting'
 interface BotSettings {
+    id?: string;
     name: string;
     description: string;
     welcome_message: string;
@@ -36,6 +37,7 @@ const BotSetting = () => {
         try {
             const settings = await getBotSettings();
             if (settings) {
+                console.log(settings);
                 setSettings(settings);
             }
             else {
