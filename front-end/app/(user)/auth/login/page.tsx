@@ -6,6 +6,8 @@ import { Card, CardHeader, CardBody, Input, Button, Link, Avatar } from "@heroui
 import { useTranslation } from 'react-i18next';
 import { signIn } from '@/app/api/auth';
 import { useAuth } from '@/contexts/AuthContext';
+import NextLink from 'next/link';
+
 const LoginPage: React.FC = () => {
     const router = useRouter();
     const [mounted, setMounted] = useState(false);
@@ -77,9 +79,9 @@ const LoginPage: React.FC = () => {
                 </div>
                 <CardHeader className="flex flex-col gap-1">
                     <h1 className="text-2xl font-bold text-center">{t('Sign in to your account')}</h1>
-                    <p className="text-center text-default-500">
+                    <p className="text-center text">
                         {t('Don\'t have an account?')}{' '}
-                        <Link href="/auth/register" color="primary">
+                        <Link href="/auth/register" color="primary" className='text-secondary hover:text-primary transition-colors' as={NextLink}>
                             {t('Create an account')}
                         </Link>
                     </p>
