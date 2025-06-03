@@ -20,11 +20,8 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
             </div>
         )
     }
-
     if (!user) {
-        return <div>
-            <h1>Loading...</h1>
-        </div>
+        return null
     }
 
     return <>{children}</>

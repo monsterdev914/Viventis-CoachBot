@@ -3,8 +3,8 @@ import Link from "next/link";
 
 export default function Blog() {
   return (
-    <main className="flex min-h-screen flex-col items-center py-20">
-      <div className="container mx-auto px-4">
+    <main className="flex flex-col items-center py-20">
+      <div className="mx-auto px-4">
         {/* Hero Section */}
         <section className="mb-20">
           <div className="text-center">

@@ -1,4 +1,3 @@
-import AdminProvider from "../provider"
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
     return (

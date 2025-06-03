@@ -1,11 +1,13 @@
+"use client"
 import Image from "next/image";
 import Link from "next/link";
+import { Button } from "@heroui/react";
 
 export default function Home() {
     return (
-        <main className="flex min-h-screen flex-col items-center">
+        <main className="flex flex-col items-center">
             {/* Hero Section */}
-            <section className="w-full bg-gradient-to-br from-blue-50 to-indigo-50 py-20">
+            <section className="w-ful">
                 <div className="container mx-auto px-4">
                     <div className="flex flex-col items-center text-center">
                         <div className="flex items-center gap-2 mb-8">
@@ -18,13 +20,7 @@ export default function Home() {
                         <p className="text-xl text-gray-600 mb-8 max-w-2xl">
                             &ldquo;Weisst du, was passiert, wenn du aufhörst, anderen zu folgen, und anfängst, deinem eigenen Weg zu vertrauen?&rdquo;
                         </p>
-                        <Link
-                            href="/chat"
-                            className="group relative overflow-hidden rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-3 text-white shadow-lg transition-all hover:shadow-xl"
-                        >
-                            <span className="relative z-10 text-lg font-semibold">Jetzt starten</span>
-                            <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-indigo-700 opacity-0 transition-opacity group-hover:opacity-100"></div>
-                        </Link>
+                        <Button variant="solid" color="primary" className="rounded-full px-8 py-6 text-lg font-semibold">Jetzt starten</Button>
                     </div>
                 </div>
             </section>
@@ -81,17 +77,11 @@ export default function Home() {
             {/* CTA Section */}
             <section className="w-full py-20">
                 <div className="container mx-auto px-4 text-center">
-                    <h2 className="text-3xl font-bold mb-6">Bereit zu wachsen?</h2>
+                    <h2 className="text-3xl font-bold mb-6 text-blue-600">Bereit zu wachsen?</h2>
                     <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
                         Der Schritt zu einem selbstbestimmten und erfüllten Leben beginnt hier!
                     </p>
-                    <Link
-                        href="/chat"
-                        className="group relative overflow-hidden rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-3 text-white shadow-lg transition-all hover:shadow-xl"
-                    >
-                        <span className="relative z-10 text-lg font-semibold">Kostenloses Erstgespräch vereinbaren</span>
-                        <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-indigo-700 opacity-0 transition-opacity group-hover:opacity-100"></div>
-                    </Link>
+                    <Button variant="solid" color="primary" className="rounded-full px-8 py-6 text-lg font-semibold">Kostenloses Erstgespräch vereinbaren</Button>
                 </div>
             </section>
         </main>

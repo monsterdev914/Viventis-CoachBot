@@ -2,8 +2,8 @@ import Link from "next/link";
 
 export default function Docs() {
   return (
-    <main className="flex min-h-screen flex-col items-center py-20">
-      <div className="container mx-auto px-4">
+    <main className="flex flex-col items-center">
+      <div className="mx-auto px-4">
         {/* Hero Section */}
         <section className="mb-20">
           <div className="text-center">
@@ -15,9 +15,9 @@ export default function Docs() {
         </section>
 
         {/* Getting Started Section */}
-        <section className="mb-20">
+        <section className="mb-20 w-full">
           <h2 className="text-3xl font-bold mb-8">Erste Schritte</h2>
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-2 gap-8 w-full">
             <div className="group rounded-lg bg-gradient-to-br from-white to-gray-50 p-6 shadow-lg transition-all hover:shadow-xl">
               <h3 className="text-xl font-semibold mb-4 text-blue-600">Einführung</h3>
               <p className="text-gray-600 mb-4">
