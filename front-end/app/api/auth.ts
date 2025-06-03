@@ -11,10 +11,12 @@ export const signIn = async (email: string, password: string) => {
     return response
 }
 
-export const signUp = async (email: string, password: string) => {
+export const signUp = async (email: string, password: string, gdpr: boolean, privacy: boolean) => {
     const response = await axios.post(`${API_URL}/auth/signup`, {
         email,
-        password
+        password,
+        gdpr,
+        privacy
     })
     return response
 }
