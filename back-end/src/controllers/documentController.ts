@@ -82,7 +82,7 @@ export class DocumentController {
             const { error: vectorError } = await supabase
                 .from('document_chunks')
                 .delete()
-                .eq('metadata->document_id', id);
+                .eq('metadata->>document_id', id);
 
             if (vectorError) throw vectorError;
 
@@ -96,6 +96,7 @@ export class DocumentController {
 
             res.json({ message: 'Document deleted successfully' });
         } catch (error: any) {
+            console.log("error", error);
             res.status(500).json({ error: error.message });
         }
     }
