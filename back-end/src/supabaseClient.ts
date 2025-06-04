@@ -4,4 +4,9 @@ dotenv.config();
 const supabaseUrl = process.env.SUPABASE_URL || 'your-supabase-url';
 const supabaseKey = process.env.SUPABASE_ANON_KEY || 'your-anon-key';
 
-export const supabase = createClient(supabaseUrl, supabaseKey);  
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+    auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+    },
+});  
