@@ -27,8 +27,8 @@ class ChatController {
 
     static getChats = async (req: Request, res: Response) => {
         try {
-            const user = (req as any).user;
 
+            const user = (req as any).user;
             const { data, error } = await supabase
                 .from('chats')
                 .select('*')
