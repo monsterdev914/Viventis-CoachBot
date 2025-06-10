@@ -278,7 +278,7 @@ router.post('/chat/stream', auth, ChatController.streamChat as unknown as Reques
 
 // User Profile routes
 router.get('/userProfile', auth, UserProfileController.getUserProfile as unknown as RequestHandler);
-
+router.get('/userProfile/all', auth, isAdmin, UserProfileController.getAllUsers as unknown as RequestHandler);
 
 
 //document routes

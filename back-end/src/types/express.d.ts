@@ -1,4 +1,4 @@
-import { User } from '@supabase/supabase-js';
+import { SupabaseClient, User } from '@supabase/supabase-js';
 import 'express';
 
 declare global {
@@ -8,6 +8,7 @@ declare global {
                 id: string;
                 role?: string;
             };
+            supabase?: SupabaseClient;
         }
     }
 }

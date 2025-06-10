@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
-import { supabase } from '../supabaseClient';
 import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf';
 import { DocxLoader } from '@langchain/community/document_loaders/fs/docx';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
 import { OpenAIEmbeddings } from '@langchain/openai';
 import { SupabaseVectorStore } from "@langchain/community/vectorstores/supabase";
+
 const CHUNK_SIZE = 1000;
 const CHUNK_OVERLAP = 400;
 
@@ -15,15 +15,18 @@ export class DocumentController {
         model: "text-embedding-3-small",
     });
 
-    private static vectorStore = new SupabaseVectorStore(this.embeddings, {
-        client: supabase,
-        tableName: "document_chunks",
-        queryName: "match_documents"
-    });
+    private static getVectorStore(supabase: any) {
+        return new SupabaseVectorStore(this.embeddings, {
+            client: supabase,
+            tableName: "document_chunks",
+            queryName: "match_documents"
+        });
+    }
 
     // Get all documents
     static getDocuments = async (req: Request, res: Response): Promise<void> => {
         try {
+            const supabase = (req as any).supabase;
             const { data: documents, error } = await supabase
                 .from('documents')
                 .select('*')
@@ -44,6 +47,7 @@ export class DocumentController {
             return;
         }
 
+        const supabase = (req as any).supabase;
         const files = Array.isArray(req.files.documents)
             ? req.files.documents
             : [req.files.documents];
@@ -64,7 +68,7 @@ export class DocumentController {
                 if (docError) throw docError;
 
                 // Process document in background
-                this.processDocument(document.id, file).catch(console.error);
+                this.processDocument(document.id, file, supabase).catch(console.error);
 
                 res.json({ message: 'Document upload started', document });
             }
@@ -76,6 +80,7 @@ export class DocumentController {
     // Delete document
     static deleteDocument = async (req: Request, res: Response): Promise<void> => {
         const { id } = req.params;
+        const supabase = (req as any).supabase;
 
         try {
             // Delete from vector store first
@@ -102,7 +107,7 @@ export class DocumentController {
     }
 
     // Process document and generate embeddings
-    static processDocument = async (documentId: string, file: any) => {
+    static processDocument = async (documentId: string, file: any, supabase: any) => {
         try {
             let loader;
             const fileType = file.mimetype;
@@ -162,7 +167,9 @@ export class DocumentController {
                 }
             }));
 
-            await this.vectorStore.addDocuments(docsWithMetadata);
+            const vectorStore = this.getVectorStore(supabase);
+            await vectorStore.addDocuments(docsWithMetadata);
+
             // Update document status
             await supabase
                 .from('documents')
@@ -183,11 +190,14 @@ export class DocumentController {
                 .eq('id', documentId);
         }
     }
+
     // Search for similar documents
-    static async similaritySearch(query: string, k: number = 4) {
+    static async similaritySearch(req: Request, query: string, k: number = 4) {
         try {
+            const supabase = (req as any).supabase;
+            const vectorStore = this.getVectorStore(supabase);
             // Perform the search with a lower similarity threshold
-            const results = await this.vectorStore.similaritySearch(query, k);
+            const results = await vectorStore.similaritySearch(query, k);
 
             console.log('Search results:', results);
             return results;

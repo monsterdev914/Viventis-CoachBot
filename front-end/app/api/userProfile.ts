@@ -6,4 +6,7 @@ export const getUserProfile = async () => {
     console.log(response.data)
     return response
 }
-
+export const getAllUsers = async () => {
+    const response = await api.get(`${API_URL}/userProfile/all`)
+    return response.data
+}

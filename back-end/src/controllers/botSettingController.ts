@@ -3,6 +3,7 @@ import { supabase } from "../supabaseClient";
 
 class BotSettingController {
     static saveBotSettings = async (req: Request, res: Response) => {
+        const supabase = (req as any).supabase;
         const { data, error } = await supabase.from('bot_settings').upsert(req.body, { onConflict: 'id' }).select().single();
         if (error) {
             console.log("error", error);
@@ -11,6 +12,7 @@ class BotSettingController {
         return res.status(200).json(data);
     }
     static getBotSettings = async (req: Request, res: Response) => {
+        const supabase = (req as any).supabase;
         const { data, error } = await supabase.from('bot_settings').select('*').maybeSingle();
         // console.log("data", data);
         if (error) {

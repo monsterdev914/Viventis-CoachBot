@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { supabase } from "../supabaseClient";
 import chain from "../lib/langChain";
 import { ChatOpenAI } from "@langchain/openai";
 import { AIMessage, HumanMessage, SystemMessage } from "@langchain/core/messages";
@@ -7,6 +6,7 @@ import { DocumentController } from "./documentController";
 
 class ChatController {
     static createChat = async (req: Request, res: Response) => {
+        const supabase = (req as any).supabase;
         try {
             const user = (req as any).user;
             const { title } = req.body;
@@ -27,7 +27,7 @@ class ChatController {
 
     static getChats = async (req: Request, res: Response) => {
         try {
-
+            const supabase = (req as any).supabase;
             const user = (req as any).user;
             const { data, error } = await supabase
                 .from('chats')
@@ -44,6 +44,7 @@ class ChatController {
 
     static getChat = async (req: Request, res: Response) => {
         try {
+            const supabase = (req as any).supabase;
             const { chatId } = req.params;
             const { data, error } = await supabase
                 .from('chats')
@@ -61,6 +62,7 @@ class ChatController {
 
     static getMessages = async (req: Request, res: Response) => {
         try {
+            const supabase = (req as any).supabase;
             const { chatId } = req.params;
             const { data, error } = await supabase
                 .from('messages')
@@ -79,6 +81,7 @@ class ChatController {
 
     static createMessage = async (req: Request, res: Response) => {
         try {
+            const supabase = (req as any).supabase;
             const { chatId } = req.params;
             const message = req.body.message;
 
@@ -99,6 +102,7 @@ class ChatController {
 
     static deleteChat = async (req: Request, res: Response) => {
         try {
+            const supabase = (req as any).supabase;
             const { chatId } = req.params;
             const user = (req as any).user;
 
@@ -117,6 +121,7 @@ class ChatController {
 
     static streamChat = async (req: Request, res: Response) => {
         try {
+            const supabase = (req as any).supabase;
             const { oldMessages, message } = req.body;
 
             // Set headers for SSE
@@ -140,7 +145,7 @@ class ChatController {
             `;
 
             // Get relevant documents using similarity search
-            const relevantDocs = await DocumentController.similaritySearch(message);
+            const relevantDocs = await DocumentController.similaritySearch(req, message);
 
             // Create context from relevant documents
             const context = relevantDocs
@@ -185,6 +190,7 @@ class ChatController {
     };
     static updateMessage = async (req: Request, res: Response) => {
         try {
+            const supabase = (req as any).supabase;
             const { messageId } = req.params;
             const { message } = req.body;
             const { error } = await supabase
@@ -200,6 +206,7 @@ class ChatController {
     };
     static updateChat = async (req: Request, res: Response) => {
         try {
+            const supabase = (req as any).supabase;
             const { chatId } = req.params;
             const { chat } = req.body;
             const { error } = await supabase

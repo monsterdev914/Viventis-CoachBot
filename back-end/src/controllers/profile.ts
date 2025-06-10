@@ -63,6 +63,14 @@ class ProfileController {
     static updatePlan = async (req: Request, res: Response) => {
 
     }
+    static getAllUsers = async (req: Request, res: Response) => {
+        const { data, error } = await supabase.from('profiles').select('*');
+        if (error)
+            res.status(400).json({
+                error: error.message
+            })
+        else res.status(200).json(data)
+    }
 
 }
 export default ProfileController
