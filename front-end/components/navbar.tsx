@@ -39,7 +39,7 @@ export const Navbar = () => {
   }, []);
   const { t } = useTranslation();
   return (
-    <HeroUINavbar maxWidth="xl" className="p-2 backdrop-blur-[10px] bg-color/95 border-b border-b-color" classNames={{ menu: "bg-[#FFFFFF] bg-opacity-15 backdrop-blur-[10px] border-t border-t-color" }} position="sticky">
+    <HeroUINavbar maxWidth="xl" className="p-2 backdrop-blur-[10px] bg-color/95 border-b border-b-color bg-color" classNames={{ menu: "bg-[#FFFFFF] bg-opacity-15 backdrop-blur-[10px] border-t border-t-color" }} position="sticky">
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
         <NavbarBrand as="li" className="gap-3 max-w-fit">
           <NextLink className="flex justify-start items-center gap-1" href="/">

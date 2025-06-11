@@ -3,6 +3,9 @@ import { Metadata, Viewport } from "next";
 import clsx from "clsx";
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
+import { Providers } from './providers';
+import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
+
 export const metadata: Metadata = {
   title: {
     default: siteConfig.name,
@@ -35,7 +38,11 @@ export default function RootLayout({
           fontSans.variable,
         )}
       >
-        {children}
+        <Providers>
+          <SubscriptionProvider>
+            {children}
+          </SubscriptionProvider>
+        </Providers>
       </body>
     </html>
   );

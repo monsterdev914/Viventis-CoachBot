@@ -25,6 +25,8 @@
     "@heroui/theme": "2.4.15",
     "@react-aria/ssr": "3.9.8",
     "@react-aria/visually-hidden": "3.8.22",
+    "@stripe/react-stripe-js": "^3.7.0",
+    "@stripe/stripe-js": "^7.3.1",
     "@supabase/supabase-js": "^2.49.4",
     "axios": "^1.9.0",
     "clsx": "2.1.1",

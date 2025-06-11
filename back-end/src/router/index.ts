@@ -16,12 +16,25 @@ import ChatController from "../controllers/chatController";
 import UserProfileController from "../controllers/userProfileController";
 import { DocumentController } from "../controllers/documentController";
 import BotSettingController from "../controllers/botSettingController";
+import {
+    createSubscription,
+    cancelSubscription,
+    getSubscription,
+    getCurrentSubscription,
+    getPrices,
+} from '../controllers/stripeController';
+import webhookRouter from './webhook';
+
 const router = express.Router();
+
+
+// Mount webhook routes (no auth middleware for webhooks)
+router.use('/webhook', webhookRouter);
 
 /**
  * Sythnthflow APIs
  */
-
+router.use(express.json());
 router.post("/synthflow/createAssistant", auth, async (req, res) => {
     const { assistant } = req.body;
     try {
@@ -252,8 +265,6 @@ router.get('/action/:id', auth, ActionController.getActionById);
 router.post('/action/action_id', auth, ActionController.getActionByActioId);
 
 
-router.post("/webhook/:id", handleWebhook);
-
 //test
 router.get('/test', auth, (req, res) => {
     res.status(200).json({ message: 'test' });
@@ -289,5 +300,12 @@ router.delete('/documents/:id', auth, isAdmin, DocumentController.deleteDocument
 //bot setting routes
 router.get('/bot-settings', auth, isAdmin, BotSettingController.getBotSettings as unknown as RequestHandler);
 router.post('/bot-settings', auth, isAdmin, BotSettingController.saveBotSettings as unknown as RequestHandler);
+
+// Stripe routes
+router.get('/stripe/prices', getPrices);
+router.get('/stripe/subscriptions/current', auth, getCurrentSubscription);
+router.post('/stripe/subscriptions', auth, createSubscription);
+router.delete('/stripe/subscriptions/:subscriptionId', auth, cancelSubscription);
+router.get('/stripe/subscriptions/:userId', auth, getSubscription);
 
 export default router;
