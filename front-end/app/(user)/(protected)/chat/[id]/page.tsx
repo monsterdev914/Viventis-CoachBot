@@ -8,16 +8,19 @@ import { getMessages } from "@/app/api/chat";
 
 const ChatPage: React.FC = () => {
     const { id } = useParams();
-    const { setMessages } = useChat();
+    const { setMessages, setIsHistoryLoading } = useChat();
     useEffect(() => {
         const fetchChat = async () => {
+            setIsHistoryLoading(true);
             const response = await getMessages(id as string);
             setMessages(response.data);
+            setIsHistoryLoading(false);
         };
         fetchChat();
-    }, [id]);
+    }, [id, setMessages, setIsHistoryLoading]);
     return (
-        <div className="flex flex-row justify-center items-center w-full h-full">
+        <div className="flex min-h-screen justify-center items-center flex-row w-full h-full bg-white relative">
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
             <LeftSideBar />
             <MainBoard />
         </div>

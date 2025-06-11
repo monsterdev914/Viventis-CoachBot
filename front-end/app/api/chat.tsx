@@ -79,7 +79,7 @@ const createMessage = async (message: Omit<Message, "id">) => {
     return response
 }
 
-const updateMessage = async (message: Message) => {
+const updateMessage = async (message: Partial<Message>) => {
     const response = await api.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chats/${message.chat_id}/messages/${message.id}`, { message })
     return response
 }

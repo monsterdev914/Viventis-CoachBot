@@ -8,6 +8,8 @@ import TranSlateProvider from "./TranslateProvider";
 import { ToastProvider } from "@heroui/react";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
+
 export interface ProvidersProps {
   children: React.ReactNode;
   themeProps?: ThemeProviderProps;
@@ -30,7 +32,9 @@ export function Providers({ children, themeProps }: ProvidersProps) {
         <ThemeProvider>
           <TranSlateProvider>
             <AuthProvider>
-              {children}
+              <SubscriptionProvider>
+                {children}
+              </SubscriptionProvider>
             </AuthProvider>
           </TranSlateProvider>
         </ThemeProvider>
