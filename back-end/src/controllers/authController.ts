@@ -49,8 +49,6 @@ class AuthController {
                     email: data.user?.email,
                     gdpr_consent: true,
                     privacy: true,
-                    created_at: new Date().toISOString(),
-                    updated_at: currentTimestamp,
                     last_login: currentTimestamp,
                 }, {
                     onConflict: 'user_id'

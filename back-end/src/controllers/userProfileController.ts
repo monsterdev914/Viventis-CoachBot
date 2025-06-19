@@ -23,7 +23,8 @@ class UserProfileController {
                 last_name: data.last_name,
                 role: data.role,
                 created_at: data.created_at,
-                updated_at: data.updated_at
+                updated_at: data.updated_at,
+                last_login: data.last_login
             });
         } catch (error: any) {
             console.error('Error in getUserProfile:', error);

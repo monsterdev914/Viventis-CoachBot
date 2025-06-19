@@ -8,6 +8,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getUserProfile, updateUserProfile } from '@/app/api/userProfile';
 import { changePassword, deleteAccount, signOut } from '@/app/api/auth';
 import SubscriptionManagement from '@/components/SubscriptionManagement';
+import SettingsSkeleton from '@/components/SettingsSkeleton';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 
 interface UserProfile {
     id: string;
@@ -48,6 +50,10 @@ const SettingsPage: React.FC = () => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteLoading, setDeleteLoading] = useState(false);
     const [deletePassword, setDeletePassword] = useState('');
+
+    // Export data state
+    const [isExporting, setIsExporting] = useState(false);
+    const { subscription } = useSubscription();
 
     useEffect(() => {
         setMounted(true);
@@ -188,27 +194,66 @@ const SettingsPage: React.FC = () => {
         }
     };
 
-    if (!mounted) {
-        return null;
+    const exportUserData = async () => {
+        try {
+            setIsExporting(true);
+            setError('');
+
+            // Gather all user data
+            const userData = {
+                'User ID': profile?.id || '',
+                'First Name': profile?.first_name || '',
+                'Last Name': profile?.last_name || '',
+                'Email': profile?.email || '',
+                'Account Created': profile?.created_at ? new Date(profile.created_at).toLocaleString() : '',
+                'Last Login': profile?.last_login ? new Date(profile.last_login).toLocaleString() : 'Never',
+                'Privacy Settings': profile?.privacy ? 'Enabled' : 'Disabled',
+                'GDPR Consent': profile?.gdpr_consent ? 'Yes' : 'No',
+                'Subscription Status': subscription?.status || 'No subscription',
+                'Subscription Plan': subscription?.plan_id || 'N/A',
+                'Subscription Start': subscription?.current_period_start ? new Date(subscription.current_period_start).toLocaleString() : 'N/A',
+                'Subscription End': subscription?.current_period_end ? new Date(subscription.current_period_end).toLocaleString() : 'N/A',
+                'Export Date': new Date().toLocaleString()
+            };
+
+            // Convert to CSV
+            const headers = Object.keys(userData);
+            const values = Object.values(userData);
+            
+            const csvContent = [
+                headers.join(','),
+                values.map(value => `"${String(value).replace(/"/g, '""')}"`).join(',')
+            ].join('\n');
+
+            // Create and download file
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', `${profile?.first_name}-${profile?.last_name}-${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            URL.revokeObjectURL(url);
+            setSuccess('User data exported successfully');
+        } catch (err) {
+            console.error('Export error:', err);
+            setError('Failed to export user data');
+        } finally {
+            setIsExporting(false);
+        }
+    };
+
+    if (!mounted || loading) {
+        return <SettingsSkeleton />;
     }
 
     return (
-        <div className="container mx-auto p-6 max-w-4xl">
-            <div className="flex items-center gap-4 mb-8">
-                <Avatar
-                    className="w-16 h-16"
-                    src="/images/avatar.jpg"
-                    fallback={`${formData.first_name?.[0] || ''}${formData.last_name?.[0] || ''}`}
-                    size="lg"
-                />
-                <div>
-                    <h1 className="text-3xl font-bold text-black">{t('Settings')}</h1>
-                    <p className="text-gray-600">
-                        {t('Manage your account settings and preferences')}
-                    </p>
-                </div>
-            </div>
-
+        <div className="container mx-auto p-6 max-w-7xl mt-10 w-full">
             {success && (
                 <div className="mb-6 p-4 bg-success-50 text-success-700 rounded-lg">
                     {success}
@@ -223,7 +268,7 @@ const SettingsPage: React.FC = () => {
 
             <Tabs aria-label="Settings tabs" className="w-full">
                 <Tab key="profile" title={t('Profile')}>
-                    <Card>
+                    <Card className='w-full'>
                         <CardHeader>
                             <h2 className="text-2xl font-semibold text-black">{t('Profile Information')}</h2>
                         </CardHeader>
@@ -299,7 +344,7 @@ const SettingsPage: React.FC = () => {
                 </Tab>
 
                 <Tab key="security" title={t('Security')}>
-                    <Card>
+                    <Card className='w-full'>
                         <CardHeader>
                             <h2 className="text-2xl font-semibold text-black">{t('Security Settings')}</h2>
                         </CardHeader>
@@ -315,6 +360,28 @@ const SettingsPage: React.FC = () => {
                                         onClick={() => setShowPasswordModal(true)}
                                     >
                                         {t('Change Password')}
+                                    </Button>
+                                </div>
+                                <Divider />
+
+                                <div>
+                                    <h3 className="font-medium text-black mb-2">{t('Export Your Data')}</h3>
+                                    <p className="text-sm text-gray-600 mb-4">
+                                        {t('Download a copy of your personal data in CSV format')}
+                                    </p>
+                                    <Button
+                                        variant="bordered"
+                                        onClick={exportUserData}
+                                        isLoading={isExporting}
+                                        startContent={
+                                            !isExporting && (
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                                                </svg>
+                                            )
+                                        }
+                                    >
+                                        {isExporting ? t('Exporting...') : t('Export My Data')}
                                     </Button>
                                 </div>
                                 <Divider />
@@ -364,6 +431,7 @@ const SettingsPage: React.FC = () => {
                                     onChange={handlePasswordChange}
                                     variant="bordered"
                                     isRequired
+                                    className='text-black'
                                 />
                                 <Input
                                     type="password"
@@ -375,6 +443,7 @@ const SettingsPage: React.FC = () => {
                                     variant="bordered"
                                     isRequired
                                     description={t('Password must be at least 6 characters long')}
+                                    className='text-black'
                                 />
                                 <Input
                                     type="password"
@@ -385,6 +454,7 @@ const SettingsPage: React.FC = () => {
                                     onChange={handlePasswordChange}
                                     variant="bordered"
                                     isRequired
+                                    className='text-black'
                                 />
                             </div>
                         </ModalBody>

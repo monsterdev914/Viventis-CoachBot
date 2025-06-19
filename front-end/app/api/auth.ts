@@ -1,4 +1,5 @@
 import axios from 'axios';
+import api from '@/utiles/axiosConfig';
 
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -39,7 +40,7 @@ export const verifyEmail = async (email: string, token: string) => {
 }
 
 export const changePassword = async (currentPassword: string, newPassword: string) => {
-    const response = await axios.post(`${API_URL}/auth/change-password`, {
+    const response = await api.post('/auth/change-password', {
         currentPassword,
         newPassword
     })
@@ -47,9 +48,9 @@ export const changePassword = async (currentPassword: string, newPassword: strin
 }
 
 export const deleteAccount = async (password: string) => {
-    const response = await axios.delete(`${API_URL}/auth/delete-account`, {
+    const response = await api.delete('/auth/delete-account', {
         data: { password }
     })
-    return response
+    return response 
 }
 

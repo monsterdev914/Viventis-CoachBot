@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { supabase } from '../supabaseClient';
+import { supabase } from '../supabaseClient';   
 import { createClient } from '@supabase/supabase-js';
 
 // Example auth middleware  

@@ -97,7 +97,7 @@ const SubscriptionManagement = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto space-y-6 w-full">
       {error && (
         <div className="text-danger bg-danger/10 p-4 rounded-lg">
           {error}
@@ -105,7 +105,7 @@ const SubscriptionManagement = () => {
       )}
 
       {/* Current Subscription */}
-      <Card>
+      <Card className='w-full'>
         <CardHeader>
           <h2 className="text-2xl font-semibold">{t('Current Subscription')}</h2>
         </CardHeader>
@@ -180,7 +180,7 @@ const SubscriptionManagement = () => {
       </Card>
 
       {/* Payment History */}
-      <Card>
+      <Card className='w-full'>
         <CardHeader>
           <h2 className="text-2xl font-semibold">{t('Payment History')}</h2>
         </CardHeader>
@@ -221,7 +221,7 @@ const SubscriptionManagement = () => {
       </Card>
 
       {/* Payment Methods */}
-      <Card>
+      {/* <Card className='w-full'>
         <CardHeader>
           <h2 className="text-2xl font-semibold">{t('Payment Methods')}</h2>
         </CardHeader>
@@ -255,7 +255,7 @@ const SubscriptionManagement = () => {
             <p className="text-default-500">{t('No payment methods found.')}</p>
           )}
         </CardBody>
-      </Card>
+      </Card> */}
 
       {/* Cancel Subscription Modal */}
       <Modal isOpen={showCancelModal} onClose={() => setShowCancelModal(false)}>
