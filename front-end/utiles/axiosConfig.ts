@@ -38,14 +38,29 @@ api.interceptors.response.use(
     (error: any) => {
         // Global error handling  
         if (error.response) {
+            const { data, status } = error.response;
+            
             // The request was made and the server responded with a status code  
-            switch (error.response.status) {
+            switch (status) {
                 case 401:
                     // Unauthorized - redirect to login or refresh token  
                     console.error('Unauthorized access');
+                    // Handle token expiration
+                    if (typeof window !== 'undefined') {
+                        localStorage.removeItem('token');
+                        window.location.href = '/auth/login';
+                    }
                     break;
                 case 403:
                     console.error('Forbidden access');
+                    // Handle subscription-related errors
+                    if (data?.code === 'NO_SUBSCRIPTION' || data?.code === 'SUBSCRIPTION_EXPIRED') {
+                        console.error('Subscription required:', data.message);
+                        // Redirect to pricing page for subscription issues
+                        if (typeof window !== 'undefined' && data?.requiresSubscription) {
+                            window.location.href = '/pricing';
+                        }
+                    }
                     break;
                 case 500:
                     console.error('Server error');

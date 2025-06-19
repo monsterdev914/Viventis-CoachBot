@@ -3,9 +3,12 @@ import router from './router';
 import dotenv from 'dotenv';
 import cors from "cors";
 import fileUpload from 'express-fileupload';
+import webhookRouter from './router/webhook';
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
+// app.use
+app.use('/api/webhook', webhookRouter);
 app.use(express.urlencoded({ extended: true }));
 
  // Middleware to parse JSON requests

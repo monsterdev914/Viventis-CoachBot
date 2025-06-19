@@ -9,7 +9,7 @@ export default function SubscriptionSuccess() {
   const router = useRouter();
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
+    <div className="flex min-h-screen items-center justify-center bg-white">
       <Card className="w-full max-w-md">
         <CardBody className="text-center">
           <div className="w-16 h-16 bg-success/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -19,8 +19,8 @@ export default function SubscriptionSuccess() {
           </div>
           <h2 className="text-2xl font-bold mb-4">{t('Payment Successful!')}</h2>
           <p className="mb-6">{t('Thank you for your payment. Your subscription will be activated shortly.')}</p>
-          <Button color="primary" onClick={() => router.push('/dashboard')}>
-            {t('Go to Dashboard')}
+                              <Button color="primary" onClick={() => router.push('/')}>
+                        {t('Go to Home')}
           </Button>
         </CardBody>
       </Card>

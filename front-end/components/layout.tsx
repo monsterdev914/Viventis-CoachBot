@@ -24,7 +24,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             <main className=" flex-grow">
                 {children}
             </main>
-            <footer className="w-full container mx-auto max-w-7xl flex items-center bg-color justify-center py-3">
+            <footer className="w-full container mx-auto max-w-7xl flex flex-col bg-color justify-end items-center min-h-screen py-12">
                 <div className="flex flex-col items-center gap-12">
                     <div className="flex flex-col items-center gap-6">
                         <Alert color="default" variant="flat" icon={<LoudSpeakerIcon size={16} />} radius="full" className="w-fit bg-[#FFFFFF1A] border-[#FFFFFF1C] border-1 p-2">
@@ -38,7 +38,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                         </div>
                         <Button color="primary" variant="solid" radius="full" className="w-fit text-[18px] py-6 px-8"><span className="font-bold">Kostenloses Erstgespräch vereinbaren</span></Button>
                     </div>
-                    <div className="flex flex-row gap-8 w-full justify-between">
+                    <div className="flex flex-col md:flex-row gap-8 w-full justify-between">
                         <div className="flex flex-col justify-between gap-4 flex-[2] items-center">
                             <div className=" flex flex-row">
                                 <div className=" flex flex-col gap-4 flex-1">
@@ -52,7 +52,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                                 <div className=" flex flex-col gap-4 flex-1"></div>
                             </div>
                         </div>
-                        <div className="flex flex-col gap-8 flex-1">
+                        <div className="flex flex-col gap-8 flex-1 px-4 hidden md:block">
                             <h2 className="text-[18px] font-bold text-white">Nützliche Links</h2>
                             <ul className="flex flex-col gap-4">
                                 <li>
@@ -85,7 +85,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                                 </li>
                             </ul>
                         </div>
-                        <div className="flex flex-col gap-8 flex-1">
+                        <div className="flex flex-col gap-8 flex-1 px-4 hidden md:block">
                             <h2 className="text-[18px] font-bold text-white">Kontakt</h2>
                             <ul className="flex flex-col gap-4">
                                 <li>
@@ -111,7 +111,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                                 </li>
                             </ul>
                         </div>
-                        <div className="flex flex-col gap-8 flex-1">
+                        <div className="flex flex-col gap-8 flex-1 px-4 hidden md:block">
                             <h2 className="text-[18px] font-bold text-white">Kontakt</h2>
                             <ul className="flex flex-col gap-4">
                                 <li>
@@ -145,7 +145,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                             </ul>
                         </div>
                     </div>
-                    <div className="flex flex-row gap-4 w-full justify-between items-center border-t border-white/10 py-6">
+                    <div className="flex flex-col md:flex-row gap-4 w-full justify-between items-center border-t border-white/10 py-6">
                         <div className="flex flex-row gap-4">
                             <div>
                                 <span className="text-[12px] text-white">

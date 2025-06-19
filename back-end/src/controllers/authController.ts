@@ -43,13 +43,15 @@ class AuthController {
             }
 
             else {
+                const currentTimestamp = new Date().toISOString();
                 const { data: userProfile, error: userProfileError } = await supabase.from("user_profile").upsert({
                     user_id: data.user?.id,
                     email: data.user?.email,
                     gdpr_consent: true,
                     privacy: true,
                     created_at: new Date().toISOString(),
-                    updated_at: new Date().toISOString(),
+                    updated_at: currentTimestamp,
+                    last_login: currentTimestamp,
                 }, {
                     onConflict: 'user_id'
                 }).select("role").single()
@@ -190,6 +192,45 @@ class AuthController {
             } catch (error: any) {
                 return res.status(500).json({ error: error.message || 'Failed to process verification request' });
             }
+        }
+    }
+
+    static async changePassword(req: Request, res: Response) {
+        try {
+            const { currentPassword, newPassword } = req.body;
+            const user = (req as any).user;
+
+            if (!currentPassword || !newPassword) {
+                return res.status(400).json({ error: 'Current password and new password are required' });
+            }
+
+            if (newPassword.length < 6) {
+                return res.status(400).json({ error: 'New password must be at least 6 characters long' });
+            }
+
+            // Verify current password by attempting to sign in
+            const { error: signInError } = await supabase.auth.signInWithPassword({
+                email: user.email,
+                password: currentPassword
+            });
+
+            if (signInError) {
+                return res.status(400).json({ error: 'Current password is incorrect' });
+            }
+
+            // Update password
+            const { error: updateError } = await supabase.auth.updateUser({
+                password: newPassword
+            });
+
+            if (updateError) {
+                return res.status(500).json({ error: updateError.message });
+            }
+
+            return res.status(200).json({ message: 'Password changed successfully' });
+        } catch (error: any) {
+            console.error('Error in changePassword:', error);
+            return res.status(500).json({ error: error.message });
         }
     }
 

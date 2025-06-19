@@ -5,6 +5,23 @@ import { AIMessage, HumanMessage, SystemMessage } from "@langchain/core/messages
 import { DocumentController } from "./documentController";
 
 class ChatController {
+    // Helper method to fetch user prompts
+    static getUserPrompts = async (supabase: any, userId: string) => {
+        try {
+            const { data, error } = await supabase
+                .from('user_prompts')
+                .select('*')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+            return data || [];
+        } catch (error) {
+            console.error('Error fetching user prompts:', error);
+            return [];
+        }
+    };
+
     static createChat = async (req: Request, res: Response) => {
         const supabase = (req as any).supabase;
         try {
@@ -122,6 +139,7 @@ class ChatController {
     static streamChat = async (req: Request, res: Response) => {
         try {
             const supabase = (req as any).supabase;
+            const user = (req as any).user;
             const { oldMessages, message } = req.body;
 
             // Set headers for SSE
@@ -152,8 +170,14 @@ class ChatController {
                 .map(doc => doc.pageContent)
                 .join("\n\n");
 
-            // Create system prompt with context
-            const systemPrompt = `${botInfo}\n${botSettings?.system_prompt}\n\nContext:\n${context}`;
+            // Get user prompts
+            const userPrompts = await ChatController.getUserPrompts(supabase, user.id);
+            const userPromptsContext = userPrompts.length > 0 
+                ? `\n\nUser-specific instructions:\n${userPrompts.map((prompt: any) => prompt.prompt).join('\n')}`
+                : '';
+
+            // Create system prompt with context and user prompts
+            const systemPrompt = `${botInfo}\n${botSettings?.system_prompt}\n\nContext:\n${context}${userPromptsContext}`;
 
             // Initialize chat model with settings
             const chatModel = new ChatOpenAI({

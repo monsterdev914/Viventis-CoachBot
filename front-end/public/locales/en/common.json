@@ -88,5 +88,27 @@
     "Error": "Error",
     "Upload": "Upload",
     "Upload a document": "Upload a document",
-    "Uploaded": "Uploaded"
+    "Uploaded": "Uploaded",
+    "subscription": {
+        "choosePlan": "Choose Your Plan",
+        "selectBestPlan": "Select the perfect plan for your needs",
+        "loginToSubscribe": "Login to Subscribe",
+        "loginRequired": "Please login to view and manage your subscription",
+        "currentPlan": "Current Plan",
+        "startTrial": "Start Free Trial",
+        "upgradeTrial": "Upgrade Trial",
+        "subscribe": "Subscribe",
+        "upgrade": "Upgrade",
+        "downgrade": "Downgrade",
+        "notAvailable": "Not Available",
+        "popular": "Most Popular",
+        "trial": "Trial",
+        "trialActive": "Your trial is active",
+        "cancelAnytime": "Cancel anytime, no questions asked",
+        "monthly": "Monthly",
+        "quarterly": "Quarterly", 
+        "semiAnnual": "Semi-Annual",
+        "annual": "Annual",
+        "months": "months"
+    }
 }
