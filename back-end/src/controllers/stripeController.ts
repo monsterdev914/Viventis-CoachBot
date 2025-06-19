@@ -341,7 +341,7 @@ export const convertTrialToPaid = async (req: Request, res: Response) => {
         },
       ],
       success_url: `${process.env.FRONTEND_URL}/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.FRONTEND_URL}/subscription/manage`,
+      cancel_url: `${process.env.FRONTEND_URL}/subscription/pricing`,
       metadata: {
         subscription_id: trialSubscription.id,
         user_id: userId,
