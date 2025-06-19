@@ -46,7 +46,7 @@ const HowToWork = () => {
                     </div>
                     <div className="flex flex-col gap-4 w-full">
                         <p className="text-[16px] text-black text-justify">
-                            The Viventis CoachBot is your digital reflection partner - inspired by the "Inner Compass" system, developed from over 20 years of coaching experience. It thinks along with you, asks questions, and gets you to the point.
+                            The Viventis CoachBot is your digital reflection partner - inspired by the &quot;Inner Compass&quot; system, developed from over 20 years of coaching experience. It thinks along with you, asks questions, and gets you to the point.
                         </p>
                         <p className="text-[16px] text-black text-justify">
                             He accompaniess you:
@@ -115,7 +115,7 @@ const HowToWork = () => {
                     <div className="flex-1">
                         <div className="text-[16px] text-white bg-[#3bcc91] px-4 py-2 text-center items-center justify-center rounded-full w-fit">Viventis Online Coaching</div>
                         <p className="text-[16px] text-black text-justify my-4">
-                            The CoachBot is based on the proven " Inner Compass" system. It integrates five essential areas of life:
+                            The CoachBot is based on the proven <b>Inner Compass</b> system. It integrates five essential areas of life:
                         </p>
                         <table className="w-full mt-4 border border-gray-300 text-left text-[16px] text-black table-auto mb-4">
                             <thead>
