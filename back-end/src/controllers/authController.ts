@@ -234,6 +234,114 @@ class AuthController {
         }
     }
 
+    static async deleteAccount(req: Request, res: Response) {
+        try {
+            const { password } = req.body;
+            const user = (req as any).user;
+
+            if (!password) {
+                return res.status(400).json({ error: 'Password is required to delete account' });
+            }
+
+            // Verify password by attempting to sign in
+            const { error: signInError } = await supabase.auth.signInWithPassword({
+                email: user.email,
+                password: password
+            });
+
+            if (signInError) {
+                return res.status(400).json({ error: 'Password is incorrect' });
+            }
+
+            // Delete user's related data from various tables
+            try {
+                // Delete chat messages
+                const { error: messagesError } = await supabase
+                    .from('chat_messages')
+                    .delete()
+                    .eq('user_id', user.id);
+
+                if (messagesError) {
+                    console.error('Error deleting chat messages:', messagesError);
+                }
+
+                // Delete chats
+                const { error: chatsError } = await supabase
+                    .from('chats')
+                    .delete()
+                    .eq('user_id', user.id);
+
+                if (chatsError) {
+                    console.error('Error deleting chats:', chatsError);
+                }
+
+                // Delete user prompts
+                const { error: promptsError } = await supabase
+                    .from('user_prompts')
+                    .delete()
+                    .eq('user_id', user.id);
+
+                if (promptsError) {
+                    console.error('Error deleting user prompts:', promptsError);
+                }
+
+                // Delete subscriptions
+                const { error: subscriptionsError } = await supabase
+                    .from('subscriptions')
+                    .delete()
+                    .eq('user_id', user.id);
+
+                if (subscriptionsError) {
+                    console.error('Error deleting subscriptions:', subscriptionsError);
+                }
+
+                // Delete user profile
+                const { error: profileError } = await supabase
+                    .from('user_profile')
+                    .delete()
+                    .eq('user_id', user.id);
+
+                if (profileError) {
+                    console.error('Error deleting user profile:', profileError);
+                }
+
+                // Delete from pb_user table
+                const { error: pbUserError } = await supabase
+                    .from('pb_user')
+                    .delete()
+                    .eq('user_id', user.id);
+
+                if (pbUserError) {
+                    console.error('Error deleting pb_user:', pbUserError);
+                }
+
+                // Finally, delete the auth user
+                const { error: deleteUserError } = await supabase.auth.admin.deleteUser(user.id);
+
+                if (deleteUserError) {
+                    console.error('Error deleting auth user:', deleteUserError);
+                    return res.status(500).json({ error: 'Failed to delete user account' });
+                }
+
+                // Log account deletion for audit
+                console.log(`Account deleted for user ${user.id} (${user.email}) at ${new Date().toISOString()}`);
+
+                return res.status(200).json({ 
+                    message: 'Account deleted successfully',
+                    timestamp: new Date().toISOString()
+                });
+
+            } catch (deletionError: any) {
+                console.error('Error during account deletion:', deletionError);
+                return res.status(500).json({ error: 'Failed to delete account data' });
+            }
+
+        } catch (error: any) {
+            console.error('Error in deleteAccount:', error);
+            return res.status(500).json({ error: 'Internal server error while deleting account' });
+        }
+    }
+
     static async verifyEmail(req: VerifyEmailRequest, res: Response) {
         const { email, token } = req.query;
 

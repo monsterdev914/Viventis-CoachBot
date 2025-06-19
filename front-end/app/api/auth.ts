@@ -38,3 +38,18 @@ export const verifyEmail = async (email: string, token: string) => {
     return response
 }
 
+export const changePassword = async (currentPassword: string, newPassword: string) => {
+    const response = await axios.post(`${API_URL}/auth/change-password`, {
+        currentPassword,
+        newPassword
+    })
+    return response
+}
+
+export const deleteAccount = async (password: string) => {
+    const response = await axios.delete(`${API_URL}/auth/delete-account`, {
+        data: { password }
+    })
+    return response
+}
+
