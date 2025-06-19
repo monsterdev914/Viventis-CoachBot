@@ -83,6 +83,15 @@ const LeftSideBar: React.FC = () => {
                             key={chat.id}
                             className="cursor-pointer hover:bg-gray-700 p-2 rounded transition-colors duration-200"
                             onClick={() => handleChatClick(chat.id)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    handleChatClick(chat.id);
+                                }
+                            }}
+                            role="button"
+                            tabIndex={0}
+                            aria-label={`Open chat: ${chat.title || "Untitled"}`}
                         >
                             <h6 className="text-white text-sm truncate">{chat.title || "Untitled"}</h6>
                             <p className="text-xs text-gray-400 mt-1">
