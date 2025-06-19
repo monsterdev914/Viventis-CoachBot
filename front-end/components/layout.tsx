@@ -7,10 +7,12 @@ import { Alert, Button, Spinner } from "@heroui/react";
 import { useAuth } from "@/contexts/AuthContext";
 import { FacebookIcon, InstagramIcon, LinkedInIcon, LoudSpeakerIcon, XIcon } from "./icons";
 import Image from "next/image";
+import { usePathname } from 'next/navigation';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { loading } = useAuth();
     const { t } = useTranslation();
+    const pathname = usePathname();
 
     if (loading) {
         return <div className="flex justify-center items-center h-screen">
@@ -24,7 +26,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             <main className=" flex-grow">
                 {children}
             </main>
-            <footer className="w-full container mx-auto max-w-7xl flex flex-col bg-color justify-end items-center min-h-screen py-12">
+            {pathname === '/' && (
+                <footer className="w-full container mx-auto max-w-7xl flex flex-col bg-color justify-end items-center min-h-screen py-12">
                 <div className="flex flex-col items-center gap-12">
                     <div className="flex flex-col items-center gap-6">
                         <Alert color="default" variant="flat" icon={<LoudSpeakerIcon size={16} />} radius="full" className="w-fit bg-[#FFFFFF1A] border-[#FFFFFF1C] border-1 p-2">
@@ -185,6 +188,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                     </div>
                 </div>
             </footer>
+            )}
         </section>
     )
 }

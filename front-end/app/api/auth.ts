@@ -1,4 +1,5 @@
 import axios from 'axios';
+import api from '@/utiles/axiosConfig';
 
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -36,5 +37,20 @@ export const resendVerification = async (email: string) => {
 export const verifyEmail = async (email: string, token: string) => {
     const response = await axios.get(`${API_URL}/auth/verify-email?email=${email}&token=${token}`)
     return response
+}
+
+export const changePassword = async (currentPassword: string, newPassword: string) => {
+    const response = await api.post('/auth/change-password', {
+        currentPassword,
+        newPassword
+    })
+    return response
+}
+
+export const deleteAccount = async (password: string) => {
+    const response = await api.delete('/auth/delete-account', {
+        data: { password }
+    })
+    return response 
 }
 

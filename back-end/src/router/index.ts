@@ -283,7 +283,8 @@ router.get('/auth/verify-email', AuthController.verifyEmail as unknown as Reques
 router.post("/auth/signin", AuthController.signIn as unknown as RequestHandler);
 router.post("/auth/signup", AuthController.signUp as unknown as RequestHandler);
 router.post("/auth/signout", AuthController.signOut as unknown as RequestHandler);
-router.put("/auth/change-password", auth, AuthController.changePassword as unknown as RequestHandler);
+router.post("/auth/change-password", auth, AuthController.changePassword as unknown as RequestHandler);
+router.delete("/auth/delete-account", auth, AuthController.deleteAccount as unknown as RequestHandler);
 
 // Chat routes - protected by subscription
 router.post('/chats', auth, requireActiveSubscription as unknown as RequestHandler, ChatController.createChat as unknown as RequestHandler);
