@@ -3,7 +3,7 @@ import { ClockIcon, EmailIcon, InstagramIcon, LinkedInIcon, MapPinIcon, PhoneIco
 
 const ContactUs = () => {
     return (
-        <section className="relative flex flex-col w-full bg-white">
+        <section className="relative flex flex-col w-full bg-white" id="contact">
             <div className="bg-color pt-[120px] pb-[200px] w-full flex flex-col items-center relative">
                 {/* Banner */}
                 <div className="w-full h-full bg-center bg-[length:65%_auto] opacity-[0.15] absolute top-0 left-0 filter brightness-50" style={{ backgroundImage: "url('/images/grid-banner.svg')" }}></div>
@@ -18,7 +18,7 @@ const ContactUs = () => {
                     </div>
                 </div>
             </div>
-            <div className="container mx-auto max-w-7xl pt-16 flex flex-row gap-[60px]">
+            <div className="container mx-auto max-w-7xl pt-16 flex flex-col md:flex-row gap-[60px] px-4">
                 <div className="flex flex-col gap-4 flex-1">
                     <Card className="w-full py-10 px-6 py-10 transform -translate-y-40">
                         <CardHeader className="w-full">
@@ -37,7 +37,7 @@ const ContactUs = () => {
                         </CardBody>
                     </Card>
                 </div>
-                <div className="flex flex-col gap-10 w-full flex-1 flex-1">
+                <div className="flex flex-col gap-10 w-full flex-1 flex-1 px-4">
                     <div className="flex flex-col gap-2">
                         <h1 className="text-[32px] font-bold text-[#032e26]">So erreichst Du mich</h1>
                         <p className="text-sm text-gray-500">
@@ -94,7 +94,7 @@ const ContactUs = () => {
                             </Card>
                         </div>
                     </div>
-                    <div className="flex flex-row justify-between w-full">
+                    <div className="flex flex-col md:flex-row justify-between w-full px-4">
                         <h3 className="text-lg font-bold">
                             Soziale Medien:
                         </h3>

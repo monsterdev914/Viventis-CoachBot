@@ -3,19 +3,34 @@
 import Image from "next/image";
 import { Button } from "@heroui/button";
 import { MenuIcon, PlusIcon, ArrowLeftIcon } from "@/components/icons";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ChatMessage } from "@/types";
 import { getChats } from "@/app/api/chat";
 import { useRouter } from "next/navigation";
 import { useChat } from "@/contexts/ChatContext";
-import { Spinner } from "@heroui/react";
+import { Modal, ModalContent, ModalHeader, Spinner } from "@heroui/react";
+import { signOut } from "@/app/api/auth";
+import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 
 const LeftSideBar: React.FC = () => {
     const router = useRouter();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const { chatHistory, isHistoryLoading } = useChat();
     const { setMessages } = useChat();
-
+    const { user, setUser, setLoading } = useAuth();
+    const { subscription } = useSubscription();
+    const [isOpen, setIsOpen] = useState(false);
+    const handleLogout = useCallback(() => {
+        setLoading(true);
+        signOut().then((res) => {
+            if (res.status === 200) {
+                localStorage.removeItem("token");
+                setUser(null);
+            }
+            setLoading(false);
+        })
+    }, []);
     const handleCreateChat = async () => {
         setMessages([]);
         router.push("/chat");
@@ -25,7 +40,13 @@ const LeftSideBar: React.FC = () => {
         setMessages([]);
         router.push(`/chat/${chatId}`);
     };
-
+    useEffect(() => {
+        if (isSidebarOpen) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "auto";
+        }
+    }, [isSidebarOpen]);
     return (
         <>
             {isSidebarOpen && (
@@ -109,7 +130,34 @@ const LeftSideBar: React.FC = () => {
                             )}
                         </div>
                     </div>
+                    <div className="flex flex-row justify-between gap-2">
+                        <div></div>
+                        <Button variant="light" className="rounded-full" color="primary" isIconOnly onClick={() => {
+                            setIsOpen(true);
+                            console.log(subscription);
+                        }}>
+                            <Image src="/images/pre.svg" alt="pre" width={32} height={32} className="w-6 h-6" />
+                        </Button>
+                    </div>
+                    {user && (  
+                        <Button variant="solid" className="w-full" onClick={() => handleLogout()}>
+                            Logout
+                        </Button>
+                    )}
                 </div>
+                <Modal
+                    isOpen={isOpen}
+                    onOpenChange={setIsOpen}
+                >
+                    <ModalContent>
+                        <ModalHeader>
+                            <h1>Upgrade to Pro</h1>
+                            <p>
+                                {subscription}
+                            </p>
+                        </ModalHeader>
+                    </ModalContent>
+                </Modal>
             </section>
         </>
     );

@@ -1,11 +1,13 @@
 'use client'
 import ProtectedAdminRoute from "@/components/auth/ProtectedAdminRoute";
+import Dashboard from "@/components/admin/Dashboard";
+
 const Page: React.FC = () => {
     return (
         <ProtectedAdminRoute>
-            <section className="w-full h-full flex items-center justify-center">
-                <h1>Admin Dashboard</h1>
-            </section>
+            <div className="container mx-auto px-4 py-8">
+                <Dashboard />
+            </div>
         </ProtectedAdminRoute>
     )
 }

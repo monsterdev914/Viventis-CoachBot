@@ -1,10 +1,13 @@
 import { ChatProvider } from "@/contexts/ChatContext";
+import ProtectedChatRoute from "@/components/auth/ProtectedChatRoute";
 
 const ChatLayout = ({ children }: { children: React.ReactNode }) => {
     return (
-        <ChatProvider>
-            {children}
-        </ChatProvider>
+        <ProtectedChatRoute>
+            <ChatProvider>
+                {children}
+            </ChatProvider>
+        </ProtectedChatRoute>
     );
 };
 

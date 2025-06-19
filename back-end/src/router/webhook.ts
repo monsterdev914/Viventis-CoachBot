@@ -7,10 +7,7 @@ const router = Router();
 // Stripe webhook endpoint - needs raw body
 router.post('/stripe', 
   express.raw({ type: 'application/json' }),
-  (req, res) => {
-    console.log('Received webhook with signature:', req.headers['stripe-signature']);
-    handleWebhook(req, res);
-  }
+  handleWebhook
 );
 
 export default router; 

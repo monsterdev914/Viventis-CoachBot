@@ -1,7 +1,7 @@
 'use client'
 import { ChatMessage, Message } from "@/types";
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { sendMessage, createMessage, createChat, updateMessage as updateMessageApi, updateChat, getChat, getChats } from "@/app/api/chat";
+import { sendMessage, createMessage, createChat, updateMessage as updateMessageApi, updateChat, getChat, getChats, getMessages } from "@/app/api/chat";
 import { useParams, useRouter } from "next/navigation";
 
 type ChatContextType = {
@@ -18,6 +18,8 @@ type ChatContextType = {
     setChatHistory: (chatHistory: ChatMessage[]) => void;
     isHistoryLoading: boolean;
     setIsHistoryLoading: (isHistoryLoading: boolean) => void;
+    isMessagesLoading: boolean;
+    setIsMessagesLoading: (isLoading: boolean) => void;
     updateChatHistory: (messageId: string, newMessage: string) => void;
     updateMessage: (messageId: string, content: string) => Promise<void>;
 }
@@ -34,15 +36,15 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     const [chat, setChat] = useState<ChatMessage | null>(null);
     const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
     const [isHistoryLoading, setIsHistoryLoading] = useState(false);
+    const [isMessagesLoading, setIsMessagesLoading] = useState(false);
 
     const sendStreamMessage = async (newMessage: string) => {
         setIsLoading(true);
         let assistantMessage: Message | null = null;
-
         try {
             if (!chatId) {
                 const response = await createChat();
-                if (!response) {
+                if (!response.data) {
                     throw new Error('Failed to create chat');
                 }
                 const newChatId = response.data.id;
@@ -54,82 +56,145 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
             if (chat == null) {
                 await updateChat({
                     id: chatId,
-                    updated_at: new Date().toISOString(),
-                    title: newMessage
+                    title: newMessage.substring(0, 50)
                 });
                 setChatHistory(prev => prev.map(chat =>
                     chat.id === chatId ? {
                         ...chat,
-                        title: newMessage
+                        title: newMessage.substring(0, 50)
                     } : chat
                 ));
             }
 
-            const userResponse = await createMessage({
+            const userMessage: Message = {
+                id: Date.now().toString(),
                 chat_id: chatId,
+                role: 'user',
                 content: newMessage,
-                role: "user",
+                status: 'done',
                 created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString(),
-                status: "done"
-            });
-            setMessages(prev => [...prev, userResponse.data]);
+                updated_at: new Date().toISOString()
+            };
 
-            const assistantResponse = await createMessage({
+            assistantMessage = {
+                id: (Date.now() + 1).toString(),
                 chat_id: chatId,
+                role: 'assistant',
                 content: "",
-                role: "assistant",
+                status: 'pending',
                 created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString(),
-                status: "pending"
+                updated_at: new Date().toISOString()
+            };
+
+            setMessages(prev => [...prev, userMessage, assistantMessage!]);
+
+            const userMessageResponse = await createMessage({
+                chat_id: userMessage.chat_id,
+                role: userMessage.role,
+                content: userMessage.content,
+                status: userMessage.status,
+                created_at: userMessage.created_at,
+                updated_at: userMessage.updated_at
             });
-            assistantMessage = assistantResponse.data;
-            if (assistantMessage) {
-                setMessages(prev => [...prev, assistantMessage!]);
-
-                let finalContent = "";
-                await sendMessage(
-                    messages.slice(-10).map(msg => `${msg.role}: ${msg.content}`),
-                    newMessage,
-                    (chunk) => {
-                        finalContent += chunk;
-                        setMessages(prev => {
-                            return prev.map(msg => {
-                                if (msg.id === assistantMessage!.id) {
-                                    return {
-                                        ...msg,
-                                        content: finalContent,
-                                        updated_at: new Date().toISOString()
-                                    };
-                                }
-                                return msg;
-                            });
-                        });
-                    }
-                );
-
-                const updatedMessage: Message = {
-                    ...assistantMessage,
-                    content: finalContent,
-                    status: "done" as const,
-                    updated_at: new Date().toISOString()
-                };
-                await updateMessageApi(updatedMessage);
+            if (userMessageResponse.data) {
+                userMessage.id = userMessageResponse.data.id;
                 setMessages(prev => prev.map(msg =>
-                    msg.id === assistantMessage!.id ? updatedMessage : msg
+                    msg.id === Date.now().toString() ? userMessage : msg
                 ));
             }
-        } catch (error) {
-            console.error('Error sending message:', error);
+
+            const assistantMessageResponse = await createMessage({
+                chat_id: assistantMessage!.chat_id,
+                role: assistantMessage!.role,
+                content: assistantMessage!.content,
+                status: assistantMessage!.status,
+                created_at: assistantMessage!.created_at,
+                updated_at: assistantMessage!.updated_at
+            });
+            if (assistantMessageResponse.data) {
+                assistantMessage!.id = assistantMessageResponse.data.id;
+                setMessages(prev => prev.map(msg =>
+                    msg.id === (Date.now() + 1).toString() ? assistantMessage! : msg
+                ));
+            }
+
+            let finalContent = "";
+            await sendMessage(
+                messages.slice(-10).map(msg => `${msg.role}: ${msg.content}`),
+                newMessage,
+                (chunk) => {
+                    finalContent += chunk;
+                    setMessages(prev => {
+                        return prev.map(msg => {
+                            if (msg.id === assistantMessage!.id) {
+                                return {
+                                    ...msg,
+                                    content: finalContent,
+                                    updated_at: new Date().toISOString()
+                                };
+                            }
+                            return msg;
+                        });
+                    });
+                }
+            );
+
+            const updatedMessage: Partial<Message> = {
+                id: assistantMessage!.id,
+                content: finalContent,
+                status: "done" as const,
+                updated_at: new Date().toISOString()
+            };
+            await updateMessageApi(updatedMessage);
+            setMessages(prev => {
+                const newMessages = [...prev];
+                const index = newMessages.findIndex(msg => msg.id === assistantMessage!.id);
+                if (index !== -1) {
+                    newMessages[index] = {
+                        ...newMessages[index],
+                        ...updatedMessage
+                    };
+                }
+                return newMessages;
+            });
+
+        } catch (error: any) {
+            console.error('Error in sendStreamMessage:', error);
+            
+            // Handle subscription-related errors
+            if (error.response?.status === 403 && error.response?.data?.code) {
+                const { code, message } = error.response.data;
+                
+                if (code === 'NO_SUBSCRIPTION' || code === 'SUBSCRIPTION_EXPIRED') {
+                    // Show subscription error message
+                    if (assistantMessage) {
+                        const errorMessage: Partial<Message> = {
+                            id: assistantMessage.id,
+                            content: `❌ ${message || 'Active subscription required to continue chatting. Please upgrade your plan.'}`,
+                            status: "error" as const,
+                            updated_at: new Date().toISOString()
+                        };
+                        await updateMessageApi(errorMessage);
+                        setMessages(prev => prev.map(msg =>
+                            msg.id === assistantMessage!.id ? { ...msg, ...errorMessage } as Message : msg
+                        ));
+                    }
+                    // Redirect will be handled by axios interceptor
+                    return;
+                }
+            }
+
+            // Handle other errors
             if (assistantMessage) {
-                const errorMessage: Message = {
-                    ...assistantMessage,
+                const errorMessage: Partial<Message> = {
+                    id: assistantMessage.id,
+                    content: "❌ Sorry, there was an error processing your message. Please try again.",
                     status: "error" as const,
                     updated_at: new Date().toISOString()
                 };
                 await updateMessageApi(errorMessage);
                 setMessages(prev => prev.map(msg =>
-                    msg.id === assistantMessage!.id ? errorMessage : msg
+                    msg.id === assistantMessage!.id ? { ...msg, ...errorMessage } as Message : msg
                 ));
             }
         } finally {
@@ -141,11 +206,33 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         if (chatId && pendingMessage) {
             setPendingMessage(null);
             sendStreamMessage(pendingMessage);
+            return;
         }
+        
         if (chatId) {
+            setIsMessagesLoading(true);
+            
+            // Load chat info
             getChat(chatId).then(response => {
                 setChat(response.data);
+            }).catch(error => {
+                console.error('Error loading chat:', error);
             });
+
+            // Load messages for the chat
+            getMessages(chatId).then(response => {
+                setMessages(response.data || []);
+                setIsMessagesLoading(false);
+            }).catch(error => {
+                console.error('Error loading messages:', error);
+                setMessages([]);
+                setIsMessagesLoading(false);
+            });
+        } else {
+            // Clear messages when no chatId
+            setMessages([]);
+            setChat(null);
+            setIsMessagesLoading(false);
         }
     }, [chatId]);
 
@@ -309,6 +396,8 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
             setChatHistory,
             isHistoryLoading,
             setIsHistoryLoading,
+            isMessagesLoading,
+            setIsMessagesLoading,
             updateChatHistory,
             updateMessage
         }}>

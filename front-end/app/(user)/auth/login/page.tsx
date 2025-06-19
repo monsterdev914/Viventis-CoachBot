@@ -22,7 +22,7 @@ const LoginPage: React.FC = () => {
     const { setUser, user } = useAuth();
     useEffect(() => {
         if (user) {
-            router.replace('/dashboard');
+            router.replace('/');
         }
     }, [user, router]);
     useEffect(() => {
@@ -44,7 +44,7 @@ const LoginPage: React.FC = () => {
                 setSuccess('Login successful');
                 localStorage.setItem('token', response.data.token);
                 setUser(response.data.user);
-                router.push('/dashboard');
+                router.push('/');
             } else {
                 setError(response.data.error);
             }
@@ -67,7 +67,7 @@ const LoginPage: React.FC = () => {
     }
 
     return (
-        <div className="flex justify-center ">
+        <div className="flex justify-center items-center min-h-screen bg-white">
             <Card className="w-full max-w-md min-w-fit mx-auto px-5 pt-10 pb-5">
                 <div className="flex justify-center mb-4">
                     <Avatar

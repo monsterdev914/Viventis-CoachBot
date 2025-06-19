@@ -6,29 +6,25 @@ export const siteConfig = {
   navItems: [
     {
       label: "Home",
-      href: "/",
-    },
-    {
-      label: "Docs",
-      href: "/docs",
+      href: "/#",
     },
     {
       label: "Pricing",
       href: "/pricing",
     },
     {
-      label: "Blog",
-      href: "/blog",
+      label: "How to work",
+      href: "/#how-to-work",
     },
     {
-      label: "About",
-      href: "/about",
+      label: "Contact",
+      href: "/#contact",
     },
   ],
   navMenuItems: [
     {
       label: "Home",
-      href: "/",
+      href: "/#",
     },
     {
       label: "Chat",
@@ -47,12 +43,12 @@ export const siteConfig = {
       href: "/pricing",
     },
     {
-      label: "Blog",
-      href: "/blog",
+      label: "How to work",
+      href: "/#how-to-work",
     },
     {
-      label: "About",
-      href: "/about",
+      label: "Contact",
+      href: "/#contact",
     },
   ],
 };

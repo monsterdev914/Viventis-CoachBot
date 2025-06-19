@@ -27,7 +27,7 @@ const Navbar: React.FC = () => {
         <HeroUINavbar maxWidth="xl" className="p-2 bg-color border-b border-b-color w-full" classNames={{ menu: "bg-[#FFFFFF] bg-opacity-15 backdrop-blur-[10px] border-t border-t-color" }} position="sticky">
             <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
                 <NavbarBrand as="li" className="gap-3 max-w-fit">
-                    <NextLink className="flex justify-start items-center gap-1" href="/">
+                    <NextLink className="flex justify-start items-center gap-1" href="/admin">
                         <Logo />
                         <p className="font-bold text-inherit">{t("Viventis")}</p>
                     </NextLink>
@@ -48,7 +48,7 @@ const Navbar: React.FC = () => {
                                     "data-[active=true]:text-primary data-[active=true]:font-medium",
                                 )}
                                 color="foreground"
-                                href="/admin/bot_setting"
+                                href="/admin/bot-setting"
                             >
                                 Settings
                             </NextLink>
@@ -60,9 +60,21 @@ const Navbar: React.FC = () => {
                                     "data-[active=true]:text-primary data-[active=true]:font-medium",
                                 )}
                                 color="foreground"
-                                href="/admin/knowledge_base"
+                                href="/admin/knowledge-base"
                             >
                                 Knowledge Base
+                            </NextLink>
+                        </NavbarItem>
+                        <NavbarItem>
+                            <NextLink
+                                className={clsx(
+                                    "c-primary",
+                                    "data-[active=true]:text-primary data-[active=true]:font-medium",
+                                )}
+                                color="foreground"
+                                href="/admin/user-management"
+                            >
+                                User Management
                             </NextLink>
                         </NavbarItem>
                     </ul>
@@ -96,6 +108,13 @@ const Navbar: React.FC = () => {
                             Login
                         </NextLink>
                     </NavbarMenuItem>}
+                    {user && (
+                        <NavbarMenuItem>
+                            <NextLink href="/admin">
+                                Dashboard
+                            </NextLink>
+                        </NavbarMenuItem>
+                    )}
                     {user && (
                         <NavbarMenuItem>
                             <NextLink href="/admin/bot_setting">

@@ -77,5 +77,27 @@
     "Login": "Anmelden",
     "Sign up": "Registrieren",
     "Login to your account": "Login zu Ihrem Konto",
-    "Delete": "Löschen"
+    "Delete": "Löschen",
+    "subscription": {
+        "choosePlan": "Wählen Sie Ihren Plan",
+        "selectBestPlan": "Wählen Sie den perfekten Plan für Ihre Bedürfnisse",
+        "loginToSubscribe": "Anmelden zum Abonnieren",
+        "loginRequired": "Bitte melden Sie sich an, um Ihr Abonnement zu verwalten",
+        "currentPlan": "Aktueller Plan",
+        "startTrial": "Kostenlosen Test starten",
+        "upgradeTrial": "Test-Version aktualisieren",
+        "subscribe": "Abonnieren",
+        "upgrade": "Upgrade",
+        "downgrade": "Downgrade",
+        "notAvailable": "Nicht verfügbar",
+        "popular": "Am beliebtesten",
+        "trial": "Test",
+        "trialActive": "Ihr Test ist aktiv",
+        "cancelAnytime": "Jederzeit kündbar, keine Fragen gestellt",
+        "monthly": "Monatlich",
+        "quarterly": "Vierteljährlich",
+        "semiAnnual": "Halbjährlich",
+        "annual": "Jährlich",
+        "months": "Monate"
+    }
 }
