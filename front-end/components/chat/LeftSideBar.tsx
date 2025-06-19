@@ -21,6 +21,85 @@ const LeftSideBar: React.FC = () => {
     const { user, setUser, setLoading } = useAuth();
     const { subscription } = useSubscription();
     const [isOpen, setIsOpen] = useState(false);
+
+    // Function to categorize chats by time
+    const categorizeChatsByTime = (chats: any[]) => {
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const sevenDaysAgo = new Date(today);
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        const thirtyDaysAgo = new Date(today);
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+        const categories = {
+            today: [] as any[],
+            yesterday: [] as any[],
+            last7Days: [] as any[],
+            last30Days: [] as any[],
+            older: {} as Record<string, any[]>
+        };
+
+        chats.forEach(chat => {
+            const chatDate = new Date(chat.updated_at);
+            const chatDateOnly = new Date(chatDate.getFullYear(), chatDate.getMonth(), chatDate.getDate());
+
+            if (chatDateOnly.getTime() === today.getTime()) {
+                categories.today.push(chat);
+            } else if (chatDateOnly.getTime() === yesterday.getTime()) {
+                categories.yesterday.push(chat);
+            } else if (chatDateOnly >= sevenDaysAgo) {
+                categories.last7Days.push(chat);
+            } else if (chatDateOnly >= thirtyDaysAgo) {
+                categories.last30Days.push(chat);
+            } else {
+                // Group by month and year for older chats
+                const monthYear = chatDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                if (!categories.older[monthYear]) {
+                    categories.older[monthYear] = [];
+                }
+                categories.older[monthYear].push(chat);
+            }
+        });
+
+        return categories;
+    };
+
+    const categorizedChats = categorizeChatsByTime(chatHistory);
+
+    // Component to render chat category section
+    const renderChatCategory = (title: string, chats: any[]) => {
+        if (chats.length === 0) return null;
+
+        return (
+            <div className="mb-4">
+                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-2">
+                    {title}
+                </h3>
+                <div className="space-y-1">
+                    {chats.map((chat) => (
+                        <div
+                            key={chat.id}
+                            className="cursor-pointer hover:bg-gray-700 p-2 rounded transition-colors duration-200"
+                            onClick={() => handleChatClick(chat.id)}
+                        >
+                            <h6 className="text-white text-sm truncate">{chat.title || "Untitled"}</h6>
+                            <p className="text-xs text-gray-400 mt-1">
+                                {new Date(chat.updated_at).toLocaleDateString('en-US', {
+                                    month: 'short',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                })}
+                            </p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+    };
+
     const handleLogout = useCallback(() => {
         setLoading(true);
         signOut().then((res) => {
@@ -99,36 +178,31 @@ const LeftSideBar: React.FC = () => {
                     </div>
 
                     <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-600 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-gray-500">
-                        <div className="flex flex-col gap-2">
-                            {isHistoryLoading ? (
-                                <div className="flex justify-center py-4">
-                                    <Spinner />
-                                </div>
-                            ) : chatHistory.length === 0 ? (
-                                <div className="flex items-center justify-center py-4">
-                                    <h6 className="text-white font-bold">No chats found</h6>
-                                </div>
-                            ) : (
-                                chatHistory.map((chat) => (
-                                    // eslint-disable-next-line jsx-a11y/no-static-element-interactions
-                                    <div
-                                        key={chat.id}
-                                        className="cursor-pointer hover:bg-gray-700 p-2 rounded"
-                                        onClick={() => handleChatClick(chat.id)}
-                                    >
-                                        <h6 className="text-white">{chat.title ? chat.title : "Untitled"}</h6>
-                                        <p className="text-xs text-gray-400 mt-1">
-                                            {new Date(chat.updated_at).toLocaleDateString('en-US', {
-                                                month: 'short',
-                                                day: 'numeric',
-                                                hour: '2-digit',
-                                                minute: '2-digit'
-                                            })}
-                                        </p>
-                                    </div>
-                                ))
-                            )}
-                        </div>
+                        {isHistoryLoading ? (
+                            <div className="flex justify-center py-4">
+                                <Spinner />
+                            </div>
+                        ) : chatHistory.length === 0 ? (
+                            <div className="flex items-center justify-center py-4">
+                                <h6 className="text-white font-bold">No chats found</h6>
+                            </div>
+                        ) : (
+                            <div className="space-y-2">
+                                {renderChatCategory("Today", categorizedChats.today)}
+                                {renderChatCategory("Yesterday", categorizedChats.yesterday)}
+                                {renderChatCategory("Last 7 Days", categorizedChats.last7Days)}
+                                {renderChatCategory("Last 30 Days", categorizedChats.last30Days)}
+                                {Object.entries(categorizedChats.older)
+                                    .sort(([a], [b]) => {
+                                        // Sort months in descending order (newest first)
+                                        const dateA = new Date(a + ' 1');
+                                        const dateB = new Date(b + ' 1');
+                                        return dateB.getTime() - dateA.getTime();
+                                    })
+                                    .map(([monthYear, chats]) => renderChatCategory(monthYear, chats))
+                                }
+                            </div>
+                        )}
                     </div>
                     <div className="flex flex-row justify-between gap-2">
                         <div></div>
@@ -151,8 +225,8 @@ const LeftSideBar: React.FC = () => {
                 >
                     <ModalContent>
                         <ModalHeader>
-                            <h1>Upgrade to Pro</h1>
-                            <p>
+                            <h1 className="text-black">Upgrade to Pro</h1>
+                            <p className="text-black">
                                 {subscription ? `Status: ${subscription.status}` : 'No subscription'}
                             </p>
                         </ModalHeader>
