@@ -151,8 +151,8 @@ const LeftSideBar: React.FC = () => {
                 >
                     <ModalContent>
                         <ModalHeader>
-                            <h1>Upgrade to Pro</h1>
-                            <p>
+                            <h1 className="text-black">Upgrade to Pro</h1>
+                            <p className="text-black">
                                 {subscription ? `Status: ${subscription.status}` : 'No subscription'}
                             </p>
                         </ModalHeader>
