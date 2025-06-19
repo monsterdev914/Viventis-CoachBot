@@ -58,7 +58,7 @@ export default function Home() {
                                 Du erhältst 7 Tage vollen Zugriff – ohne Verpflichtung.
                             </p>
                             <p className="text-[18px] text-white">
-                                The Viventis CoachBot is your digital reflection partner - inspired by the "Inner Compass" system, developed from over 20 years of coaching experience. It thinks along with you, asks questions, and gets you to the point.
+                                The Viventis CoachBot is your digital reflection partner - inspired by the &quot;Inner Compass&quot; system, developed from over 20 years of coaching experience. It thinks along with you, asks questions, and gets you to the point.
                             </p>
                             <Button 
                                 variant="solid" 

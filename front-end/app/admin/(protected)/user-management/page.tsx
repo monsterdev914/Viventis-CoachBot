@@ -400,7 +400,7 @@ const UserManagementPage = () => {
 
                             {selectedUser?.subscription && (
                                 <div className="p-3 bg-gray-100 rounded-lg">
-                                    <h4 className="font-medium mb-2">User's Subscription Context:</h4>
+                                    <h4 className="font-medium mb-2">User&apos;s Subscription Context:</h4>
                                     <div className="text-sm space-y-1">
                                         <p>Plan: {selectedUser.subscription.plan.name}</p>
                                         <p>Status: {selectedUser.subscription.status}</p>
@@ -411,7 +411,7 @@ const UserManagementPage = () => {
                             
                             <div className="flex flex-col gap-2">
                                 <div className="flex justify-between items-center">
-                                    <label className="font-medium">Prompt Text:</label>
+                                    <label htmlFor="prompt-text" className="font-medium">Prompt Text:</label>
                                     {isEditingPrompt && (
                                         <Button
                                             size="sm"
@@ -428,6 +428,7 @@ const UserManagementPage = () => {
                                     )}
                                 </div>
                                 <textarea
+                                    id="prompt-text"
                                     className="w-full p-3 border rounded-lg min-h-[120px] text-black"
                                     placeholder={isEditingPrompt ? "Edit existing prompt..." : "Enter prompt to test with this user's context..."}
                                     value={promptText}
