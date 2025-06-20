@@ -19,4 +19,9 @@ const deleteDocument = async (id: string) => {
     return response.data;
 }
 
-export { getDocuments, uploadDocument, deleteDocument };
+const getQueueStatus = async () => {
+    const response = await api.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/documents/queue-status`);
+    return response.data;
+}
+
+export { getDocuments, uploadDocument, deleteDocument, getQueueStatus };
