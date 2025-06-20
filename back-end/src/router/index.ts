@@ -306,6 +306,7 @@ router.get('/userProfile/all', auth, isAdmin, UserProfileController.getAllUsers 
 //document routes
 router.post('/documents', auth, isAdmin, DocumentController.uploadDocument as unknown as RequestHandler);
 router.get('/documents', auth, isAdmin, DocumentController.getDocuments as unknown as RequestHandler);
+router.get('/documents/queue-status', auth, isAdmin, DocumentController.getQueueStatus as unknown as RequestHandler);
 router.delete('/documents/:id', auth, isAdmin, DocumentController.deleteDocument as unknown as RequestHandler);
 
 //bot setting routes
