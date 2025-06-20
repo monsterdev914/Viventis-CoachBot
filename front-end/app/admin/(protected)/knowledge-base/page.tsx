@@ -4,7 +4,7 @@ import { Card, CardBody, CardHeader, Spinner } from "@heroui/react"
 import { Button } from "@heroui/react"
 import { Input } from "@heroui/input"
 import { Table, TableHeader, TableBody, TableColumn, TableRow, TableCell } from "@heroui/react"
-import { getDocuments, uploadDocument, deleteDocument } from '@/app/api/document'
+import { getDocuments, uploadDocument, deleteDocument, getQueueStatus } from '@/app/api/document'
 import { useTranslation } from 'react-i18next';
 interface Document {
     id: string;
@@ -16,16 +16,51 @@ interface Document {
     created_at: string;
 }
 
+interface QueueStatus {
+    queueLength: number;
+    isProcessing: boolean;
+    maxConcurrentProcesses: number;
+    queueItems: Array<{
+        documentId: string;
+        fileName: string;
+        timestamp: string;
+    }>;
+}
+
 const KnowledgeBase = () => {
     const [documents, setDocuments] = useState<Document[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const [uploading, setUploading] = useState(false);
+    const [queueStatus, setQueueStatus] = useState<QueueStatus | null>(null);
+    const [showQueueDetails, setShowQueueDetails] = useState(false);
     const { t } = useTranslation();
     useEffect(() => {
         fetchDocuments();
+        fetchQueueStatus();
+        
+        // Poll queue status every 3 seconds when there are active processes
+        const interval = setInterval(() => {
+            fetchQueueStatus();
+        }, 3000);
+
+        return () => clearInterval(interval);
     }, []);
+
+    const fetchQueueStatus = async () => {
+        try {
+            const status = await getQueueStatus();
+            setQueueStatus(status);
+            
+            // Auto-refresh documents if queue is processing
+            if (status.isProcessing || status.queueLength > 0) {
+                fetchDocuments();
+            }
+        } catch (error: any) {
+            console.error('Failed to fetch queue status:', error);
+        }
+    };
 
     const fetchDocuments = async () => {
         try {
@@ -43,6 +78,55 @@ const KnowledgeBase = () => {
         const files = e.target.files;
         if (!files || files.length === 0) return;
 
+        // Check file size limit (10 MB = 10 * 1024 * 1024 bytes)
+        const maxFileSize = 10 * 1024 * 1024; // 10 MB
+        const oversizedFiles: string[] = [];
+        
+        for (let i = 0; i < files.length; i++) {
+            if (files[i].size > maxFileSize) {
+                oversizedFiles.push(`${files[i].name} (${formatFileSize(files[i].size)})`);
+            }
+        }
+
+        if (oversizedFiles.length > 0) {
+            setError(`The following files exceed the 10 MB limit: ${oversizedFiles.join(', ')}. Please reduce file size or split into smaller files.`);
+            e.target.value = ''; // Clear the file input
+            return;
+        }
+
+        // Check file types
+        const allowedTypes = [
+            'application/pdf',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/msword',
+            'text/plain'
+        ];
+        const invalidFiles: string[] = [];
+
+        for (let i = 0; i < files.length; i++) {
+            if (!allowedTypes.includes(files[i].type)) {
+                invalidFiles.push(`${files[i].name} (${files[i].type})`);
+            }
+        }
+
+        if (invalidFiles.length > 0) {
+            setError(`Unsupported file types. Only PDF, DOC, DOCX, and TXT files are allowed. Invalid files: ${invalidFiles.join(', ')}`);
+            e.target.value = ''; // Clear the file input
+            return;
+        }
+
+        // Check if queue is at capacity
+        if (queueStatus && queueStatus.queueLength >= 10) {
+            setError('Processing queue is full (10 documents). Please wait for some documents to finish processing before uploading more.');
+            return;
+        }
+
+        // Show warning if queue is getting full
+        if (queueStatus && queueStatus.queueLength >= 7) {
+            setError(`Queue is almost full (${queueStatus.queueLength}/10 documents). Consider waiting before uploading more.`);
+            // Still allow upload but show warning
+        }
+
         setUploading(true);
         setError(null);
         setSuccess(null);
@@ -53,10 +137,22 @@ const KnowledgeBase = () => {
                 formData.append('documents', files[i]);
             }
 
-            await uploadDocument(formData);
-
-            setSuccess('Documents uploaded successfully');
-            fetchDocuments(); // Refresh the list
+            const response = await uploadDocument(formData);
+            
+            // Show queue-aware success message
+            const queuePosition = (queueStatus?.queueLength || 0) + 1;
+            if (queueStatus && (queueStatus.isProcessing || queueStatus.queueLength > 0)) {
+                setSuccess(`Document(s) added to processing queue (position: ${queuePosition}). Processing will begin automatically.`);
+            } else {
+                setSuccess('Document(s) uploaded and processing started.');
+            }
+            
+            // Clear file input
+            e.target.value = '';
+            
+            // Refresh data
+            fetchDocuments();
+            fetchQueueStatus();
         } catch (error: any) {
             setError(error.response?.data?.error || 'Failed to upload documents');
         } finally {
@@ -91,44 +187,130 @@ const KnowledgeBase = () => {
         { name: "Actions", uid: "actions" },
     ];
 
+    const renderQueueStatus = () => {
+        if (!queueStatus) return null;
+
+        const { queueLength, isProcessing, maxConcurrentProcesses, queueItems } = queueStatus;
+        
+        if (queueLength === 0 && !isProcessing) {
+            return (
+                <div className="bg-success/10 border border-success/20 rounded-lg p-3 mb-4">
+                    <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-success rounded-full"></div>
+                        <span className="text-success font-medium">All documents processed</span>
+                    </div>
+                </div>
+            );
+        }
+
+        return (
+            <div className="bg-warning/10 border border-warning/20 rounded-lg p-4 mb-4">
+                <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-warning rounded-full animate-pulse"></div>
+                        <span className="text-warning font-medium">
+                            Processing Queue {isProcessing ? '(Active)' : '(Waiting)'}
+                        </span>
+                    </div>
+                    <Button
+                        size="sm"
+                        variant="light"
+                        onClick={() => setShowQueueDetails(!showQueueDetails)}
+                    >
+                        {showQueueDetails ? 'Hide Details' : 'Show Details'}
+                    </Button>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-4 text-sm">
+                    <div>
+                        <span className="text-gray-600">Queue Length:</span>
+                        <span className="ml-2 font-medium">{queueLength}</span>
+                    </div>
+                    <div>
+                        <span className="text-gray-600">Processing:</span>
+                        <span className="ml-2 font-medium">
+                            {isProcessing ? `${Math.min(maxConcurrentProcesses, queueLength)} of ${maxConcurrentProcesses}` : '0'}
+                        </span>
+                    </div>
+                    <div>
+                        <span className="text-gray-600">Status:</span>
+                        <span className="ml-2 font-medium">
+                            {isProcessing ? 'Active' : queueLength > 0 ? 'Waiting' : 'Idle'}
+                        </span>
+                    </div>
+                </div>
+
+                {showQueueDetails && queueItems.length > 0 && (
+                    <div className="mt-4 pt-3 border-t border-warning/20">
+                        <h4 className="text-sm font-medium mb-2">Queue Details:</h4>
+                        <div className="space-y-2 max-h-32 overflow-y-auto">
+                            {queueItems.map((item, index) => (
+                                <div key={item.documentId} className="flex justify-between items-center text-xs bg-white/50 rounded p-2">
+                                    <span className="font-medium">#{index + 1} {item.fileName}</span>
+                                    <span className="text-gray-500">
+                                        {new Date(item.timestamp).toLocaleTimeString()}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    };
+
     return (
         <div className="mx-auto p-4">
             <Card>
                 <CardHeader>
                     <div className="flex justify-between items-center w-full">
                         <h1 className="text-2xl font-bold">Knowledge Base</h1>
-                        <div className="flex gap-4">
-                            <Input
-                                type="file"
-                                accept=".pdf,.doc,.docx,.txt"
-                                multiple
-                                onChange={handleFileUpload}
-                                disabled={uploading}
-                                className="hidden"
-                                id="file-upload"
-                            />
-                            <Button
-                                color="primary"
-                                onClick={() => document.getElementById('file-upload')?.click()}
-                                isLoading={uploading}
-                            >
-                                Upload Documents
-                            </Button>
+                        <div className="flex flex-col gap-2">
+                            <div className="flex gap-4">
+                                <Input
+                                    type="file"
+                                    accept=".pdf,.doc,.docx,.txt"
+                                    multiple
+                                    onChange={handleFileUpload}
+                                    disabled={uploading}
+                                    className="hidden"
+                                    id="file-upload"
+                                />
+                                <Button
+                                    color="primary"
+                                    onClick={() => document.getElementById('file-upload')?.click()}
+                                    isLoading={uploading}
+                                    isDisabled={uploading || (queueStatus?.queueLength ?? 0) >= 10}
+                                >
+                                    {uploading ? 'Uploading...' : 
+                                     queueStatus && queueStatus.queueLength >= 10 ? 'Queue Full' :
+                                     'Upload Documents'}
+                                </Button>
+                            </div>
+                            <div className="text-xs text-gray-500">
+                                Supported formats: PDF, DOC, DOCX, TXT • Max size: 10 MB per file
+                            </div>
                         </div>
                     </div>
                 </CardHeader>
                 <CardBody>
                     {error && (
-                        <div className="text-danger text-sm mb-4">
-                            {error}
+                        <div className="bg-danger/10 border border-danger/20 rounded-lg p-3 mb-4">
+                            <div className="text-danger text-sm">
+                                {error}
+                            </div>
                         </div>
                     )}
 
                     {success && (
-                        <div className="text-success text-sm mb-4">
-                            {success}
+                        <div className="bg-success/10 border border-success/20 rounded-lg p-3 mb-4">
+                            <div className="text-success text-sm">
+                                {success}
+                            </div>
                         </div>
                     )}
+
+                    {renderQueueStatus()}
 
                     <Table aria-label="Knowledge base documents">
                         <TableHeader>
