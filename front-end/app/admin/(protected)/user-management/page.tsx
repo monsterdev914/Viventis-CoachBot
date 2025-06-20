@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardBody, Table, TableHeader, TableBody, TableColumn, TableRow, TableCell, Button, Chip, Input, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Tooltip } from "@heroui/react";
-import { getAllUsers } from '@/app/api/userProfile';
+import { getAllUsers, updateUserProfileByAdmin } from '@/app/api/userProfile';
 import { createUserPrompt, UserPrompt, getUserPrompts, updateUserPrompt } from '@/app/api/userPrompts';
 
 interface User {
@@ -35,16 +35,20 @@ interface User {
 const UserManagementPage = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const { isOpen: isDetailsOpen, onOpen: onDetailsOpen, onClose: onDetailsClose } = useDisclosure();
+    const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [selectedUserForDetails, setSelectedUserForDetails] = useState<User | null>(null);
+    const [selectedUserForEdit, setSelectedUserForEdit] = useState<User | null>(null);
     const [promptText, setPromptText] = useState('');
     const [existingPrompts, setExistingPrompts] = useState<UserPrompt[]>([]);
     const [isEditingPrompt, setIsEditingPrompt] = useState(false);
     const [selectedPromptId, setSelectedPromptId] = useState<string | null>(null);
     const [loadingPrompts, setLoadingPrompts] = useState(false);
+    const [editFormData, setEditFormData] = useState({ first_name: '', last_name: '' });
+    const [isUpdatingUser, setIsUpdatingUser] = useState(false);
 
     useEffect(() => {
         fetchUsers();
@@ -184,6 +188,41 @@ const UserManagementPage = () => {
         }
     };
 
+    const handleEditUser = (user: User) => {
+        setSelectedUserForEdit(user);
+        setEditFormData({
+            first_name: user.first_name || '',
+            last_name: user.last_name || ''
+        });
+        onEditOpen();
+    };
+
+    const handleUpdateUser = async () => {
+        if (!selectedUserForEdit) return;
+
+        setIsUpdatingUser(true);
+        try {
+            await updateUserProfileByAdmin(selectedUserForEdit.id, editFormData);
+            
+            // Update the users list with the new data
+            setUsers(prevUsers => 
+                prevUsers.map(user => 
+                    user.id === selectedUserForEdit.id 
+                        ? { ...user, first_name: editFormData.first_name, last_name: editFormData.last_name }
+                        : user
+                )
+            );
+            
+            onEditClose();
+            setSelectedUserForEdit(null);
+            setEditFormData({ first_name: '', last_name: '' });
+        } catch (error) {
+            console.error('Error updating user:', error);
+        } finally {
+            setIsUpdatingUser(false);
+        }
+    };
+
     return (
         <div className="container mx-auto px-4 py-8 flex flex-col gap-4">
             <div className="flex justify-between items-center">
@@ -249,7 +288,8 @@ const UserManagementPage = () => {
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex gap-2">
-                                                <div className="h-8 bg-gray-200 rounded animate-pulse w-16"></div>
+                                                <div className="h-8 bg-gray-200 rounded animate-pulse w-12"></div>
+                                                <div className="h-8 bg-gray-200 rounded animate-pulse w-20"></div>
                                                 <div className="h-8 bg-gray-200 rounded animate-pulse w-16"></div>
                                             </div>
                                         </TableCell>
@@ -312,6 +352,17 @@ const UserManagementPage = () => {
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex gap-2">
+                                                    <Tooltip content="Edit user information" className='text-black'>
+                                                        <Button
+                                                            size="sm"
+                                                            color="warning"
+                                                            variant="bordered"
+                                                            onClick={() => handleEditUser(user)}
+                                                        >
+                                                            Edit
+                                                        </Button>
+                                                    </Tooltip>
+
                                                     <Tooltip content="Add AI prompt with this user's context" className='text-black'>
                                                         <Button
                                                             size="sm"
@@ -623,6 +674,52 @@ const UserManagementPage = () => {
                     <ModalFooter>
                         <Button color="primary" onPress={onDetailsClose}>
                             Close
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
+
+            {/* Edit User Modal */}
+            <Modal isOpen={isEditOpen} onClose={onEditClose} size="md">
+                <ModalContent>
+                    <ModalHeader>
+                        <div className="flex flex-col text-black">
+                            <span>Edit User Information</span>
+                            <span className="text-sm text-gray-500">{selectedUserForEdit?.email}</span>
+                        </div>
+                    </ModalHeader>
+                    <ModalBody>
+                        <div className="flex flex-col gap-4 text-black">
+                            <Input
+                                label="First Name"
+                                placeholder="Enter first name"
+                                value={editFormData.first_name}
+                                onChange={(e) => setEditFormData(prev => ({ ...prev, first_name: e.target.value }))}
+                                variant="bordered"
+                            />
+                            <Input
+                                label="Last Name"
+                                placeholder="Enter last name"
+                                value={editFormData.last_name}
+                                onChange={(e) => setEditFormData(prev => ({ ...prev, last_name: e.target.value }))}
+                                variant="bordered"
+                            />
+                            <div className="text-sm text-gray-500 mt-2">
+                                <p>Note: Only first name and last name can be edited. Email and other account details cannot be changed.</p>
+                            </div>
+                        </div>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="danger" variant="light" onClick={onEditClose} disabled={isUpdatingUser}>
+                            Cancel
+                        </Button>
+                        <Button 
+                            color="primary" 
+                            onClick={handleUpdateUser} 
+                            disabled={isUpdatingUser || (!editFormData.first_name.trim() && !editFormData.last_name.trim())}
+                            isLoading={isUpdatingUser}
+                        >
+                            {isUpdatingUser ? 'Updating...' : 'Update User'}
                         </Button>
                     </ModalFooter>
                 </ModalContent>

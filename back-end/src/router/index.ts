@@ -301,6 +301,7 @@ router.post('/chat/stream', auth, requireActiveSubscription as unknown as Reques
 router.get('/userProfile', auth, UserProfileController.getUserProfile as unknown as RequestHandler);
 router.put('/userProfile', auth, UserProfileController.updateUserProfile as unknown as RequestHandler);
 router.get('/userProfile/all', auth, isAdmin, UserProfileController.getAllUsers as unknown as RequestHandler);
+router.put('/userProfile/:userId', auth, isAdmin, UserProfileController.updateUserProfileByAdmin as unknown as RequestHandler);
 
 
 //document routes
