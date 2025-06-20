@@ -19,7 +19,7 @@ interface QueueItem {
 export class DocumentController {
     private static processingQueue: QueueItem[] = [];
     private static isProcessing = false;
-    private static maxConcurrentProcesses = 2; // Limit concurrent processing
+    private static maxConcurrentProcesses = 3; // Limit concurrent processing
     private static embeddings = new OpenAIEmbeddings({
         openAIApiKey: process.env.OPENAI_API_KEY,
         model: "text-embedding-3-small",
@@ -162,6 +162,46 @@ export class DocumentController {
         const files = Array.isArray(req.files.documents)
             ? req.files.documents
             : [req.files.documents];
+
+        // Check file size limit (10 MB)
+        const maxFileSize = 10 * 1024 * 1024; // 10 MB in bytes
+        const oversizedFiles: string[] = [];
+
+        for (const file of files) {
+            if (file.size > maxFileSize) {
+                const fileSizeInMB = (file.size / (1024 * 1024)).toFixed(2);
+                oversizedFiles.push(`${file.name} (${fileSizeInMB} MB)`);
+            }
+        }
+
+        if (oversizedFiles.length > 0) {
+            res.status(400).json({ 
+                error: `File size limit exceeded. The following files are larger than 10 MB: ${oversizedFiles.join(', ')}` 
+            });
+            return;
+        }
+
+        // Check file types
+        const allowedTypes = [
+            'application/pdf',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/msword',
+            'text/plain'
+        ];
+        const invalidFiles: string[] = [];
+
+        for (const file of files) {
+            if (!allowedTypes.includes(file.mimetype)) {
+                invalidFiles.push(`${file.name} (${file.mimetype})`);
+            }
+        }
+
+        if (invalidFiles.length > 0) {
+            res.status(400).json({ 
+                error: `Unsupported file types. Only PDF, DOC, DOCX, and TXT files are allowed. Invalid files: ${invalidFiles.join(', ')}` 
+            });
+            return;
+        }
 
         try {
             for (const file of files) {
