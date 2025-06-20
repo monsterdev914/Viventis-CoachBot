@@ -17,3 +17,8 @@ export const updateUserProfile = async (profileData: { first_name: string; last_
     const response = await api.put(`${API_URL}/userProfile`, profileData)
     return response
 }
+
+export const updateUserProfileByAdmin = async (userId: string, profileData: { first_name: string; last_name: string }) => {
+    const response = await api.put(`${API_URL}/userProfile/${userId}`, profileData)
+    return response
+}

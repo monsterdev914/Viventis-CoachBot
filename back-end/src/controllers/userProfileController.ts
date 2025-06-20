@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { supabase } from "../supabaseClient";
 
 class UserProfileController {
     static getUserProfile = async (req: Request, res: Response) => {
@@ -161,6 +162,66 @@ class UserProfileController {
             return res.status(200).json(enrichedUsers);
         } catch (error: any) {
             console.error('Error in getAllUsers:', error);
+            return res.status(500).json({ error: error.message });
+        }
+    }
+
+    static updateUserProfileByAdmin = async (req: Request, res: Response) => {
+        try {
+            const { userId } = req.params;
+            const { first_name, last_name } = req.body;
+
+            if (!userId) {
+                return res.status(400).json({ error: 'User ID is required' });
+            }
+
+            if (!first_name && !last_name) {
+                return res.status(400).json({ error: 'At least one field (first_name or last_name) is required' });
+            }
+
+            // Check if user exists
+            const { data: existingUser, error: userError } = await supabase
+                .from("user_profile")
+                .select("*")
+                .eq("user_id", userId)
+                .single();
+
+            if (userError || !existingUser) {
+                return res.status(404).json({ error: 'User not found' });
+            }
+
+            const updateData: any = {
+                updated_at: new Date().toISOString()
+            };
+
+            if (first_name !== undefined) updateData.first_name = first_name;
+            if (last_name !== undefined) updateData.last_name = last_name;
+
+            const { data, error } = await supabase
+                .from("user_profile")
+                .update(updateData)
+                .eq("user_id", userId)
+                .select()
+                .single();
+
+            if (error) {
+                return res.status(500).json({ error: error.message });
+            }
+
+            return res.status(200).json({
+                message: 'User profile updated successfully by admin',
+                profile: {
+                    id: data.user_id,
+                    email: data.email,
+                    first_name: data.first_name,
+                    last_name: data.last_name,
+                    role: data.role,
+                    created_at: data.created_at,
+                    updated_at: data.updated_at
+                }
+            });
+        } catch (error: any) {
+            console.error('Error in updateUserProfileByAdmin:', error);
             return res.status(500).json({ error: error.message });
         }
     }
