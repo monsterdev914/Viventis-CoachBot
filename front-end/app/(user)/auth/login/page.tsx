@@ -44,7 +44,7 @@ const LoginPage: React.FC = () => {
                 setSuccess('Login successful');
                 localStorage.setItem('token', response.data.token);
                 setUser(response.data.user);
-                router.push('/');
+                router.push('/chat');
             } else {
                 setError(response.data.error);
             }
