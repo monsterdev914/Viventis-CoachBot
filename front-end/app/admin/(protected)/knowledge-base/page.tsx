@@ -78,39 +78,28 @@ const KnowledgeBase = () => {
         const files = e.target.files;
         if (!files || files.length === 0) return;
 
+        // Only allow single file upload
+        const file = files[0];
+
         // Check file size limit (10 MB = 10 * 1024 * 1024 bytes)
         const maxFileSize = 10 * 1024 * 1024; // 10 MB
-        const oversizedFiles: string[] = [];
         
-        for (let i = 0; i < files.length; i++) {
-            if (files[i].size > maxFileSize) {
-                oversizedFiles.push(`${files[i].name} (${formatFileSize(files[i].size)})`);
-            }
-        }
-
-        if (oversizedFiles.length > 0) {
-            setError(`The following files exceed the 10 MB limit: ${oversizedFiles.join(', ')}. Please reduce file size or split into smaller files.`);
+        if (file.size > maxFileSize) {
+            setError(`File exceeds the 10 MB limit: ${file.name} (${formatFileSize(file.size)}). Please reduce file size or split into smaller files.`);
             e.target.value = ''; // Clear the file input
             return;
         }
 
-        // Check file types
+        // Check file type
         const allowedTypes = [
             'application/pdf',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             'application/msword',
             'text/plain'
         ];
-        const invalidFiles: string[] = [];
 
-        for (let i = 0; i < files.length; i++) {
-            if (!allowedTypes.includes(files[i].type)) {
-                invalidFiles.push(`${files[i].name} (${files[i].type})`);
-            }
-        }
-
-        if (invalidFiles.length > 0) {
-            setError(`Unsupported file types. Only PDF, DOC, DOCX, and TXT files are allowed. Invalid files: ${invalidFiles.join(', ')}`);
+        if (!allowedTypes.includes(file.type)) {
+            setError(`Unsupported file type. Only PDF, DOC, DOCX, and TXT files are allowed. File: ${file.name} (${file.type})`);
             e.target.value = ''; // Clear the file input
             return;
         }
@@ -133,18 +122,16 @@ const KnowledgeBase = () => {
 
         try {
             const formData = new FormData();
-            for (let i = 0; i < files.length; i++) {
-                formData.append('documents', files[i]);
-            }
+            formData.append('documents', file);
 
             const response = await uploadDocument(formData);
             
             // Show queue-aware success message
             const queuePosition = (queueStatus?.queueLength || 0) + 1;
             if (queueStatus && (queueStatus.isProcessing || queueStatus.queueLength > 0)) {
-                setSuccess(`Document(s) added to processing queue (position: ${queuePosition}). Processing will begin automatically.`);
+                setSuccess(`Document added to processing queue (position: ${queuePosition}). Processing will begin automatically.`);
             } else {
-                setSuccess('Document(s) uploaded and processing started.');
+                setSuccess('Document uploaded and processing started.');
             }
             
             // Clear file input
@@ -154,7 +141,7 @@ const KnowledgeBase = () => {
             fetchDocuments();
             fetchQueueStatus();
         } catch (error: any) {
-            setError(error.response?.data?.error || 'Failed to upload documents');
+            setError(error.response?.data?.error || 'Failed to upload document');
         } finally {
             setUploading(false);
         }
@@ -270,7 +257,6 @@ const KnowledgeBase = () => {
                                 <Input
                                     type="file"
                                     accept=".pdf,.doc,.docx,.txt"
-                                    multiple
                                     onChange={handleFileUpload}
                                     disabled={uploading}
                                     className="hidden"
@@ -284,11 +270,11 @@ const KnowledgeBase = () => {
                                 >
                                     {uploading ? 'Uploading...' : 
                                      queueStatus && queueStatus.queueLength >= 10 ? 'Queue Full' :
-                                     'Upload Documents'}
+                                     'Upload Document'}
                                 </Button>
                             </div>
                             <div className="text-xs text-gray-500">
-                                Supported formats: PDF, DOC, DOCX, TXT • Max size: 10 MB per file
+                                Supported formats: PDF, DOC, DOCX, TXT • Max size: 4.5 MB
                             </div>
                         </div>
                     </div>
