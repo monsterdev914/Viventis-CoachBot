@@ -155,7 +155,7 @@ const ContactUs = () => {
                                         onValueChange={setIsAgreed}
                                     />
                                     <span className="text-sm">
-                                        Ich stimme den <Link href="/datenschutz" className="text-primary underline">Datenschutzbestimmungen</Link> zu und bin damit einverstanden, dass meine Daten zur Bearbeitung meiner Anfrage verwendet werden. *
+                                        Ich stimme den <Link href="/datenschutz" className="text-black underline">Datenschutzbestimmungen</Link> zu und bin damit einverstanden, dass meine Daten zur Bearbeitung meiner Anfrage verwendet werden. *
                                     </span>
                                 </div>
                                 <Button 
