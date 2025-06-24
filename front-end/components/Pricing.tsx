@@ -251,7 +251,7 @@ const PricingPage = () => {
           <Skeleton className="h-14 w-[400px] rounded-lg mb-4 bg-default-200" />
           <Skeleton className="h-6 w-[300px] rounded-lg bg-default-200" />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 w-full max-w-7xl px-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 w-full max-w-7xl">
           {[1, 2, 3, 4].map((i) => (
             <Card key={i} className="relative p-4">
               <CardHeader className="flex flex-col gap-2">
@@ -283,7 +283,7 @@ const PricingPage = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
+    <div className="max-w-7xl mx-auto">
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold mb-4">{t('subscription.choosePlan')}</h1>
         <p className="text-lg text-gray-600">{t('subscription.selectBestPlan')}</p>
@@ -325,7 +325,6 @@ const PricingPage = () => {
                 {t('subscription.trial')}
               </div>
             )}
-
             <CardHeader className="flex flex-col items-center pb-6">
               <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
               <div className="text-center">

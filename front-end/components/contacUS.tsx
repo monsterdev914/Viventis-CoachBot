@@ -1,7 +1,76 @@
 import { Avatar, Button, Card, CardBody, CardHeader, Checkbox, Input, Link, Textarea } from "@heroui/react";
 import { ClockIcon, EmailIcon, InstagramIcon, LinkedInIcon, MapPinIcon, PhoneIcon, XIcon } from "./icons";
+import { useState } from "react";
 
 const ContactUs = () => {
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        phone: '',
+        message: ''
+    });
+    const [isAgreed, setIsAgreed] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [status, setStatus] = useState<{ type: 'success' | 'error' | null; message: string }>({ type: null, message: '' });
+
+    const handleInputChange = (field: string, value: string) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        if (!formData.name || !formData.email || !formData.message) {
+            setStatus({ type: 'error', message: 'Bitte füllen Sie alle Pflichtfelder aus.' });
+            return;
+        }
+
+        if (!isAgreed) {
+            setStatus({ type: 'error', message: 'Bitte stimmen Sie den Datenschutzbestimmungen zu.' });
+            return;
+        }
+
+        setIsLoading(true);
+        setStatus({ type: null, message: '' });
+
+        try {
+            // Using Web3Forms as a free email service
+            const response = await fetch('https://api.web3forms.com/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    access_key: process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY || 'demo-key',
+                    name: formData.name,
+                    email: formData.email,
+                    phone: formData.phone || 'Nicht angegeben',
+                    message: formData.message,
+                    subject: 'Neue Kontaktanfrage von info@viventis.net',
+                    from_name: 'Der Innere Kompass Website',
+                    to: process.env.NEXT_PUBLIC_WEB3FORMS_TO_EMAIL || 'info@viventis.net',
+                    // Additional Web3Forms features
+                    botcheck: false, // Honeypot spam protection
+                    redirect: false, // Don't redirect after submission
+                    // Custom fields for better email formatting
+                    'h:Reply-To': formData.email,
+                    'h:X-Mailer': 'Der Innere Kompass Contact Form'
+                }),
+            });
+
+            if (response.ok) {
+                setStatus({ type: 'success', message: 'Vielen Dank! Ihre Nachricht wurde erfolgreich gesendet.' });
+                setFormData({ name: '', email: '', phone: '', message: '' });
+                setIsAgreed(false);
+            } else {
+                throw new Error('Failed to send message');
+            }
+        } catch (error) {
+            setStatus({ type: 'error', message: 'Entschuldigung, beim Senden der Nachricht ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.' });
+        } finally {
+            setIsLoading(false);
+        }
+    };
     return (
         <section className="relative flex flex-col w-full bg-white" id="contact">
             <div className="bg-color pt-[120px] pb-[200px] w-full flex flex-col items-center relative">
@@ -25,15 +94,84 @@ const ContactUs = () => {
                             <h1 className="text-2xl font-bold">Kontaktformular</h1>
                         </CardHeader>
                         <CardBody className="flex flex-col gap-4 w-full">
-                            <Input label="Name" placeholder="Name" className="w-full" />
-                            <Input label="Email" placeholder="Email" className="w-full" />
-                            <Input label="Telefon" placeholder="Telefon" className="w-full" />
-                            <Textarea label="Nachricht" placeholder="Nachricht" className="w-full" />
-                            <div className="flex items-center gap-2 w-full">
-                                <Checkbox color="primary" />
-                                <span className="text-sm">Ich stimme den Datenschutzbestimmungen zu</span>
-                            </div>
-                            <Button color="primary" variant="solid" radius="full" className="w-full text-[18px] py-6 px-8 bg-[#032e26] text-white"><span className="font-bold">Kostenloses Erstgespräch vereinbaren</span></Button>
+                            <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full">
+                                {status.type && (
+                                    <div className={`p-3 rounded-lg text-sm ${
+                                        status.type === 'success' 
+                                            ? 'bg-green-100 text-green-800 border border-green-200' 
+                                            : 'bg-red-100 text-red-800 border border-red-200'
+                                    }`}>
+                                        {status.message}
+                                    </div>
+                                )}
+                                
+                                <Input 
+                                    label="Name *" 
+                                    placeholder="Ihr vollständiger Name" 
+                                    className="w-full"
+                                    value={formData.name}
+                                    onChange={(e) => handleInputChange('name', e.target.value)}
+                                    isRequired
+                                />
+                                <Input 
+                                    label="Email *" 
+                                    placeholder="ihre.email@beispiel.com" 
+                                    type="email"
+                                    className="w-full"
+                                    value={formData.email}
+                                    onChange={(e) => handleInputChange('email', e.target.value)}
+                                    isRequired
+                                />
+                                <Input 
+                                    label="Telefon" 
+                                    placeholder="+41 79 XXX XX XX" 
+                                    type="tel"
+                                    className="w-full"
+                                    value={formData.phone}
+                                    onChange={(e) => handleInputChange('phone', e.target.value)}
+                                />
+                                
+                                {/* Honeypot field for spam protection - hidden from users */}
+                                <input 
+                                    type="text" 
+                                    name="botcheck" 
+                                    style={{ display: 'none' }} 
+                                    tabIndex={-1} 
+                                    autoComplete="off"
+                                />
+                                <Textarea 
+                                    label="Nachricht *" 
+                                    placeholder="Beschreiben Sie Ihr Anliegen..." 
+                                    className="w-full"
+                                    minRows={4}
+                                    value={formData.message}
+                                    onChange={(e) => handleInputChange('message', e.target.value)}
+                                    isRequired
+                                />
+                                <div className="flex items-start gap-2 w-full">
+                                    <Checkbox 
+                                        color="primary" 
+                                        isSelected={isAgreed}
+                                        onValueChange={setIsAgreed}
+                                    />
+                                    <span className="text-sm">
+                                        Ich stimme den <Link href="/datenschutz" className="text-primary underline">Datenschutzbestimmungen</Link> zu und bin damit einverstanden, dass meine Daten zur Bearbeitung meiner Anfrage verwendet werden. *
+                                    </span>
+                                </div>
+                                <Button 
+                                    type="submit"
+                                    color="primary" 
+                                    variant="solid" 
+                                    radius="full" 
+                                    className="w-full text-[18px] py-6 px-8 bg-[#032e26] text-white"
+                                    isLoading={isLoading}
+                                    isDisabled={isLoading}
+                                >
+                                    <span className="font-bold">
+                                        {isLoading ? 'Wird gesendet...' : 'Kostenloses Erstgespräch vereinbaren'}
+                                    </span>
+                                </Button>
+                            </form>
                         </CardBody>
                     </Card>
                 </div>
