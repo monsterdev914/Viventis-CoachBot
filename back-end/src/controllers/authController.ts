@@ -61,12 +61,16 @@ class AuthController {
                         user_role: userProfile?.role
                     }
                 })
-
-                console.log(data)
+                //last chat
+                const { data: chats, error: chatsError } = await supabase.from("chats").select("*").eq("user_id", data.session?.user?.id).order("created_at", { ascending: false }).limit(1)
+                if (chatsError) {
+                    throw new Error(chatsError.message);
+                }
                 return res.status(200).json({
                     message: 'Sign in successful',
                     token: data.session?.access_token,
-                    user: data.session?.user
+                    user: data.session?.user,
+                    last_chat: chats?.[0]
                 });
             }
         } catch (error) {
