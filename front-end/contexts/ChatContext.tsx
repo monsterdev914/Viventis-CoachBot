@@ -43,7 +43,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 
     const sendStreamMessage = async (newMessage: string) => {
         setIsLoading(true);
-        let assistantMessage: Message | null = null;
+        let assistantMessage: Partial<Message> | null = null;
         try {
             if (!chatId) {
                 const response = await createChat();
@@ -68,57 +68,48 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
                     } : chat
                 ));
             }
-
-            const userMessage: Message = {
-                id: Date.now().toString(),
+            const userMessage: Partial<Message> = {
                 chat_id: chatId,
                 role: 'user',
                 content: newMessage,
                 status: 'done',
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
             };
 
-            assistantMessage = {
-                id: (Date.now() + 1).toString(),
+            const assistantMessage: Partial<Message> = {
                 chat_id: chatId,
                 role: 'assistant',
                 content: "",
                 status: 'pending',
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
             };
 
-            setMessages(prev => [...prev, userMessage, assistantMessage!]);
+            setMessages(prev => [...prev, userMessage as Message, assistantMessage as Message]);
 
             const userMessageResponse = await createMessage({
-                chat_id: userMessage.chat_id,
-                role: userMessage.role,
-                content: userMessage.content,
-                status: userMessage.status,
-                created_at: userMessage.created_at,
-                updated_at: userMessage.updated_at
+                chat_id: userMessage.chat_id!,
+                role: userMessage.role!,
+                content: userMessage.content!,
+                status: userMessage.status!,
             });
             if (userMessageResponse.data) {
-                userMessage.id = userMessageResponse.data.id;
+                const realUserMessage = { ...userMessage, id: userMessageResponse.data.id };
                 setMessages(prev => prev.map(msg =>
-                    msg.id === Date.now().toString() ? userMessage : msg
+                    msg.id === userMessage.id ? realUserMessage as Message : msg
                 ));
+                userMessage.id = userMessageResponse.data.id;
             }
 
             const assistantMessageResponse = await createMessage({
-                chat_id: assistantMessage!.chat_id,
-                role: assistantMessage!.role,
-                content: assistantMessage!.content,
-                status: assistantMessage!.status,
-                created_at: assistantMessage!.created_at,
-                updated_at: assistantMessage!.updated_at
+                chat_id: assistantMessage!.chat_id!,
+                role: assistantMessage!.role!,
+                content: assistantMessage!.content!,
+                status: assistantMessage!.status!,
             });
             if (assistantMessageResponse.data) {
-                assistantMessage!.id = assistantMessageResponse.data.id;
+                const realAssistantMessage = { ...assistantMessage!, id: assistantMessageResponse.data.id };
                 setMessages(prev => prev.map(msg =>
-                    msg.id === (Date.now() + 1).toString() ? assistantMessage! : msg
+                    msg.id === assistantMessage!.id ? realAssistantMessage as Message : msg
                 ));
+                assistantMessage!.id = assistantMessageResponse.data.id;
             }
 
             let finalContent = "";
@@ -133,7 +124,6 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
                                 return {
                                     ...msg,
                                     content: finalContent,
-                                    updated_at: new Date().toISOString()
                                 };
                             }
                             return msg;
@@ -146,7 +136,6 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
                 id: assistantMessage!.id,
                 content: finalContent,
                 status: "done" as const,
-                updated_at: new Date().toISOString()
             };
             await updateMessageApi(updatedMessage);
             setMessages(prev => {
@@ -172,14 +161,13 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
                     // Show subscription error message
                     if (assistantMessage) {
                         const errorMessage: Partial<Message> = {
-                            id: assistantMessage.id,
+                            id: "null",
                             content: `❌ ${message || 'Active subscription required to continue chatting. Please upgrade your plan.'}`,
                             status: "error" as const,
-                            updated_at: new Date().toISOString()
                         };
                         await updateMessageApi(errorMessage);
                         setMessages(prev => prev.map(msg =>
-                            msg.id === assistantMessage!.id ? { ...msg, ...errorMessage } as Message : msg
+                            msg.id === "null" ? { ...msg, ...errorMessage } as Message : msg
                         ));
                     }
                     // Redirect will be handled by axios interceptor
@@ -190,14 +178,13 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
             // Handle other errors
             if (assistantMessage) {
                 const errorMessage: Partial<Message> = {
-                    id: assistantMessage.id,
+                    id: "null",
                     content: "❌ Sorry, there was an error processing your message. Please try again.",
                     status: "error" as const,
-                    updated_at: new Date().toISOString()
                 };
                 await updateMessageApi(errorMessage);
                 setMessages(prev => prev.map(msg =>
-                    msg.id === assistantMessage!.id ? { ...msg, ...errorMessage } as Message : msg
+                    msg.id === "null" ? { ...msg, ...errorMessage } as Message : msg
                 ));
             }
         } finally {
@@ -277,11 +264,15 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
                     const nextMessageId = messages.findIndex((msg: Message, index: number) => msg.id === messageId);
                     const nextMessage = messages[nextMessageId + 1];
 
+                    // Set loading state to show thinking skeleton
+                    setIsLoading(true);
+
                     // Set loading state for the next message (assistant's response)
                     setMessages(prev => prev.map(msg =>
                         msg.id === nextMessage.id ? {
                             ...msg,
-                            status: "pending"
+                            status: "pending",
+                            content: "" // Clear content to show regeneration
                         } : msg
                     ));
 
@@ -348,9 +339,13 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
                         return newMessages;
                     });
                 }
+            } finally {
+                // Always set loading to false when done
+                setIsLoading(false);
             }
         } catch (error) {
             console.error('Error updating chat history:', error);
+            setIsLoading(false);
         }
     };
 

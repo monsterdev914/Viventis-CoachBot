@@ -74,7 +74,7 @@ const deleteChat = async (chatId: string) => {
     return response
 }
 
-const createMessage = async (message: Omit<Message, "id">) => {
+const createMessage = async (message: Omit<Message, "id" | "created_at" | "updated_at">) => {
     const response = await api.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chats/${message.chat_id}/messages`, { message })
     return response
 }
