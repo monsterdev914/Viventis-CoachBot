@@ -4,7 +4,7 @@ const ProcessWork = () => {
             {/* Left side: Title and subtitle */}
             <div className="flex flex-col md:flex-row justify-center items-start w-full mt-16 max-w-7xl mx-auto px-4 gap-16">
                 <div className="flex-1">
-                    <h1 className="text-[48px] font-bold text-[#032e26] leading-tight">
+                    <h1 className="md:text-[48px] text-[32px] font-bold text-[#032e26] leading-tight">
                         This is how the<br />registration process works
                     </h1>
                     <p className="mt-4 text-[18px] text-[#032e26]">How to sign up and get started</p>

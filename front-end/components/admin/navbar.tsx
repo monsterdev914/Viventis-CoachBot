@@ -29,7 +29,7 @@ const Navbar: React.FC = () => {
                 <NavbarBrand as="li" className="gap-3 max-w-fit">
                     <NextLink className="flex justify-start items-center gap-1" href="/admin">
                         <Logo />
-                        <p className="font-bold text-inherit">{t("Viventis")}</p>
+                        <p className="font-bold text-inherit">{t("Viventis Bot")}</p>
                     </NextLink>
                 </NavbarBrand>
                 <NavbarMenu>
@@ -117,14 +117,14 @@ const Navbar: React.FC = () => {
                     )}
                     {user && (
                         <NavbarMenuItem>
-                            <NextLink href="/admin/bot_setting">
+                            <NextLink href="/admin/bot-setting">
                                 Settings
                             </NextLink>
                         </NavbarMenuItem>
                     )}
                     {user && (
                         <NavbarMenuItem>
-                            <NextLink href="/admin/knowledge_base">
+                            <NextLink href="/admin/knowledge-base">
                                 Knowledge Base
                             </NextLink>
                         </NavbarMenuItem>
