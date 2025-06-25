@@ -211,6 +211,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         
         if (chatId) {
             setIsMessagesLoading(true);
+            setIsHistoryLoading(true);
             
             // Load chat info
             getChat(chatId).then(response => {
@@ -223,16 +224,20 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
             getMessages(chatId).then(response => {
                 setMessages(response.data || []);
                 setIsMessagesLoading(false);
+                setIsHistoryLoading(false);
             }).catch(error => {
                 console.error('Error loading messages:', error);
                 setMessages([]);
                 setIsMessagesLoading(false);
+                setIsHistoryLoading(false);
             });
         } else {
             // Clear messages when no chatId
             setMessages([]);
             setChat(null);
             setIsMessagesLoading(false);
+            setIsHistoryLoading(false);
+            setIsLoading(false);
         }
     }, [chatId]);
 

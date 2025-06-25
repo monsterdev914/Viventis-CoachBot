@@ -32,9 +32,9 @@ const PricingPage = () => {
       type,
       visible: true
     };
-    
+
     setToasts(prev => [...prev, newToast]);
-    
+
     // Auto-remove toast after 5 seconds
     setTimeout(() => {
       setToasts(prev => prev.filter(toast => toast.id !== id));
@@ -63,7 +63,7 @@ const PricingPage = () => {
     setLoadingPlans(prev => ({ ...prev, [plan.id]: true }));
     try {
       let response;
-      
+
       // If user has no subscription, create new one
       if (!subscription) {
         console.log('Creating new subscription');
@@ -73,7 +73,7 @@ const PricingPage = () => {
         console.log('Upgrading existing subscription');
         response = await upgradeSubscription(plan.id);
       }
-      
+
       // Handle response - either redirect to checkout or show success message
       if (response.url) {
         console.log('Redirecting to checkout for payment');
@@ -103,7 +103,7 @@ const PricingPage = () => {
     if (plan.is_trial) {
       return `${plan.trial_period_days || 7} days trial`;
     }
-    
+
     const months = plan.billing_period_months;
     if (months === 1) return t('subscription.monthly');
     if (months === 3) return t('subscription.quarterly');
@@ -177,15 +177,15 @@ const PricingPage = () => {
         </div>
       );
     }
-    
+
     if (plan.is_trial) {
       return t('subscription.startTrial');
     }
-    
+
     if (subscription?.status === 'trialing' && !plan.is_trial) {
       return t('subscription.upgradeTrial');
     }
-    
+
     return t('subscription.subscribe');
   };
 
@@ -195,15 +195,15 @@ const PricingPage = () => {
 
     // Can't select current plan
     if (isCurrentPlan(plan)) return false;
-    
+
     const currentPlan = getCurrentPlan();
-    
+
     // If user has trial, they can only upgrade to paid plans (not another trial)
     if (subscription?.status === 'trialing' && plan.is_trial) return false;
-    
+
     // If user has PAID subscription (current plan is not trial), they can't downgrade to trial
     if (currentPlan && !currentPlan.is_trial && plan.is_trial) return false;
-    
+
     return true;
   };
 
@@ -223,7 +223,7 @@ const PricingPage = () => {
 
   const getPlanCardStyle = (plan: typeof plans[0]) => {
     let className = 'relative overflow-visible p-4';
-    
+
     // Add current plan styling (only for authenticated users)
     if (user && isCurrentPlan(plan)) {
       className += ' border-success ring-2 ring-success';
@@ -240,7 +240,7 @@ const PricingPage = () => {
     else if (plan.is_trial) {
       className += ' border-2 border-dashed border-primary';
     }
-    
+
     return className;
   };
 
@@ -287,13 +287,13 @@ const PricingPage = () => {
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold mb-4">{t('subscription.choosePlan')}</h1>
         <p className="text-lg text-gray-600">{t('subscription.selectBestPlan')}</p>
-        
+
         {!user && (
           <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mt-4">
             {t('subscription.loginRequired')}
           </div>
         )}
-        
+
         {user && subscription?.status === 'trialing' && (
           <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mt-4">
             {t('subscription.trialActive')} {getTrialEndDate() && `until ${getTrialEndDate()}`}
@@ -319,16 +319,22 @@ const PricingPage = () => {
                 {t('subscription.popular')}
               </div>
             )}
-
+            {plans.indexOf(plan) === 2 && (
+              <div className="elementor-price-table__ribbon absolute top-0 right-0">
+                <div className="elementor-price-table__ribbon-inner bg-[#3BCC91] text-white px-6 py-2 text-sm font-semibold transform rotate-45 translate-x-4 -translate-y-2 shadow-md">
+                  Populär
+                </div>
+              </div>
+            )}
             {plan.is_trial && (
-              <div className="absolute -top-3 right-4 bg-secondary text-white px-3 py-1 rounded-full text-xs font-semibold">
+              <div className="absolute -top-3 right-4 bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
                 {t('subscription.trial')}
               </div>
             )}
             <CardHeader className="flex flex-col items-center pb-6">
               <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
               <div className="text-center">
-                <span className={`text-4xl font-bold ${plan.is_trial ? 'text-secondary' : 'text-default'}`}>
+                <span className={`text-4xl font-bold ${plan.is_trial ? 'text-orange-500' : 'text-default'}`}>
                   {getPlanPrice(plan)}
                 </span>
                 <span className="text-gray-500 ml-2">/ {getBillingText(plan)}</span>
@@ -356,23 +362,23 @@ const PricingPage = () => {
                 color={
                   !user
                     ? "primary"
-                    : isCurrentPlan(plan) 
-                      ? "success" 
+                    : isCurrentPlan(plan)
+                      ? "success"
                       : !canSelectPlan(plan)
                         ? "default"
                         : isUpgradeOrDowngrade(plan) === 'upgrade'
                           ? "primary"
                           : isUpgradeOrDowngrade(plan) === 'downgrade'
                             ? "warning"
-                            : plan.is_trial 
-                              ? "secondary" 
-                              : plan.name.includes('Pro') 
-                                ? "primary" 
+                            : plan.is_trial
+                              ? "secondary"
+                              : plan.name.includes('Pro')
+                                ? "primary"
                                 : "default"
                 }
                 variant={
-                  user && isCurrentPlan(plan) 
-                    ? "bordered" 
+                  user && isCurrentPlan(plan)
+                    ? "bordered"
                     : !canSelectPlan(plan) && user
                       ? "bordered"
                       : "solid"

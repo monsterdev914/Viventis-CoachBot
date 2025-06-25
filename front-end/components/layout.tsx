@@ -15,19 +15,19 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const pathname = usePathname();
 
     if (loading) {
-        return <div className="flex justify-center items-center h-screen">
+        return <div className="flex justify-center items-center min-h-screen">
             <Spinner size="lg" color="primary" />
         </div>;
     }
 
     return (
-        <section className="relative flex flex-col bg-color">
+        <section className="relative flex flex-col bg-color min-h-screen">
             <Navbar />
-            <main className=" flex-grow">
+            <main className=" flex-grow flex flex-col flex-1 items-center justify-center w-full">
                 {children}
             </main>
             {pathname === '/' && (
-                <footer className="w-full container mx-auto max-w-7xl flex flex-col bg-color justify-end items-center min-h-screen py-12">
+                <footer className="w-full container mx-auto max-w-7xl flex flex-col bg-color justify-end items-center py-12">
                 <div className="flex flex-col items-center gap-12">
                     <div className="flex flex-col items-center gap-6">
                         <Alert color="default" variant="flat" icon={<LoudSpeakerIcon size={16} />} radius="full" className="w-fit bg-[#FFFFFF1A] border-[#FFFFFF1C] border-1 p-2">

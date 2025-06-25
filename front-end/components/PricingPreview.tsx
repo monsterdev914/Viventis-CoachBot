@@ -340,7 +340,7 @@ const PricingPage = () => {
   };
 
   const getPlanCardStyle = (plan: typeof plans[0]) => {
-    let className = 'relative overflow-visible p-4';
+    let className = 'relative overflow-visible p-4 h-full';
 
     // Add current plan styling (only for authenticated users)
     if (user && isCurrentPlan(plan)) {
@@ -533,7 +533,7 @@ const PricingPage = () => {
                 )}
 
                 {plan.is_trial && (
-                  <div className="absolute -top-3 right-4 bg-secondary text-white px-3 py-1 rounded-full text-xs font-semibold">
+                  <div className="absolute -top-3 right-4 bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
                     {t('subscription.trial')}
                   </div>
                 )}
@@ -541,7 +541,7 @@ const PricingPage = () => {
                 <CardHeader className="flex flex-col items-center pb-6">
                   <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
                   <div className="text-center">
-                    <span className={`text-4xl font-bold ${plan.is_trial ? 'text-secondary' : 'text-default'}`}>
+                    <span className={`text-4xl font-bold ${plan.is_trial ? 'text-orange-500' : 'text-default'}`}>
                       {getPlanPrice(plan)}
                     </span>
                     <span className="text-gray-500 ml-2">/ {getBillingText(plan)}</span>

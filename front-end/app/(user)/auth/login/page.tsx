@@ -67,7 +67,7 @@ const LoginPage: React.FC = () => {
     }
 
     return (
-        <div className="flex justify-center items-center min-h-screen bg-white">
+        <div className="flex justify-center items-center">
             <Card className="w-full max-w-md min-w-fit mx-auto px-5 pt-10 pb-5">
                 <div className="flex justify-center mb-4">
                     <Avatar
