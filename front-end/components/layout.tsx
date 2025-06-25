@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { FacebookIcon, InstagramIcon, LinkedInIcon, LoudSpeakerIcon, XIcon } from "./icons";
 import Image from "next/image";
 import { usePathname } from 'next/navigation';
+import { FloatingLanguageSwitcher } from "./FloatingLanguageSwitcher";
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { loading } = useAuth();
@@ -22,6 +23,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
     return (
         <section className="relative flex flex-col bg-color min-h-screen">
+            <FloatingLanguageSwitcher />
             <Navbar />
             <main className=" flex-grow flex flex-col flex-1 items-center justify-center w-full">
                 {children}

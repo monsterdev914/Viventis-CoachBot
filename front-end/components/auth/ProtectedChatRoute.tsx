@@ -129,7 +129,7 @@ export default function ProtectedChatRoute({ children }: ProtectedChatRouteProps
                                 variant="solid"
                                 size="lg"
                                 className="w-full"
-                                onClick={() => router.push('/pricing')}
+                                onClick={() => router.push('/#pricing')}
                             >
                                 {isTrialExpired || isExpired ? 'Renew Subscription' : 'View Plans'}
                             </Button>
