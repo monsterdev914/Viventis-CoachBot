@@ -2,7 +2,7 @@
 // import { Button } from "@heroui/button";
 import Image from "next/image";
 import ChatInput from "./ChatInput";
-import { useEffect, useRef, useCallback, useState, useMemo } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import { useChat } from "@/contexts/ChatContext";
 import { motion, AnimatePresence } from "framer-motion";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
@@ -24,37 +24,9 @@ const MessageSkeleton = ({ isUser = false }) => (
         </div>
     </motion.div>
 );
-
-const ThinkingAnimation = () => {
-    const { t } = useTranslation();
-    
-    return (
-        <div className="flex items-center gap-2 p-3 rounded-lg bg-gray-100 text-gray-800">
-            <div className="flex gap-1">
-                <motion.div
-                    className="w-2 h-2 rounded-full bg-gray-400"
-                    animate={{ y: [0, -4, 0] }}
-                    transition={{ duration: 0.6, repeat: Infinity, delay: 0 }}
-                />
-                <motion.div
-                    className="w-2 h-2 rounded-full bg-gray-400"
-                    animate={{ y: [0, -4, 0] }}
-                    transition={{ duration: 0.6, repeat: Infinity, delay: 0.2 }}
-                />
-                <motion.div
-                    className="w-2 h-2 rounded-full bg-gray-400"
-                    animate={{ y: [0, -4, 0] }}
-                    transition={{ duration: 0.6, repeat: Infinity, delay: 0.4 }}
-                />
-            </div>
-            <span className="text-sm text-gray-500">{t('chat.thinking')}</span>
-        </div>
-    );
-};
-
 const MainBoard: React.FC = () => {
     const { t } = useTranslation();
-    const { messages, isLoading, sendStreamMessage, isHistoryLoading, updateChatHistory, deleteMessage, deleteCurrentChat, clearMessages } = useChat();
+    const { messages, isLoading, sendStreamMessage, isHistoryLoading, updateChatHistory, deleteMessage, deleteCurrentChat } = useChat();
     const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
     const [editContent, setEditContent] = useState("");
     const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
@@ -62,16 +34,7 @@ const MainBoard: React.FC = () => {
     const [isDeleting, setIsDeleting] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const messagesContainerRef = useRef<HTMLDivElement>(null);
-    const lastMessageRef = useRef<HTMLDivElement>(null);
 
-    // Sort messages by created_at to ensure proper chronological order
-    const sortedMessages = useMemo(() => {
-        return [...messages].sort((a, b) => {
-            const dateA = new Date(a.created_at).getTime();
-            const dateB = new Date(b.created_at).getTime();
-            return dateA - dateB;
-        });
-    }, [messages]);
 
     const scrollToBottom = useCallback(() => {
         // Try multiple approaches to ensure scrolling works
@@ -104,11 +67,11 @@ const MainBoard: React.FC = () => {
             clearTimeout(timeoutId);
             clearTimeout(animationTimeoutId);
         };
-    }, [sortedMessages, isLoading, scrollToBottom]);
+    }, [messages, isLoading, scrollToBottom]);
 
     // Additional effect to scroll when messages array length changes (new message added)
     useEffect(() => {
-        if (sortedMessages.length > 0) {
+        if (messages.length > 0) {
             // Immediate scroll for new messages
             scrollToBottom();
             
@@ -121,7 +84,7 @@ const MainBoard: React.FC = () => {
                 clearTimeout(secondTimeoutId);
             };
         }
-    }, [sortedMessages.length, scrollToBottom]);
+    }, [messages.length, scrollToBottom]);
 
     // Effect to handle scrolling when thinking animation appears/disappears
     useEffect(() => {
@@ -240,7 +203,7 @@ const MainBoard: React.FC = () => {
             {/* Messages Area */}
             <div className="flex-1 overflow-hidden min-h-0">
                 <AnimatePresence>
-                    {sortedMessages.length > 0 ? (
+                    {messages.length > 0 ? (
                         <motion.div
                             key="messages"
                             ref={messagesContainerRef}
@@ -250,7 +213,7 @@ const MainBoard: React.FC = () => {
                             transition={{ duration: 0.3 }}
                         >
                             <div className="flex flex-col gap-4">
-                                {sortedMessages.map((message, index) => (
+                                {messages.map((message, index) => (
                                     <motion.div
                                         key={message.id}
                                         initial={{ opacity: 0, y: 20 }}
@@ -354,17 +317,6 @@ const MainBoard: React.FC = () => {
                                         </div>
                                     </motion.div>
                                 ))}
-                                
-                                {/* Thinking animation */}
-                                {isLoading && (
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        className="flex justify-start"
-                                    >
-                                        <ThinkingAnimation />
-                                    </motion.div>
-                                )}
                             </div>
                             <div ref={messagesEndRef} className="h-4" />
                         </motion.div>
@@ -396,7 +348,7 @@ const MainBoard: React.FC = () => {
             </div>
             
             {/* Clear Chat Button - only show when there are messages */}
-            {sortedMessages.length > 0 && (
+            {messages.length > 0 && (
                 <div className="flex-shrink-0 px-4 py-2 bg-white border-t border-gray-200">
                     <div className="flex justify-center">
                         <Button

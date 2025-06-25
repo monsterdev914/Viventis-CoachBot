@@ -250,9 +250,10 @@ class ChatController {
             const supabase = (req as any).supabase;
             const { messageId } = req.params;
             const { message } = req.body;
+            const updated_At = new Date().toISOString();
             const { error } = await supabase
                 .from('messages')
-                .update(message)
+                .update({ ...message, updated_at: updated_At })
                 .eq('id', messageId);
 
             if (error) throw error;
