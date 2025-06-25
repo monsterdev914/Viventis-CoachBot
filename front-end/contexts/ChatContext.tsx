@@ -1,7 +1,7 @@
 'use client'
 import { ChatMessage, Message } from "@/types";
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { sendMessage, createMessage, createChat, updateMessage as updateMessageApi, updateChat, getChat, getChats, getMessages } from "@/app/api/chat";
+import { sendMessage, createMessage, createChat, updateMessage as updateMessageApi, updateChat, getChat, getChats, getMessages, deleteMessage as deleteMessageApi, deleteChat as deleteChatApi } from "@/app/api/chat";
 import { useParams, useRouter } from "next/navigation";
 
 type ChatContextType = {
@@ -22,6 +22,9 @@ type ChatContextType = {
     setIsMessagesLoading: (isLoading: boolean) => void;
     updateChatHistory: (messageId: string, newMessage: string) => void;
     updateMessage: (messageId: string, content: string) => Promise<void>;
+    deleteMessage: (messageId: string) => Promise<void>;
+    deleteCurrentChat: () => Promise<void>;
+    clearMessages: () => void;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -386,6 +389,41 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         }
     };
 
+    const deleteMessage = async (messageId: string) => {
+        try {
+            if (!chatId) return;
+            
+            // Delete message from database
+            await deleteMessageApi(chatId, messageId);
+            
+            // Remove message from local state
+            setMessages(prev => prev.filter(msg => msg.id !== messageId));
+        } catch (error) {
+            console.error('Error deleting message:', error);
+        }
+    };
+
+    const deleteCurrentChat = async () => {
+        try {
+            if (!chatId) return;
+            
+            // Delete chat from database
+            await deleteChatApi(chatId);
+            
+            // Remove chat from history
+            setChatHistory(prev => prev.filter(chat => chat.id !== chatId));
+            
+            // Navigate to chat page without ID
+            router.push('/chat');
+        } catch (error) {
+            console.error('Error deleting chat:', error);
+        }
+    };
+
+    const clearMessages = () => {
+        setMessages([]);
+    };
+
     return (
         <ChatContext.Provider value={{
             messages,
@@ -404,7 +442,10 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
             isMessagesLoading,
             setIsMessagesLoading,
             updateChatHistory,
-            updateMessage
+            updateMessage,
+            deleteMessage,
+            deleteCurrentChat,
+            clearMessages
         }}>
             {children}
         </ChatContext.Provider>

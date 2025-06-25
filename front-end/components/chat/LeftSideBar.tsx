@@ -8,19 +8,22 @@ import { ChatMessage } from "@/types";
 import { getChats } from "@/app/api/chat";
 import { useRouter } from "next/navigation";
 import { useChat } from "@/contexts/ChatContext";
-import { Modal, ModalContent, ModalHeader, Spinner } from "@heroui/react";
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Spinner } from "@heroui/react";
 import { signOut } from "@/app/api/auth";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
+import { deleteChat } from "@/app/api/chat";
 
 const LeftSideBar: React.FC = () => {
     const router = useRouter();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const { chatHistory, isHistoryLoading } = useChat();
+    const { chatHistory, isHistoryLoading, setChatHistory } = useChat();
     const { setMessages } = useChat();
     const { user, setUser, setLoading } = useAuth();
     const { subscription } = useSubscription();
     const [isOpen, setIsOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [deleteConfirmChatId, setDeleteConfirmChatId] = useState<string | null>(null);
 
     // Function to categorize chats by time
     const categorizeChatsByTime = (chats: any[]) => {
@@ -81,27 +84,48 @@ const LeftSideBar: React.FC = () => {
                     {chats.map((chat) => (
                         <div
                             key={chat.id}
-                            className="cursor-pointer hover:bg-gray-700 p-2 rounded transition-colors duration-200"
-                            onClick={() => handleChatClick(chat.id)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' || e.key === ' ') {
-                                    e.preventDefault();
-                                    handleChatClick(chat.id);
-                                }
-                            }}
-                            role="button"
-                            tabIndex={0}
-                            aria-label={`Open chat: ${chat.title || "Untitled"}`}
+                            className="group relative cursor-pointer hover:bg-gray-700 p-2 rounded transition-colors duration-200"
                         >
-                            <h6 className="text-white text-sm truncate">{chat.title || "Untitled"}</h6>
-                            <p className="text-xs text-gray-400 mt-1">
-                                {new Date(chat.updated_at).toLocaleDateString('en-US', {
-                                    month: 'short',
-                                    day: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                })}
-                            </p>
+                            <div
+                                onClick={() => handleChatClick(chat.id)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        handleChatClick(chat.id);
+                                    }
+                                }}
+                                role="button"
+                                tabIndex={0}
+                                aria-label={`Open chat: ${chat.title || "Untitled"}`}
+                                className="pr-8"
+                            >
+                                <h6 className="text-white text-sm truncate">{chat.title || "Untitled"}</h6>
+                                <p className="text-xs text-gray-400 mt-1">
+                                    {new Date(chat.updated_at).toLocaleDateString('en-US', {
+                                        month: 'short',
+                                        day: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    })}
+                                </p>
+                            </div>
+                            
+                            {/* Delete Button */}
+                            <Button
+                                isIconOnly
+                                size="sm"
+                                variant="light"
+                                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-red-400 hover:text-red-600 hover:bg-red-100/10"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setDeleteConfirmChatId(chat.id);
+                                }}
+                                aria-label={`Delete chat: ${chat.title || "Untitled"}`}
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                                </svg>
+                            </Button>
                         </div>
                     ))}
                 </div>
@@ -127,6 +151,26 @@ const LeftSideBar: React.FC = () => {
     const handleChatClick = (chatId: string) => {
         setMessages([]);
         router.push(`/chat/${chatId}`);
+    };
+
+    const handleDeleteChat = async (chatId: string) => {
+        try {
+            setIsDeleting(true);
+            await deleteChat(chatId);
+            // Remove from local chat history
+            const updatedHistory = chatHistory.filter((chat: ChatMessage) => chat.id !== chatId);
+            setChatHistory(updatedHistory);
+            setDeleteConfirmChatId(null);
+            
+            // If we're currently viewing the deleted chat, navigate to chat home
+            if (window.location.pathname.includes(chatId)) {
+                router.push('/chat');
+            }
+        } catch (error) {
+            console.error('Error deleting chat:', error);
+        } finally {
+            setIsDeleting(false);
+        }
     };
     useEffect(() => {
         if (isSidebarOpen) {
@@ -239,6 +283,40 @@ const LeftSideBar: React.FC = () => {
                                 {subscription ? `Status: ${subscription.status}` : 'No subscription'}
                             </p>
                         </ModalHeader>
+                    </ModalContent>
+                </Modal>
+
+                {/* Delete Chat Confirmation Modal */}
+                <Modal 
+                    isOpen={deleteConfirmChatId !== null} 
+                    onOpenChange={() => setDeleteConfirmChatId(null)}
+                    size="sm"
+                >
+                    <ModalContent>
+                        {(onClose) => (
+                            <>
+                                <ModalHeader className="flex flex-col gap-1">
+                                    <h3 className="text-lg font-semibold text-black">Delete Chat</h3>
+                                </ModalHeader>
+                                <ModalBody>
+                                    <p className="text-gray-600">
+                                        Are you sure you want to delete this chat? This will permanently delete all messages and cannot be undone.
+                                    </p>
+                                </ModalBody>
+                                <ModalFooter>
+                                    <Button variant="light" onPress={onClose}>
+                                        Cancel
+                                    </Button>
+                                    <Button 
+                                        color="danger" 
+                                        onPress={() => deleteConfirmChatId && handleDeleteChat(deleteConfirmChatId)}
+                                        isLoading={isDeleting}
+                                    >
+                                        {isDeleting ? 'Deleting...' : 'Delete Chat'}
+                                    </Button>
+                                </ModalFooter>
+                            </>
+                        )}
                     </ModalContent>
                 </Modal>
             </section>

@@ -257,7 +257,7 @@ export const Navbar = () => {
           <NavbarMenuItem>
             <Link
               className="text-black"
-              href="/pricing"
+              href="/#pricing"
               size="lg"
             >
               {t("Pricing")}

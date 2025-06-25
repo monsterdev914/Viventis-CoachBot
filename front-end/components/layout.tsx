@@ -39,7 +39,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                         <div className="text-[15px] text-white text-center max-w-[800px]">
                             Bist Du bereit, den nächsten Schritt zu gehen? Finde heraus, wie der Innere Kompass Dir hilft, Deine Ziele zu erreichen – und wie Du dabei auch persönlich wachsen kannst.
                         </div>
-                        <Button color="primary" variant="solid" radius="full" className="w-fit text-[18px] py-6 px-8"><span className="font-bold">Kostenloses Erstgespräch vereinbaren</span></Button>
+                        <Button color="primary" variant="solid" radius="full" className="w-fit md:text-[18px] text-[14px] md:py-6 py-4 md:px-8 px-4"><span className="font-bold">Kostenloses Erstgespräch vereinbaren</span></Button>
                     </div>
                     <div className="flex flex-col md:flex-row gap-8 w-full justify-between">
                         <div className="flex flex-col justify-between gap-4 flex-[2] items-center">

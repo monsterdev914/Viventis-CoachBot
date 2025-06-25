@@ -87,7 +87,7 @@ const ContactUs = () => {
                     </div>
                 </div>
             </div>
-            <div className="container mx-auto max-w-7xl pt-16 flex flex-col md:flex-row gap-[60px] px-4">
+            <div className="container mx-auto max-w-7xl pt-16 flex flex-col lg:flex-row gap-[60px] px-4 pb-16">
                 <div className="flex flex-col gap-4 flex-1">
                     <Card className="w-full py-10 px-6 py-10 transform -translate-y-40">
                         <CardHeader className="w-full">

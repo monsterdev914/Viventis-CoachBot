@@ -4,13 +4,13 @@ const HowToWork = () => {
     return (
         <section className="min-h-screen bg-[#FFFFFF] py-[75px] w-full" id="how-to-work">
             <div className="flex flex-col gap-10 max-w-7xl mx-auto px-4">
-                <div className="flex flex-col gap-4 w-full px-[100px] items-center justify-center">
+                <div className="flex flex-col gap-4 w-full px-4 md:px-[100px] items-center justify-center">
                     <div className="text-[16px] text-white bg-[#3bcc91] px-4 py-2 text-center items-center justify-center rounded-full w-fit">Viventis Online Coaching</div>
                     <div className="flex flex-col gap-2">
                         <h1 className="text-[32px] md:text-[48px] font-bold text-[#032e26]">How does the Viventis CoachBot work?</h1>
                     </div>
                 </div>
-                <div className="flex flex-col md:flex-row gap-4 w-full px-[100px]">
+                <div className="flex flex-col md:flex-row gap-4 w-full px-4 md:px-[100px]">
                     <div className="flex flex-col gap-12 w-full items-center justify-center border-b-1 border-[#878b9940] pb-8 hover:border-[#878b99] transition-all duration-300">
                         <Image src="https://s.w.org/images/core/emoji/15.1.0/svg/1f9ed.svg" alt="How to work" width={30} height={30} />
                         <h2 className="text-[18px] md:text-[22px] font-bold text-[#032e26]">Clarity in everyday life</h2>
@@ -24,7 +24,7 @@ const HowToWork = () => {
                         <h2 className="text-[18px] md:text-[22px] font-bold text-[#032e26]">Persönliche Selbstreflexion jederzeit</h2>
                     </div>
                 </div>
-                <div className="flex flex-col md:flex-row gap-4 w-full px-[100px]">
+                <div className="flex flex-col md:flex-row gap-4 w-full px-4 md:px-[100px]">
                     <div className="flex flex-col gap-4 w-full">
                         <ul className="relative ml-2 py-2">
                             {/* Vertical line as background */}
@@ -70,8 +70,8 @@ const HowToWork = () => {
                         </p>
                     </div>
                 </div>
-                <div className="flex flex-col md:flex-row gap-8 py-20 w-full px-[100px]">
-                    <div className="flex-1 flex flex-row gap-4 w-full">
+                <div className="flex flex-col md:flex-row gap-8 py-20 w-full px-4 md:px-[100px]">
+                    <div className="flex-1 flex flex-col md:flex-row gap-4 w-full">
                         <div className="flex-1 flex flex-col gap-4">
                             <div className="bg-color rounded-lg p-6 flex flex-col gap-2 justify-between items-center w-full">
                                 <p className="text-center">
@@ -93,7 +93,7 @@ const HowToWork = () => {
                                     </p>
                                 </div>
                             </div>
-                            <div className="flex-1 min-h-[300px] min-w-[300px] rounded-lg" style={{
+                            <div className="flex-1 md:min-h-[300px] min-h-[200px] md:min-w-[300px] w-full rounded-lg" style={{
                                 backgroundImage: "url('/images/download.jpg')",
                                 backgroundSize: "cover",
                                 backgroundPosition: "center",

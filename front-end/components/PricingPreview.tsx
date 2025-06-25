@@ -340,7 +340,7 @@ const PricingPage = () => {
   };
 
   const getPlanCardStyle = (plan: typeof plans[0]) => {
-    let className = 'relative overflow-visible p-4 h-full';
+    let className = 'relative overflow-visible p-4';
 
     // Add current plan styling (only for authenticated users)
     if (user && isCurrentPlan(plan)) {
@@ -483,14 +483,14 @@ const PricingPage = () => {
   }
 
   return (
-    <div className=" w-full bg-[#ECECEC]">
+    <div className=" w-full bg-[#ECECEC]" id="pricing">
       <div className="max-w-6xl mx-auto p-6">
         <div className="text-center mb-8">
           <div className="mb-2 bg-[#3BCC91] rounded-full px-4 py-2 w-fit mx-auto">
             <p className="text-white">Abo-Modelle</p>
           </div>
-          <h1 className="text-4xl font-bold mb-4 text-[#032E26]">Ein Coach für jedes Budget</h1>
-
+          <h1 className="text-4xl font-bold py-4 text-[#032E26] md:text-5xl">Ein Coach für jedes Budget</h1>
+{/* 
           {!user && (
             <div className="text-blue-700 px-4 py-3 mt-4">
               {t('subscription.loginRequired')}
@@ -501,7 +501,7 @@ const PricingPage = () => {
             <div className="text-blue-700 px-4 py-3 mt-4">
               {t('subscription.trialActive')} {getTrialEndDate() && `until ${getTrialEndDate()}`}
             </div>
-          )}
+          )} */}
         </div>
 
         {error && (
@@ -511,9 +511,9 @@ const PricingPage = () => {
         )}
 
         {/* All Plans in One Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="flex flex-col lg:flex-row gap-4">
           {plans.map((plan) => (
-            <div key={plan.id}>
+            <div key={plan.id} className="flex-1">
               <Card
                 key={plan.id}
                 className={getPlanCardStyle(plan)}
@@ -650,7 +650,6 @@ const PricingPage = () => {
             </div>
           ))}
         </div>
-
         {/* Zusatzmodule Section */}
         <section className="mt-16 bg-[#ECECEC]" id="services">
           <div className="max-w-6xl mx-auto">

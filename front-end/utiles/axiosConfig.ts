@@ -58,7 +58,7 @@ api.interceptors.response.use(
                         console.error('Subscription required:', data.message);
                         // Redirect to pricing page for subscription issues
                         if (typeof window !== 'undefined' && data?.requiresSubscription) {
-                            window.location.href = '/pricing';
+                            window.location.href = '/#pricing';
                         }
                     }
                     break;

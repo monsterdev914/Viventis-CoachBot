@@ -6,7 +6,7 @@ import { useEffect, useRef, useCallback, useState } from "react";
 import { useChat } from "@/contexts/ChatContext";
 import { motion, AnimatePresence } from "framer-motion";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
-import { Button, Skeleton, Textarea } from "@heroui/react";
+import { Button, Skeleton, Textarea, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/react";
 
 const MessageSkeleton = ({ isUser = false }) => (
     <motion.div
@@ -48,9 +48,12 @@ const ThinkingAnimation = () => (
 );
 
 const MainBoard: React.FC = () => {
-    const { messages, isLoading, sendStreamMessage, isHistoryLoading, updateChatHistory } = useChat();
+    const { messages, isLoading, sendStreamMessage, isHistoryLoading, updateChatHistory, deleteMessage, deleteCurrentChat, clearMessages } = useChat();
     const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
     const [editContent, setEditContent] = useState("");
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+    const [showClearConfirm, setShowClearConfirm] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const messagesContainerRef = useRef<HTMLDivElement>(null);
 
@@ -88,6 +91,27 @@ const MainBoard: React.FC = () => {
     const handleCancelEdit = () => {
         setEditingMessageId(null);
         setEditContent("");
+    };
+
+    const handleDeleteMessage = async (messageId: string) => {
+        try {
+            setIsDeleting(true);
+            await deleteMessage(messageId);
+            setShowDeleteConfirm(null);
+        } catch (error) {
+            console.error('Error deleting message:', error);
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
+    const handleClearChat = async () => {
+        try {
+            await deleteCurrentChat();
+            setShowClearConfirm(false);
+        } catch (error) {
+            console.error('Error clearing chat:', error);
+        }
     };
 
     if (isHistoryLoading) {
@@ -188,15 +212,41 @@ const MainBoard: React.FC = () => {
                                                         <p>{message.content}</p>
                                                     )}
                                                     {message.role === 'user' && (
+                                                        <div className="absolute -top-[50%] -right-1 transform -translate-x-[5px] flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            <Button
+                                                                onClick={() => handleEditMessage(message.id, message.content)}
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                isIconOnly
+                                                                className="rounded-full p-1"
+                                                            >
+                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                                                </svg>
+                                                            </Button>
+                                                            <Button
+                                                                onClick={() => setShowDeleteConfirm(message.id)}
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                isIconOnly
+                                                                className="rounded-full p-1 text-red-500 hover:text-red-700"
+                                                            >
+                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                                                                </svg>
+                                                            </Button>
+                                                        </div>
+                                                    )}
+                                                    {message.role === 'assistant' && (
                                                         <Button
-                                                            onClick={() => handleEditMessage(message.id, message.content)}
+                                                            onClick={() => setShowDeleteConfirm(message.id)}
                                                             variant="ghost"
                                                             size="sm"
                                                             isIconOnly
-                                                            className="absolute -top-[50%] -right-1 transfrom -translate-x-[5px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity p-1"
+                                                            className="absolute -top-[50%] -right-1 transform -translate-x-[5px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity p-1 text-red-500 hover:text-red-700"
                                                         >
                                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                                                <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
                                                             </svg>
                                                         </Button>
                                                     )}
@@ -240,10 +290,94 @@ const MainBoard: React.FC = () => {
             
             {/* Input Area - Fixed to viewport bottom */}
             <div className="flex-shrink-0 border-t border-gray-200 p-4 bg-[#FFFFFF] bg-opacity-50 backdrop-blur-sm sticky bottom-0">
+                {messages.length > 0 && (
+                    <div className="flex justify-end mb-2">
+                        <Button
+                            size="sm"
+                            variant="light"
+                            color="danger"
+                            onClick={() => setShowClearConfirm(true)}
+                            className="text-xs"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                            Clear Chat
+                        </Button>
+                    </div>
+                )}
                 <ChatInput onSendMessage={handleSendMessage} disabled={isLoading} props={{
                     className: "border-2 border-gray-200 shadow-lg"
                 }} />
             </div>
+
+            {/* Delete Message Confirmation Modal */}
+            <Modal 
+                isOpen={showDeleteConfirm !== null} 
+                onOpenChange={() => setShowDeleteConfirm(null)}
+                size="sm"
+            >
+                <ModalContent>
+                    {(onClose) => (
+                        <>
+                            <ModalHeader className="flex flex-col gap-1">
+                                <h3 className="text-lg text-black font-sans">Delete Message</h3>
+                            </ModalHeader>
+                            <ModalBody>
+                                <p className="text-gray-600">
+                                    Are you sure you want to delete this message? This action cannot be undone.
+                                </p>
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button variant="light" onPress={onClose}>
+                                    Cancel
+                                </Button>
+                                <Button 
+                                    color="danger" 
+                                    onPress={() => showDeleteConfirm && handleDeleteMessage(showDeleteConfirm)}
+                                    isLoading={isDeleting}
+                                >
+                                    {isDeleting ? 'Deleting...' : 'Delete'}
+                                </Button>
+                            </ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
+
+            {/* Clear Chat Confirmation Modal */}
+            <Modal 
+                isOpen={showClearConfirm} 
+                onOpenChange={setShowClearConfirm}
+                size="sm"
+            >
+                <ModalContent>
+                    {(onClose) => (
+                        <>
+                            <ModalHeader className="flex flex-col gap-1">
+                                <h3 className="text-lg text-black font-sans">Clear Chat</h3>
+                            </ModalHeader>
+                            <ModalBody>
+                                <p className="text-gray-600">
+                                    Are you sure you want to delete this entire chat? This will permanently delete all messages and cannot be undone.
+                                </p>
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button variant="light" onPress={onClose}>
+                                    Cancel
+                                </Button>
+                                <Button 
+                                    color="danger" 
+                                    onPress={handleClearChat}
+                                    isLoading={isDeleting}
+                                >
+                                    {isDeleting ? 'Deleting...' : 'Delete Chat'}
+                                </Button>
+                            </ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
         </div>
     );
 };
