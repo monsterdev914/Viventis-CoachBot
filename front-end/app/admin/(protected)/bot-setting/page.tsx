@@ -130,10 +130,8 @@ const BotSetting = () => {
 
     return (
         <div className="container mx-auto p-4">
-            <Card>
-                <CardHeader>
-                    <h1 className="text-2xl font-bold">Bot Settings</h1>
-                </CardHeader>
+            <h1 className="text-2xl font-bold mb-4">Bot Settings</h1>
+            <Card className='p-6'>
                 <CardBody>
                     {initialLoading ? (
                         <SettingsSkeleton />

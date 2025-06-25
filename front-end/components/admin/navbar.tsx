@@ -117,14 +117,14 @@ const Navbar: React.FC = () => {
                     )}
                     {user && (
                         <NavbarMenuItem>
-                            <NextLink href="/admin/bot_setting">
+                            <NextLink href="/admin/bot-setting">
                                 Settings
                             </NextLink>
                         </NavbarMenuItem>
                     )}
                     {user && (
                         <NavbarMenuItem>
-                            <NextLink href="/admin/knowledge_base">
+                            <NextLink href="/admin/knowledge-base">
                                 Knowledge Base
                             </NextLink>
                         </NavbarMenuItem>

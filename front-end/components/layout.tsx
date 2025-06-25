@@ -31,11 +31,11 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 <div className="flex flex-col items-center gap-12">
                     <div className="flex flex-col items-center gap-6">
                         <Alert color="default" variant="flat" icon={<LoudSpeakerIcon size={16} />} radius="full" className="w-fit bg-[#FFFFFF1A] border-[#FFFFFF1C] border-1 p-2">
-                            <h6 className="text-sm text-white font-bold">
+                            <h6 className="text-sm text-white font-bold md:text-[18px] text-[14px]">
                                 Bereit zu wachsen?
                             </h6>
                         </Alert>
-                        <h1 className="text-[40px] font-bold text-center text-white">Der Schritt zu einem selbstbestimmten und erfüllten Leben beginnt hier!</h1>
+                        <h1 className="md:text-[40px] text-[32px] font-bold text-center text-white">Der Schritt zu einem selbstbestimmten und erfüllten Leben beginnt hier!</h1>
                         <div className="text-[15px] text-white text-center max-w-[800px]">
                             Bist Du bereit, den nächsten Schritt zu gehen? Finde heraus, wie der Innere Kompass Dir hilft, Deine Ziele zu erreichen – und wie Du dabei auch persönlich wachsen kannst.
                         </div>

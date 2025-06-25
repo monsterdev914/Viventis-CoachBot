@@ -27,12 +27,12 @@ export default function Home() {
                     <div className="flex flex-col gap-4 w-full items-center justify-center">
                         <div className="text-[16px] bg-[#3bcc9130] border border-[#3bcc91] px-4 py-2 text-center items-center justify-center rounded-full w-fit">Viventis Online Coaching</div>
                         <div className="flex flex-col gap-2">
-                            <h1 className="text-[48px] font-bold">Viventis CoachBot</h1>
+                            <h1 className="md:text-[48px] text-[32px] font-bold">Viventis CoachBot</h1>
                         </div>
                     </div>
                     <div className="flex flex-col md:flex-row gap-[100px] w-full">
                         <div className="flex flex-col gap-4 w-full">
-                            <h2 className="text-[32px] font-bold">
+                            <h2 className="md:text-[32px] text-[24px] font-bold">
                                 Dein innerer Nordstern - Immer erreichbar
                             </h2>
                             <p className="text-[18px] text-white">
@@ -46,7 +46,7 @@ export default function Home() {
                             </p>
                         </div>
                         <div className="flex flex-col gap-4 w-full text-center items-center">
-                            <h2 className="text-[32px] font-bold">
+                            <h2 className="md:text-[32px] text-[24px] font-bold">
                                 Klarheit beginnt genau hier.
                             </h2>
                             <p className="text-[18px] text-white">

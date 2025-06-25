@@ -247,11 +247,12 @@ const KnowledgeBase = () => {
     };
 
     return (
-        <div className="mx-auto p-4">
-            <Card>
+        <div className="mx-auto p-4 w-full">
+            <h1 className="text-2xl font-bold mb-4">Knowledge Base</h1>
+            <Card className='p-6'>
                 <CardHeader>
                     <div className="flex justify-between items-center w-full">
-                        <h1 className="text-2xl font-bold">Knowledge Base</h1>
+                        
                         <div className="flex flex-col gap-2">
                             <div className="flex gap-4">
                                 <Input

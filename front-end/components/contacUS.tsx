@@ -167,7 +167,7 @@ const ContactUs = () => {
                                     isLoading={isLoading}
                                     isDisabled={isLoading}
                                 >
-                                    <span className="font-bold">
+                                    <span className="font-bold md:text-[18px] text-[14px]">
                                         {isLoading ? 'Wird gesendet...' : 'Kostenloses Erstgespräch vereinbaren'}
                                     </span>
                                 </Button>
