@@ -353,7 +353,9 @@
         "unauthorized": "Unbefugter Zugriff",
         "loginRequired": "Bitte melden Sie sich an, um fortzufahren",
         "networkError": "Netzwerkfehler",
-        "checkConnection": "Bitte überprüfen Sie Ihre Internetverbindung"
+        "checkConnection": "Bitte überprüfen Sie Ihre Internetverbindung",
+        "loginFailed": "Anmeldung fehlgeschlagen",
+        "loginSuccess": "Anmeldung erfolgreich"
     },
     "loading": {
         "loading": "Lädt...",

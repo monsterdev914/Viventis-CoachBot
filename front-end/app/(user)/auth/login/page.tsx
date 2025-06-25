@@ -22,16 +22,11 @@ const LoginPage: React.FC = () => {
     const { setUser, user } = useAuth();
     useEffect(() => {
         if (user) {
-            router.replace('/');
+            router.replace('/chat');
         }
     }, [user, router]);
     useEffect(() => {
         setMounted(true);
-        // Check for verification success
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('verified') === 'true') {
-            setSuccess('Email verified successfully! You can now log in.');
-        }
     }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -41,17 +36,18 @@ const LoginPage: React.FC = () => {
         try {
             const response = await signIn(formData.email, formData.password);
             if (response.status === 200) {
-                setSuccess('Login successful');
-                localStorage.setItem('token', response.data.token);
+                setSuccess(t('errors.loginSuccess'));
                 setUser(response.data.user);
                 router.push('/chat');
+                localStorage.setItem('token', response.data.token);
             } else {
                 setError(response.data.error);
             }
         } catch (err) {
-            setError('An error occurred during login');
+            setError(t('errors.loginFailed'));
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
