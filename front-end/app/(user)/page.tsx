@@ -1,7 +1,6 @@
 "use client"
 import Image from "next/image";
 import { Button } from "@heroui/react";
-import { FloatingLanguageSwitcher } from "@/components/FloatingLanguageSwitcher";
 import ContactUs from "@/components/contacUS";
 import HowToWork from "@/components/HowToWork";
 import ProcessWork from "@/components/ProcessWork";
@@ -64,7 +63,7 @@ export default function Home() {
                                 variant="solid" 
                                 color="primary" 
                                 className="w-fit rounded-full text-[18px] text-black font-bold py-8 px-8"
-                                onClick={() => window.location.href = '/pricing'}
+                                onClick={() => window.location.href = '/#pricing'}
                             >
                                 Starte jetzt kostenlos
                             </Button>
@@ -72,7 +71,6 @@ export default function Home() {
                     </div>
                 </div>
             </div>
-            <FloatingLanguageSwitcher />
             <HowToWork />
             <PricingPreview />
             <ProcessWork />
