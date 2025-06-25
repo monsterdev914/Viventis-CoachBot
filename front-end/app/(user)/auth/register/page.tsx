@@ -78,7 +78,7 @@ const RegisterPage: React.FC = () => {
     }
 
     return (
-        <div className="flex justify-center items-center min-h-screen bg-white">
+        <div className="flex justify-center items-center">
             <Card className="w-full max-w-md min-w-fit mx-auto px-5 pt-10 pb-5">
                 <CardHeader className="flex flex-col gap-1">
                     <h1 className="text-2xl font-bold text-center">{t('Create your account')}</h1>

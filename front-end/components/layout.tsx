@@ -15,19 +15,19 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const pathname = usePathname();
 
     if (loading) {
-        return <div className="flex justify-center items-center h-screen">
+        return <div className="flex justify-center items-center min-h-screen">
             <Spinner size="lg" color="primary" />
         </div>;
     }
 
     return (
-        <section className="relative flex flex-col bg-color">
+        <section className="relative flex flex-col bg-color min-h-screen">
             <Navbar />
-            <main className=" flex-grow">
+            <main className=" flex-grow flex flex-col flex-1 items-center justify-center w-full">
                 {children}
             </main>
             {pathname === '/' && (
-                <footer className="w-full container mx-auto max-w-7xl flex flex-col bg-color justify-end items-center min-h-screen py-12">
+                <footer className="w-full container mx-auto max-w-7xl flex flex-col bg-color justify-end items-center py-12">
                 <div className="flex flex-col items-center gap-12">
                     <div className="flex flex-col items-center gap-6">
                         <Alert color="default" variant="flat" icon={<LoudSpeakerIcon size={16} />} radius="full" className="w-fit bg-[#FFFFFF1A] border-[#FFFFFF1C] border-1 p-2">
@@ -39,7 +39,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                         <div className="text-[15px] text-white text-center max-w-[800px]">
                             Bist Du bereit, den nächsten Schritt zu gehen? Finde heraus, wie der Innere Kompass Dir hilft, Deine Ziele zu erreichen – und wie Du dabei auch persönlich wachsen kannst.
                         </div>
-                        <Button color="primary" variant="solid" radius="full" className="w-fit text-[18px] py-6 px-8"><span className="font-bold">Kostenloses Erstgespräch vereinbaren</span></Button>
+                        <Button color="primary" variant="solid" radius="full" className="w-fit md:text-[18px] text-[14px] md:py-6 py-4 md:px-8 px-4"><span className="font-bold">Kostenloses Erstgespräch vereinbaren</span></Button>
                     </div>
                     <div className="flex flex-col md:flex-row gap-8 w-full justify-between">
                         <div className="flex flex-col justify-between gap-4 flex-[2] items-center">

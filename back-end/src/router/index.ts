@@ -294,6 +294,7 @@ router.get('/chats/:chatId/messages', auth, requireActiveSubscription as unknown
 router.post('/chats/:chatId/messages', auth, requireActiveSubscription as unknown as RequestHandler, ChatController.createMessage as unknown as RequestHandler);
 router.put('/chats/:chatId', auth, requireActiveSubscription as unknown as RequestHandler, ChatController.updateChat as unknown as RequestHandler);
 router.put('/chats/:chatId/messages/:messageId', auth, requireActiveSubscription as unknown as RequestHandler, ChatController.updateMessage as unknown as RequestHandler);
+router.delete('/chats/:chatId/messages/:messageId', auth, requireActiveSubscription as unknown as RequestHandler, ChatController.deleteMessage as unknown as RequestHandler);
 router.delete('/chats/:chatId', auth, requireActiveSubscription as unknown as RequestHandler, ChatController.deleteChat as unknown as RequestHandler);
 router.post('/chat/stream', auth, requireActiveSubscription as unknown as RequestHandler, ChatController.streamChat as unknown as RequestHandler);
 

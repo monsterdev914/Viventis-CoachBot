@@ -9,7 +9,7 @@ import PricingPreview from "@/components/PricingPreview";
 
 export default function Home() {
     return (
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center w-full">
             <div className="relative w-full max-w-7xl mx-auto px-4 text-white py-20 overflow-hidden" style={{}}>
                 {/* Background image with opacity */}
                 <div

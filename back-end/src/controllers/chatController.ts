@@ -123,15 +123,48 @@ class ChatController {
             const { chatId } = req.params;
             const user = (req as any).user;
 
-            const { error } = await supabase
+            // First verify the chat belongs to the user
+            const { data: chatData, error: chatError } = await supabase
+                .from('chats')
+                .select('user_id')
+                .eq('id', chatId)
+                .single();
+
+            if (chatError) {
+                console.error('Error fetching chat:', chatError);
+                throw chatError;
+            }
+
+            if (chatData.user_id !== user.id) {
+                return res.status(403).json({ error: 'Unauthorized to delete this chat' });
+            }
+            console.log(chatData);
+
+            // Delete all messages associated with this chat first
+            const { error: messagesError } = await supabase
+                .from('messages')
+                .delete()
+                .eq('chat_id', chatId);
+
+            if (messagesError) {
+                console.error('Error deleting messages:', messagesError);
+                throw messagesError;
+            }
+
+            // Then delete the chat itself
+            const { error: chatDeleteError } = await supabase
                 .from('chats')
                 .delete()
                 .eq('id', chatId)
-                .eq('user_id', user.id);
 
-            if (error) throw error;
-            res.status(200).json({ message: 'Chat deleted successfully' });
+            if (chatDeleteError) {
+                console.error('Error deleting chat:', chatDeleteError);
+                throw chatDeleteError;
+            }
+
+            res.status(200).json({ message: 'Chat and all associated messages deleted successfully' });
         } catch (error: any) {
+            console.error('Error in deleteChat:', error);
             res.status(400).json({ error: error.message });
         }
     };
@@ -224,6 +257,45 @@ class ChatController {
 
             if (error) throw error;
             res.status(200).json({ message: 'Message updated successfully' });
+        } catch (error: any) {
+            res.status(400).json({ error: error.message });
+        }
+    };
+
+    static deleteMessage = async (req: Request, res: Response) => {
+        try {
+            const supabase = (req as any).supabase;
+            const { messageId } = req.params;
+            const user = (req as any).user;
+
+            // First verify the message belongs to the user's chat
+            const { data: messageData, error: fetchError } = await supabase
+                .from('messages')
+                .select('chat_id')
+                .eq('id', messageId)
+                .single();
+
+            if (fetchError) throw fetchError;
+
+            const { data: chatData, error: chatError } = await supabase
+                .from('chats')
+                .select('user_id')
+                .eq('id', messageData.chat_id)
+                .single();
+
+            if (chatError) throw chatError;
+
+            if (chatData.user_id !== user.id) {
+                return res.status(403).json({ error: 'Unauthorized to delete this message' });
+            }
+
+            const { error } = await supabase
+                .from('messages')
+                .delete()
+                .eq('id', messageId);
+
+            if (error) throw error;
+            res.status(200).json({ message: 'Message deleted successfully' });
         } catch (error: any) {
             res.status(400).json({ error: error.message });
         }

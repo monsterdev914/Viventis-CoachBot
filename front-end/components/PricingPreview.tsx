@@ -483,14 +483,14 @@ const PricingPage = () => {
   }
 
   return (
-    <div className=" w-full bg-[#ECECEC]">
+    <div className=" w-full bg-[#ECECEC]" id="pricing">
       <div className="max-w-6xl mx-auto p-6">
         <div className="text-center mb-8">
           <div className="mb-2 bg-[#3BCC91] rounded-full px-4 py-2 w-fit mx-auto">
             <p className="text-white">Abo-Modelle</p>
           </div>
-          <h1 className="text-4xl font-bold mb-4 text-[#032E26]">Ein Coach für jedes Budget</h1>
-
+          <h1 className="text-4xl font-bold py-4 text-[#032E26] md:text-5xl">Ein Coach für jedes Budget</h1>
+{/* 
           {!user && (
             <div className="text-blue-700 px-4 py-3 mt-4">
               {t('subscription.loginRequired')}
@@ -501,7 +501,7 @@ const PricingPage = () => {
             <div className="text-blue-700 px-4 py-3 mt-4">
               {t('subscription.trialActive')} {getTrialEndDate() && `until ${getTrialEndDate()}`}
             </div>
-          )}
+          )} */}
         </div>
 
         {error && (
@@ -511,9 +511,9 @@ const PricingPage = () => {
         )}
 
         {/* All Plans in One Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="flex flex-col lg:flex-row gap-4">
           {plans.map((plan) => (
-            <div key={plan.id}>
+            <div key={plan.id} className="flex-1">
               <Card
                 key={plan.id}
                 className={getPlanCardStyle(plan)}
@@ -533,7 +533,7 @@ const PricingPage = () => {
                 )}
 
                 {plan.is_trial && (
-                  <div className="absolute -top-3 right-4 bg-secondary text-white px-3 py-1 rounded-full text-xs font-semibold">
+                  <div className="absolute -top-3 right-4 bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
                     {t('subscription.trial')}
                   </div>
                 )}
@@ -541,7 +541,7 @@ const PricingPage = () => {
                 <CardHeader className="flex flex-col items-center pb-6">
                   <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
                   <div className="text-center">
-                    <span className={`text-4xl font-bold ${plan.is_trial ? 'text-secondary' : 'text-default'}`}>
+                    <span className={`text-4xl font-bold ${plan.is_trial ? 'text-orange-500' : 'text-default'}`}>
                       {getPlanPrice(plan)}
                     </span>
                     <span className="text-gray-500 ml-2">/ {getBillingText(plan)}</span>
@@ -650,7 +650,6 @@ const PricingPage = () => {
             </div>
           ))}
         </div>
-
         {/* Zusatzmodule Section */}
         <section className="mt-16 bg-[#ECECEC]" id="services">
           <div className="max-w-6xl mx-auto">

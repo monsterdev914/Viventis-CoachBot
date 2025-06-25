@@ -10,7 +10,7 @@ export const siteConfig = {
     },
     {
       label: "Pricing",
-      href: "/pricing",
+      href: "/#pricing",
     },
     {
       label: "How to work",
@@ -40,7 +40,7 @@ export const siteConfig = {
     },
     {
       label: "Pricing",
-      href: "/pricing",
+      href: "/#pricing",
     },
     {
       label: "How to work",

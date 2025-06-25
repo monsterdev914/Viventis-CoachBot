@@ -84,4 +84,9 @@ const updateMessage = async (message: Partial<Message>) => {
     return response
 }
 
-export { sendMessage, createChat, getChats, getMessages, deleteChat, createMessage, updateMessage, getChat, updateChat }
+const deleteMessage = async (chatId: string, messageId: string) => {
+    const response = await api.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chats/${chatId}/messages/${messageId}`)
+    return response
+}
+
+export { sendMessage, createChat, getChats, getMessages, deleteChat, createMessage, updateMessage, deleteMessage, getChat, updateChat }
