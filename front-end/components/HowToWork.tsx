@@ -1,27 +1,30 @@
 import Image from "next/image";
+import { useTranslation } from 'react-i18next';
 
 const HowToWork = () => {
+    const { t } = useTranslation();
+    
     return (
         <section className="min-h-screen bg-[#FFFFFF] py-[75px] w-full" id="how-to-work">
             <div className="flex flex-col gap-10 max-w-7xl mx-auto px-4">
                 <div className="flex flex-col gap-4 w-full px-4 md:px-[100px] items-center justify-center">
-                    <div className="text-[16px] text-white bg-[#3bcc91] px-4 py-2 text-center items-center justify-center rounded-full w-fit">Viventis Online Coaching</div>
+                    <div className="text-[16px] text-white bg-[#3bcc91] px-4 py-2 text-center items-center justify-center rounded-full w-fit">{t('howToWork.badge')}</div>
                     <div className="flex flex-col gap-2">
-                        <h1 className="text-[32px] md:text-[48px] font-bold text-[#032e26]">How does the Viventis CoachBot work?</h1>
+                        <h1 className="text-[32px] md:text-[48px] font-bold text-[#032e26]">{t('howToWork.title')}</h1>
                     </div>
                 </div>
                 <div className="flex flex-col md:flex-row gap-4 w-full px-4 md:px-[100px]">
                     <div className="flex flex-col gap-12 w-full items-center justify-center border-b-1 border-[#878b9940] pb-8 hover:border-[#878b99] transition-all duration-300">
                         <Image src="https://s.w.org/images/core/emoji/15.1.0/svg/1f9ed.svg" alt="How to work" width={30} height={30} />
-                        <h2 className="text-[18px] md:text-[22px] font-bold text-[#032e26]">Clarity in everyday life</h2>
+                        <h2 className="text-[18px] md:text-[22px] font-bold text-[#032e26]">{t('howToWork.feature1')}</h2>
                     </div>
                     <div className="flex flex-col gap-12 w-full items-center justify-center border-b-1 border-[#878b9940] pb-8 hover:border-[#878b99] transition-all duration-300">
                         <Image src="https://s.w.org/images/core/emoji/15.1.0/svg/1f4cd.svg" alt="How to work" width={30} height={30} />
-                        <h2 className="text-[18px] md:text-[22px] font-bold text-[#032e26]">Impulse bei Entscheidungslähmung</h2>
+                        <h2 className="text-[18px] md:text-[22px] font-bold text-[#032e26]">{t('howToWork.feature2')}</h2>
                     </div>
                     <div className="flex flex-col gap-12 w-full items-center justify-center border-b-1 border-[#878b9940] pb-8 hover:border-[#878b99] transition-all duration-300">
                         <Image src="https://s.w.org/images/core/emoji/15.1.0/svg/1f4ac.svg" alt="How to work" width={30} height={30} />
-                        <h2 className="text-[18px] md:text-[22px] font-bold text-[#032e26]">Persönliche Selbstreflexion jederzeit</h2>
+                        <h2 className="text-[18px] md:text-[22px] font-bold text-[#032e26]">{t('howToWork.feature3')}</h2>
                     </div>
                 </div>
                 <div className="flex flex-col md:flex-row gap-4 w-full px-4 md:px-[100px]">
@@ -30,10 +33,10 @@ const HowToWork = () => {
                             {/* Vertical line as background */}
                             <span className="absolute left-3 top-4 bottom-4 w-px bg-[#032e26] z-0"></span>
                             {[
-                                "You write.",
-                                "He asks.",
-                                "It reflects.",
-                                "He gets you on track."
+                                t('howToWork.step1'),
+                                t('howToWork.step2'),
+                                t('howToWork.step3'),
+                                t('howToWork.step4')
                             ].map((text, idx) => (
                                 <li key={idx} className="relative pl-10 mb-10 last:mb-0 flex items-center z-10">
                                     {/* Dot */}
@@ -46,27 +49,27 @@ const HowToWork = () => {
                     </div>
                     <div className="flex flex-col gap-4 w-full">
                         <p className="text-[16px] text-black text-justify">
-                            The Viventis CoachBot is your digital reflection partner - inspired by the &quot;Inner Compass&quot; system, developed from over 20 years of coaching experience. It thinks along with you, asks questions, and gets you to the point.
+                            {t('howToWork.description1')}
                         </p>
                         <p className="text-[16px] text-black text-justify">
-                            He accompaniess you:
+                            {t('howToWork.description2')}
                         </p>
                         <ul className="list-disc list-inside text-[16px] pl-4 text-black text-justify">
                             <li className="list-disc list-inside">
-                                with decision paralysis
+                                {t('howToWork.accompany1')}
                             </li>
                             <li className="list-disc list-inside">
-                                in case of stress or inner restlessness
+                                {t('howToWork.accompany2')}
                             </li>
                             <li className="list-disc list-inside">
-                                when you lose your focus
+                                {t('howToWork.accompany3')}
                             </li>
                             <li className="list-disc list-inside">
-                                if you are looking for clarity
+                                {t('howToWork.accompany4')}
                             </li>
                         </ul>
                         <p className="text-[16px] text-black text-justify">
-                            And all of this - at your pace. Around the clock.
+                            {t('howToWork.description3')}
                         </p>
                     </div>
                 </div>
@@ -75,7 +78,7 @@ const HowToWork = () => {
                         <div className="flex-1 flex flex-col gap-4">
                             <div className="bg-color rounded-lg p-6 flex flex-col gap-2 justify-between items-center w-full">
                                 <p className="text-center">
-                                    The Inner Compass shows you how to find your way safely and calmly, even in unexpected situations. Develop yourself into a personality who inspires with inner calm, provides guidance, and implements innovative ideas with ease.
+                                    {t('howToWork.compassDescription')}
                                 </p>
                                 <div className="w-[200px] h-[200px] flex items-center justify-center">
                                     <Image src="/images/avatar.jpg" alt="How to work" width={200} height={200} className="rounded-full w-[120px] h-[120px]" />
@@ -83,12 +86,12 @@ const HowToWork = () => {
                                 <div className="flex flex-col gap-2 items-center">
                                     <p className="text-center text-[16px]">
                                         <span className="">
-                                            With expert
+                                            {t('howToWork.withExpert')}
                                         </span>
                                     </p>
                                     <p className="text-center text-[16px]">
                                         <span className="font-bold text-[16px]">
-                                            Adrian Müller
+                                            {t('howToWork.expertName')}
                                         </span>
                                     </p>
                                 </div>
@@ -113,43 +116,43 @@ const HowToWork = () => {
                         </div>
                     </div>
                     <div className="flex-1">
-                        <div className="text-[16px] text-white bg-[#3bcc91] px-4 py-2 text-center items-center justify-center rounded-full w-fit">Viventis Online Coaching</div>
+                        <div className="text-[16px] text-white bg-[#3bcc91] px-4 py-2 text-center items-center justify-center rounded-full w-fit">{t('howToWork.badge')}</div>
                         <p className="text-[16px] text-black text-justify my-4">
-                            The CoachBot is based on the proven <b>Inner Compass</b> system. It integrates five essential areas of life:
+                            {t('howToWork.coachBotDescription', { innerCompass: <b>{t('howToWork.innerCompass')}</b> })}
                         </p>
                         <table className="w-full mt-4 border border-gray-300 text-left text-[16px] text-black table-auto mb-4">
                             <thead>
                                 <tr className="bg-gray-100">
-                                    <th className="border border-gray-300 px-4 py-2 font-bold text-center">Compass coordinate</th>
-                                    <th className="border border-gray-300 px-4 py-2 font-bold text-center">Effect</th>
+                                    <th className="border border-gray-300 px-4 py-2 font-bold text-center">{t('howToWork.compassCoordinate')}</th>
+                                    <th className="border border-gray-300 px-4 py-2 font-bold text-center">{t('howToWork.effect')}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr className="bg-gray-100">
-                                    <td className="border border-gray-300 px-4 py-2 font-bold">silence</td>
-                                    <td className="border border-gray-300 px-4 py-2">You find your inner North Star.</td>
+                                    <td className="border border-gray-300 px-4 py-2 font-bold">{t('howToWork.silence')}</td>
+                                    <td className="border border-gray-300 px-4 py-2">{t('howToWork.silenceEffect')}</td>
                                 </tr>
                                 <tr>
-                                    <td className="border border-gray-300 px-4 py-2 font-bold">Grounding</td>
-                                    <td className="border border-gray-300 px-4 py-2">You stay stable – even in the storm.</td>
+                                    <td className="border border-gray-300 px-4 py-2 font-bold">{t('howToWork.grounding')}</td>
+                                    <td className="border border-gray-300 px-4 py-2">{t('howToWork.groundingEffect')}</td>
                                 </tr>
                                 <tr className="bg-gray-100">
-                                    <td className="border border-gray-300 px-4 py-2 font-bold">Heart</td>
-                                    <td className="border border-gray-300 px-4 py-2">You come to peace with yourself .</td>
+                                    <td className="border border-gray-300 px-4 py-2 font-bold">{t('howToWork.heart')}</td>
+                                    <td className="border border-gray-300 px-4 py-2">{t('howToWork.heartEffect')}</td>
                                 </tr>
                                 <tr>
-                                    <td className="border border-gray-300 px-4 py-2 font-bold">horizon</td>
-                                    <td className="border border-gray-300 px-4 py-2">You develop self-confidence and clarity.</td>
+                                    <td className="border border-gray-300 px-4 py-2 font-bold">{t('howToWork.horizon')}</td>
+                                    <td className="border border-gray-300 px-4 py-2">{t('howToWork.horizonEffect')}</td>
                                 </tr>
                                 <tr className="bg-gray-100">
-                                    <td className="border border-gray-300 px-4 py-2 font-bold">Flow</td>
-                                    <td className="border border-gray-300 px-4 py-2">You learn to let go and guide yourself .</td>
+                                    <td className="border border-gray-300 px-4 py-2 font-bold">{t('howToWork.flow')}</td>
+                                    <td className="border border-gray-300 px-4 py-2">{t('howToWork.flowEffect')}</td>
                                 </tr>
                             </tbody>
                         </table>
                         &nbsp;
                         <p className="mt-4 text-[16px] text-black">
-                            These principles make the Viventis CoachBot much more than a chatbot – <b>it becomes your personal navigation system.</b>
+                            {t('howToWork.conclusion', { boldText: <b>{t('howToWork.boldText')}</b> })}
                         </p>
                         &nbsp;
                         &nbsp;

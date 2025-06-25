@@ -7,6 +7,7 @@ import { useChat } from "@/contexts/ChatContext";
 import { motion, AnimatePresence } from "framer-motion";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 import { Button, Skeleton, Textarea, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/react";
+import { useTranslation } from 'react-i18next';
 
 const MessageSkeleton = ({ isUser = false }) => (
     <motion.div
@@ -24,30 +25,35 @@ const MessageSkeleton = ({ isUser = false }) => (
     </motion.div>
 );
 
-const ThinkingAnimation = () => (
-    <div className="flex items-center gap-2 p-3 rounded-lg bg-gray-100 text-gray-800">
-        <div className="flex gap-1">
-            <motion.div
-                className="w-2 h-2 rounded-full bg-gray-400"
-                animate={{ y: [0, -4, 0] }}
-                transition={{ duration: 0.6, repeat: Infinity, delay: 0 }}
-            />
-            <motion.div
-                className="w-2 h-2 rounded-full bg-gray-400"
-                animate={{ y: [0, -4, 0] }}
-                transition={{ duration: 0.6, repeat: Infinity, delay: 0.2 }}
-            />
-            <motion.div
-                className="w-2 h-2 rounded-full bg-gray-400"
-                animate={{ y: [0, -4, 0] }}
-                transition={{ duration: 0.6, repeat: Infinity, delay: 0.4 }}
-            />
+const ThinkingAnimation = () => {
+    const { t } = useTranslation();
+    
+    return (
+        <div className="flex items-center gap-2 p-3 rounded-lg bg-gray-100 text-gray-800">
+            <div className="flex gap-1">
+                <motion.div
+                    className="w-2 h-2 rounded-full bg-gray-400"
+                    animate={{ y: [0, -4, 0] }}
+                    transition={{ duration: 0.6, repeat: Infinity, delay: 0 }}
+                />
+                <motion.div
+                    className="w-2 h-2 rounded-full bg-gray-400"
+                    animate={{ y: [0, -4, 0] }}
+                    transition={{ duration: 0.6, repeat: Infinity, delay: 0.2 }}
+                />
+                <motion.div
+                    className="w-2 h-2 rounded-full bg-gray-400"
+                    animate={{ y: [0, -4, 0] }}
+                    transition={{ duration: 0.6, repeat: Infinity, delay: 0.4 }}
+                />
+            </div>
+            <span className="text-sm text-gray-500">{t('chat.thinking')}</span>
         </div>
-        <span className="text-sm text-gray-500">Thinking...</span>
-    </div>
-);
+    );
+};
 
 const MainBoard: React.FC = () => {
+    const { t } = useTranslation();
     const { messages, isLoading, sendStreamMessage, isHistoryLoading, updateChatHistory, deleteMessage, deleteCurrentChat, clearMessages } = useChat();
     const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
     const [editContent, setEditContent] = useState("");
@@ -56,9 +62,13 @@ const MainBoard: React.FC = () => {
     const [isDeleting, setIsDeleting] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const messagesContainerRef = useRef<HTMLDivElement>(null);
+    const lastMessageRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = useCallback(() => {
-        if (messagesContainerRef.current) {
+        // Try multiple approaches to ensure scrolling works
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+        } else if (messagesContainerRef.current) {
             messagesContainerRef.current.scrollTo({
                 top: messagesContainerRef.current.scrollHeight,
                 behavior: "smooth"
@@ -66,13 +76,86 @@ const MainBoard: React.FC = () => {
         }
     }, []);
 
+    // Enhanced scroll effect that triggers on message changes
     useEffect(() => {
+        // Scroll immediately
         scrollToBottom();
+        
+        // Also scroll after a short delay to account for DOM updates and animations
+        const timeoutId = setTimeout(() => {
+            scrollToBottom();
+        }, 100);
+
+        // Additional scroll after animations complete
+        const animationTimeoutId = setTimeout(() => {
+            scrollToBottom();
+        }, 500);
+
+        return () => {
+            clearTimeout(timeoutId);
+            clearTimeout(animationTimeoutId);
+        };
     }, [messages, isLoading, scrollToBottom]);
+
+    // Additional effect to scroll when messages array length changes (new message added)
+    useEffect(() => {
+        if (messages.length > 0) {
+            // Immediate scroll for new messages
+            scrollToBottom();
+            
+            // Delayed scroll to ensure DOM is updated
+            const timeoutId = setTimeout(scrollToBottom, 50);
+            const secondTimeoutId = setTimeout(scrollToBottom, 200);
+            
+            return () => {
+                clearTimeout(timeoutId);
+                clearTimeout(secondTimeoutId);
+            };
+        }
+    }, [messages.length, scrollToBottom]);
+
+    // Effect to handle scrolling when thinking animation appears/disappears
+    useEffect(() => {
+        if (isLoading) {
+            // Scroll when thinking animation appears
+            const timeoutId = setTimeout(scrollToBottom, 100);
+            return () => clearTimeout(timeoutId);
+        }
+    }, [isLoading, scrollToBottom]);
+
+    // MutationObserver to handle dynamic content changes (like streaming messages)
+    useEffect(() => {
+        const messagesContainer = messagesContainerRef.current;
+        if (!messagesContainer) return;
+
+        const observer = new MutationObserver((mutations) => {
+            // Check if any mutations added nodes or changed text content
+            const hasContentChanges = mutations.some(mutation => 
+                mutation.type === 'childList' && mutation.addedNodes.length > 0 ||
+                mutation.type === 'characterData'
+            );
+            
+            if (hasContentChanges) {
+                // Scroll after a brief delay to allow for DOM updates
+                setTimeout(scrollToBottom, 50);
+            }
+        });
+
+        observer.observe(messagesContainer, {
+            childList: true,
+            subtree: true,
+            characterData: true
+        });
+
+        return () => observer.disconnect();
+    }, [scrollToBottom]);
 
     const handleSendMessage = async (message: string) => {
         sendStreamMessage(message);
-        setTimeout(scrollToBottom, 100);
+        // Multiple scroll attempts to ensure it works
+        setTimeout(scrollToBottom, 50);
+        setTimeout(scrollToBottom, 200);
+        setTimeout(scrollToBottom, 500);
     };
 
     const handleEditMessage = (messageId: string, content: string) => {
@@ -202,60 +285,45 @@ const MainBoard: React.FC = () => {
                                                 </div>
                                             ) : (
                                                 <>
-                                                    {message.role === 'assistant' ? (
-                                                        message.status === 'pending' ? (
-                                                            <ThinkingAnimation />
-                                                        ) : (
-                                                            <MarkdownRenderer content={message.content} />
-                                                        )
-                                                    ) : (
-                                                        <p>{message.content}</p>
-                                                    )}
-                                                    {message.role === 'user' && (
-                                                        <div className="absolute -top-[50%] -right-1 transform -translate-x-[5px] flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <MarkdownRenderer content={message.content} />
+                                                    
+                                                    {/* Action buttons - show on hover */}
+                                                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                                                        {message.role === 'user' && (
                                                             <Button
-                                                                onClick={() => handleEditMessage(message.id, message.content)}
-                                                                variant="ghost"
-                                                                size="sm"
                                                                 isIconOnly
-                                                                className="rounded-full p-1"
+                                                                size="sm"
+                                                                variant="light"
+                                                                className="text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+                                                                onClick={() => handleEditMessage(message.id, message.content)}
+                                                                aria-label={t('chat.editMessage')}
                                                             >
                                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                                                     <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                                                 </svg>
                                                             </Button>
-                                                            <Button
-                                                                onClick={() => setShowDeleteConfirm(message.id)}
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                isIconOnly
-                                                                className="rounded-full p-1 text-red-500 hover:text-red-700"
-                                                            >
-                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                                                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                                                                </svg>
-                                                            </Button>
-                                                        </div>
-                                                    )}
-                                                    {message.role === 'assistant' && (
+                                                        )}
                                                         <Button
-                                                            onClick={() => setShowDeleteConfirm(message.id)}
-                                                            variant="ghost"
-                                                            size="sm"
                                                             isIconOnly
-                                                            className="absolute -top-[50%] -right-1 transform -translate-x-[5px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity p-1 text-red-500 hover:text-red-700"
+                                                            size="sm"
+                                                            variant="light"
+                                                            className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                                            onClick={() => setShowDeleteConfirm(message.id)}
+                                                            aria-label={t('chat.deleteMessage')}
                                                         >
                                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                                                 <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
                                                             </svg>
                                                         </Button>
-                                                    )}
+                                                    </div>
                                                 </>
                                             )}
                                         </div>
                                     </motion.div>
                                 ))}
-                                {isLoading && messages.length === 0 && (
+                                
+                                {/* Thinking animation */}
+                                {isLoading && (
                                     <motion.div
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
@@ -264,118 +332,121 @@ const MainBoard: React.FC = () => {
                                         <ThinkingAnimation />
                                     </motion.div>
                                 )}
-                                <div ref={messagesEndRef} />
                             </div>
+                            <div ref={messagesEndRef} className="h-4" />
                         </motion.div>
                     ) : (
                         <motion.div
-                            className="h-full px-4 pt-4 pb-2 flex items-center justify-center"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ duration: 0.3 }}
+                            key="empty"
+                            className="h-full flex flex-col items-center justify-center text-center px-4"
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.5 }}
                         >
-                            <div className="flex flex-col items-center gap-4">
-                                <div className="flex items-center gap-2" role="img" aria-label="Viventis logo and name">
-                                    <Image src="/images/logo.png" className="filter invert" alt="Viventis logo" width={54} height={54} />
-                                    <p className="text-2xl font-bold text-gray-500">Viventis</p>
-                                </div>
-                                <div className="text-center text-gray-500">
-                                    <p>How can I help you today?</p>
-                                </div>
+                            <div className="w-24 h-24 mb-6 relative">
+                                <Image
+                                    src="/images/bot.png"
+                                    alt="CoachBot"
+                                    fill
+                                    className="object-contain opacity-60"
+                                />
                             </div>
+                            <h2 className="text-2xl font-bold text-gray-700 mb-2">
+                                {t('chat.noMessages')}
+                            </h2>
+                            <p className="text-gray-500 max-w-md">
+                                {t('chat.messagePlaceholder')}
+                            </p>
                         </motion.div>
                     )}
                 </AnimatePresence>
             </div>
             
-            {/* Input Area - Fixed to viewport bottom */}
-            <div className="flex-shrink-0 border-t border-gray-200 p-4 bg-[#FFFFFF] bg-opacity-50 backdrop-blur-sm sticky bottom-0">
-                {messages.length > 0 && (
-                    <div className="flex justify-end mb-2">
+            {/* Clear Chat Button - only show when there are messages */}
+            {messages.length > 0 && (
+                <div className="flex-shrink-0 px-4 py-2 bg-white border-t border-gray-200">
+                    <div className="flex justify-center">
                         <Button
-                            size="sm"
                             variant="light"
                             color="danger"
+                            size="sm"
                             onClick={() => setShowClearConfirm(true)}
-                            className="text-xs"
+                            className="text-red-500 hover:text-red-700"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                                <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                            </svg>
-                            Clear Chat
+                            {t('chat.clearChat')}
                         </Button>
                     </div>
-                )}
-                <ChatInput onSendMessage={handleSendMessage} disabled={isLoading} props={{
-                    className: "border-2 border-gray-200 shadow-lg"
-                }} />
+                </div>
+            )}
+            
+            {/* Input Area */}
+            <div className="flex-shrink-0 border-t border-gray-200 p-4 bg-white sticky bottom-0">
+                <ChatInput onSendMessage={handleSendMessage} disabled={isLoading} />
             </div>
 
             {/* Delete Message Confirmation Modal */}
             <Modal 
                 isOpen={showDeleteConfirm !== null} 
-                onOpenChange={() => setShowDeleteConfirm(null)}
-                size="sm"
+                onClose={() => setShowDeleteConfirm(null)}
+                size="md"
             >
                 <ModalContent>
-                    {(onClose) => (
-                        <>
-                            <ModalHeader className="flex flex-col gap-1">
-                                <h3 className="text-lg text-black font-sans">Delete Message</h3>
-                            </ModalHeader>
-                            <ModalBody>
-                                <p className="text-gray-600">
-                                    Are you sure you want to delete this message? This action cannot be undone.
-                                </p>
-                            </ModalBody>
-                            <ModalFooter>
-                                <Button variant="light" onPress={onClose}>
-                                    Cancel
-                                </Button>
-                                <Button 
-                                    color="danger" 
-                                    onPress={() => showDeleteConfirm && handleDeleteMessage(showDeleteConfirm)}
-                                    isLoading={isDeleting}
-                                >
-                                    {isDeleting ? 'Deleting...' : 'Delete'}
-                                </Button>
-                            </ModalFooter>
-                        </>
-                    )}
+                    <ModalHeader>
+                        <h3 className="text-lg font-semibold text-black">{t('chat.deleteMessage')}</h3>
+                    </ModalHeader>
+                    <ModalBody>
+                        <p className="text-gray-600">
+                            {t('chat.confirmDeleteMessage')}
+                        </p>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button
+                            variant="light"
+                            onPress={() => setShowDeleteConfirm(null)}
+                            disabled={isDeleting}
+                        >
+                            {t('userManagement.cancel')}
+                        </Button>
+                        <Button
+                            color="danger"
+                            onPress={() => showDeleteConfirm && handleDeleteMessage(showDeleteConfirm)}
+                            isLoading={isDeleting}
+                        >
+                            {isDeleting ? t('chat.deleting') : t('Delete')}
+                        </Button>
+                    </ModalFooter>
                 </ModalContent>
             </Modal>
 
             {/* Clear Chat Confirmation Modal */}
             <Modal 
                 isOpen={showClearConfirm} 
-                onOpenChange={setShowClearConfirm}
-                size="sm"
+                onClose={() => setShowClearConfirm(false)}
+                size="md"
             >
                 <ModalContent>
-                    {(onClose) => (
-                        <>
-                            <ModalHeader className="flex flex-col gap-1">
-                                <h3 className="text-lg text-black font-sans">Clear Chat</h3>
-                            </ModalHeader>
-                            <ModalBody>
-                                <p className="text-gray-600">
-                                    Are you sure you want to delete this entire chat? This will permanently delete all messages and cannot be undone.
-                                </p>
-                            </ModalBody>
-                            <ModalFooter>
-                                <Button variant="light" onPress={onClose}>
-                                    Cancel
-                                </Button>
-                                <Button 
-                                    color="danger" 
-                                    onPress={handleClearChat}
-                                    isLoading={isDeleting}
-                                >
-                                    {isDeleting ? 'Deleting...' : 'Delete Chat'}
-                                </Button>
-                            </ModalFooter>
-                        </>
-                    )}
+                    <ModalHeader>
+                        <h3 className="text-lg font-semibold text-black">{t('chat.clearChat')}</h3>
+                    </ModalHeader>
+                    <ModalBody>
+                        <p className="text-gray-600">
+                            {t('chat.confirmClearChat')}
+                        </p>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button
+                            variant="light"
+                            onPress={() => setShowClearConfirm(false)}
+                        >
+                            {t('userManagement.cancel')}
+                        </Button>
+                        <Button
+                            color="danger"
+                            onPress={handleClearChat}
+                        >
+                            {t('chat.clearChat')}
+                        </Button>
+                    </ModalFooter>
                 </ModalContent>
             </Modal>
         </div>

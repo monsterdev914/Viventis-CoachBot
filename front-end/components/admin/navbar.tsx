@@ -1,10 +1,8 @@
 "use client"
 import { useAdminAuth } from "@/contexts/AdminAuthContext"
 import { Navbar as HeroUINavbar, NavbarContent, NavbarBrand, NavbarMenu, NavbarMenuItem, NavbarMenuToggle, NavbarItem } from "@heroui/navbar"
-import { GithubIcon, Logo } from "../icons"
+import { Logo } from "../icons"
 import NextLink from "next/link"
-import { Link } from "@heroui/link"
-import { siteConfig } from "@/config/site"
 import { useTranslation } from 'react-i18next';
 import { Select } from "@heroui/react"
 import { Button } from "@heroui/button"

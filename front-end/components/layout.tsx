@@ -32,14 +32,16 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                     <div className="flex flex-col items-center gap-6">
                         <Alert color="default" variant="flat" icon={<LoudSpeakerIcon size={16} />} radius="full" className="w-fit bg-[#FFFFFF1A] border-[#FFFFFF1C] border-1 p-2">
                             <h6 className="text-sm text-white font-bold md:text-[18px] text-[14px]">
-                                Bereit zu wachsen?
+                                {t('footer.readyToGrow')}
                             </h6>
                         </Alert>
-                        <h1 className="md:text-[40px] text-[32px] font-bold text-center text-white">Der Schritt zu einem selbstbestimmten und erfüllten Leben beginnt hier!</h1>
+                        <h1 className="md:text-[40px] text-[32px] font-bold text-center text-white">{t('footer.callToActionTitle')}</h1>
                         <div className="text-[15px] text-white text-center max-w-[800px]">
-                            Bist Du bereit, den nächsten Schritt zu gehen? Finde heraus, wie der Innere Kompass Dir hilft, Deine Ziele zu erreichen – und wie Du dabei auch persönlich wachsen kannst.
+                            {t('footer.callToActionDesc')}
                         </div>
-                        <Button color="primary" variant="solid" radius="full" className="w-fit md:text-[18px] text-[14px] md:py-6 py-4 md:px-8 px-4"><span className="font-bold">Kostenloses Erstgespräch vereinbaren</span></Button>
+                        <Button color="primary" variant="solid" radius="full" className="w-fit md:text-[18px] text-[14px] md:py-6 py-4 md:px-8 px-4">
+                            <span className="font-bold">{t('footer.scheduleConsultation')}</span>
+                        </Button>
                     </div>
                     <div className="flex flex-col md:flex-row gap-8 w-full justify-between">
                         <div className="flex flex-col justify-between gap-4 flex-[2] items-center">
@@ -48,7 +50,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                                     <div><Image src="/images/logo.png" alt="logo" width={270} height={16} /></div>
                                     <div className="w-full flex flex-col gap-4">
                                         <p className="text-[14px] text-white">
-                                            Dein Wegweiser zu Klarheit und Erfolg immer dabei.
+                                            {t('footer.yourCompass')}
                                         </p>
                                     </div>
                                 </div>
@@ -56,92 +58,92 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                             </div>
                         </div>
                         <div className="flex flex-col gap-8 flex-1 px-4 hidden md:block">
-                            <h2 className="text-[18px] font-bold text-white">Nützliche Links</h2>
+                            <h2 className="text-[18px] font-bold text-white">{t('footer.usefulLinks')}</h2>
                             <ul className="flex flex-col gap-4">
                                 <li>
                                     <Link href="/">
                                         <span className="text-[14px] text-white">
-                                            Home
+                                            {t('Home')}
                                         </span>
                                     </Link>
                                 </li>
                                 <li>
                                     <Link href="/">
                                         <span className="text-[14px] text-white">
-                                            Das Konzept
+                                            {t('footer.theConcept')}
                                         </span>
                                     </Link>
                                 </li>
                                 <li>
                                     <Link href="/">
                                         <span className="text-[14px] text-white">
-                                            Das Experte Adrian Müller
+                                            {t('footer.expertAdrian')}
                                         </span>
                                     </Link>
                                 </li>
                                 <li>
                                     <Link href="/">
                                         <span className="text-[14px] text-white">
-                                            Kontakt
+                                            {t('footer.contact')}
                                         </span>
                                     </Link>
                                 </li>
                             </ul>
                         </div>
                         <div className="flex flex-col gap-8 flex-1 px-4 hidden md:block">
-                            <h2 className="text-[18px] font-bold text-white">Kontakt</h2>
+                            <h2 className="text-[18px] font-bold text-white">{t('footer.legal')}</h2>
                             <ul className="flex flex-col gap-4">
                                 <li>
                                     <Link href="/">
                                         <span className="text-[14px] text-white">
-                                            Impressum
+                                            {t('footer.impressum')}
                                         </span>
                                     </Link>
                                 </li>
                                 <li>
                                     <Link href="/">
                                         <span className="text-[14px] text-white">
-                                            Datenschutz
+                                            {t('footer.privacy')}
                                         </span>
                                     </Link>
                                 </li>
                                 <li>
                                     <Link href="/">
                                         <span className="text-[14px] text-white">
-                                            FAQs
+                                            {t('footer.faqs')}
                                         </span>
                                     </Link>
                                 </li>
                             </ul>
                         </div>
                         <div className="flex flex-col gap-8 flex-1 px-4 hidden md:block">
-                            <h2 className="text-[18px] font-bold text-white">Kontakt</h2>
+                            <h2 className="text-[18px] font-bold text-white">{t('footer.contact')}</h2>
                             <ul className="flex flex-col gap-4">
                                 <li>
                                     <Link href="/">
                                         <span className="text-[14px] text-white">
-                                            heading-section-subtitle  style-color
+                                            {t('footer.workingHours')}
                                         </span>
                                     </Link>
                                 </li>
                                 <li>
                                     <Link href="/">
                                         <span className="text-[14px] text-white">
-                                            Mo - Fr: | 9 - 17 Uhr
+                                            {t('footer.mondayFriday')}: {t('footer.timeRange')}
                                         </span>
                                     </Link>
                                 </li>
                                 <li>
                                     <Link href="/">
                                         <span className="text-[14px] text-white">
-                                            E-Mail
+                                            {t('footer.email')}
                                         </span>
                                     </Link>
                                 </li>
                                 <li>
                                     <Link href="/">
                                         <span className="text-[14px] text-white">
-                                            info@der-innere-kompass.com
+                                            info@viventis.net
                                         </span>
                                     </Link>
                                 </li>
@@ -152,7 +154,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                         <div className="flex flex-row gap-4">
                             <div>
                                 <span className="text-[12px] text-white">
-                                    &copy; 2025 Adrian Müller. Alle Rechte vorbehalten.
+                                    {t('footer.copyrightText')}
                                 </span>
                             </div>
                         </div>

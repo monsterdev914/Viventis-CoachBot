@@ -1,33 +1,37 @@
+import { useTranslation } from 'react-i18next';
+
 const ProcessWork = () => {
+    const { t } = useTranslation();
+    
     return (
         <div className="bg-white w-full pb-20">
             {/* Left side: Title and subtitle */}
             <div className="flex flex-col md:flex-row justify-center items-start w-full mt-16 max-w-7xl mx-auto px-4 gap-16">
                 <div className="flex-1">
                     <h1 className="md:text-[48px] text-[32px] font-bold text-[#032e26] leading-tight">
-                        This is how the<br />registration process works
+                        {t('processWork.title')}
                     </h1>
-                    <p className="mt-4 text-[18px] text-[#032e26]">How to sign up and get started</p>
+                    <p className="mt-4 text-[18px] text-[#032e26]">{t('processWork.subtitle')}</p>
                 </div>
                 {/* Right side: Stepper */}
                 <div className="flex-1 flex flex-col items-start">
                     <ul className="relative ml-2 py-2">
                         {[
                             {
-                                title: "Register",
-                                desc: "Click on your desired subscription. You will be redirected to the secure registration page."
+                                title: t('processWork.step1Title'),
+                                desc: t('processWork.step1Desc')
                             },
                             {
-                                title: "Create user account",
-                                desc: "Enter your name, email address, and a password. You can edit or delete your account at any time later."
+                                title: t('processWork.step2Title'),
+                                desc: t('processWork.step2Desc')
                             },
                             {
-                                title: "Choose payment",
-                                desc: "Select your subscription and complete the payment process. Payment is encrypted and secure. You'll receive access immediately."
+                                title: t('processWork.step3Title'),
+                                desc: t('processWork.step3Desc')
                             },
                             {
-                                title: "Enjoy 7 × 24h coaching",
-                                desc: "You can get started right away: Tell us what's on your mind – the bot will respond immediately. You'll receive questions, tools, and suggestions tailored to your situation."
+                                title: t('processWork.step4Title'),
+                                desc: t('processWork.step4Desc')
                             }
                         ].map((step, idx, arr) => (
                             <li key={idx} className="relative pl-12 mb-12 last:mb-0 flex items-start z-10 min-h-[56px]">

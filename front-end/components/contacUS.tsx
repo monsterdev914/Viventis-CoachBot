@@ -1,8 +1,10 @@
 import { Avatar, Button, Card, CardBody, CardHeader, Checkbox, Input, Link, Textarea } from "@heroui/react";
 import { ClockIcon, EmailIcon, InstagramIcon, LinkedInIcon, MapPinIcon, PhoneIcon, XIcon } from "./icons";
 import { useState } from "react";
+import { useTranslation } from 'react-i18next';
 
 const ContactUs = () => {
+    const { t } = useTranslation();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -21,12 +23,12 @@ const ContactUs = () => {
         e.preventDefault();
         
         if (!formData.name || !formData.email || !formData.message) {
-            setStatus({ type: 'error', message: 'Bitte füllen Sie alle Pflichtfelder aus.' });
+            setStatus({ type: 'error', message: t('contact.fillRequiredFields') });
             return;
         }
 
         if (!isAgreed) {
-            setStatus({ type: 'error', message: 'Bitte stimmen Sie den Datenschutzbestimmungen zu.' });
+            setStatus({ type: 'error', message: t('contact.agreeToPrivacy') });
             return;
         }
 
@@ -59,14 +61,14 @@ const ContactUs = () => {
             });
 
             if (response.ok) {
-                setStatus({ type: 'success', message: 'Vielen Dank! Ihre Nachricht wurde erfolgreich gesendet.' });
+                setStatus({ type: 'success', message: t('contact.successMessage') });
                 setFormData({ name: '', email: '', phone: '', message: '' });
                 setIsAgreed(false);
             } else {
                 throw new Error('Failed to send message');
             }
         } catch (error) {
-            setStatus({ type: 'error', message: 'Entschuldigung, beim Senden der Nachricht ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.' });
+            setStatus({ type: 'error', message: t('contact.errorMessage') });
         } finally {
             setIsLoading(false);
         }
@@ -78,11 +80,9 @@ const ContactUs = () => {
                 <div className="w-full h-full bg-center bg-[length:65%_auto] opacity-[0.15] absolute top-0 left-0 filter brightness-50" style={{ backgroundImage: "url('/images/grid-banner.svg')" }}></div>
                 <div className="container mx-auto max-w-7xl flex flex-col gap-[60px] items-center">
                     <div className="flex flex-col gap-4">
-                        <h1 className="text-[32px] font-bold">Bereit für mehr Klarheit?</h1>
+                        <h1 className="text-[32px] font-bold">{t('contact.title')}</h1>
                         <p className="text-[18px] text-white text-center max-w-[800px]">
-                            Starte jetzt kostenlos.
-                            <br />
-                            Spüre, wie sich echte Orientierung anfühlt.
+                            {t('contact.subtitle')}
                         </p>
                     </div>
                 </div>
@@ -91,7 +91,7 @@ const ContactUs = () => {
                 <div className="flex flex-col gap-4 flex-1">
                     <Card className="w-full py-10 px-6 py-10 transform -translate-y-40">
                         <CardHeader className="w-full">
-                            <h1 className="text-2xl font-bold">Kontaktformular</h1>
+                            <h1 className="text-2xl font-bold">{t('contact.formTitle')}</h1>
                         </CardHeader>
                         <CardBody className="flex flex-col gap-4 w-full">
                             <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full">
@@ -106,16 +106,16 @@ const ContactUs = () => {
                                 )}
                                 
                                 <Input 
-                                    label="Name *" 
-                                    placeholder="Ihr vollständiger Name" 
+                                    label={`${t('contact.name')} *`}
+                                    placeholder={t('contact.namePlaceholder')}
                                     className="w-full"
                                     value={formData.name}
                                     onChange={(e) => handleInputChange('name', e.target.value)}
                                     isRequired
                                 />
                                 <Input 
-                                    label="Email *" 
-                                    placeholder="ihre.email@beispiel.com" 
+                                    label={`${t('contact.email')} *`}
+                                    placeholder={t('contact.emailPlaceholder')}
                                     type="email"
                                     className="w-full"
                                     value={formData.email}
@@ -123,8 +123,8 @@ const ContactUs = () => {
                                     isRequired
                                 />
                                 <Input 
-                                    label="Telefon" 
-                                    placeholder="+41 79 XXX XX XX" 
+                                    label={t('contact.phone')}
+                                    placeholder={t('contact.phonePlaceholder')}
                                     type="tel"
                                     className="w-full"
                                     value={formData.phone}
@@ -140,8 +140,8 @@ const ContactUs = () => {
                                     autoComplete="off"
                                 />
                                 <Textarea 
-                                    label="Nachricht *" 
-                                    placeholder="Beschreiben Sie Ihr Anliegen..." 
+                                    label={`${t('contact.message')} *`}
+                                    placeholder={t('contact.messagePlaceholder')}
                                     className="w-full"
                                     minRows={4}
                                     value={formData.message}
@@ -155,7 +155,9 @@ const ContactUs = () => {
                                         onValueChange={setIsAgreed}
                                     />
                                     <span className="text-sm">
-                                        Ich stimme den <Link href="/datenschutz" className="text-black underline">Datenschutzbestimmungen</Link> zu und bin damit einverstanden, dass meine Daten zur Bearbeitung meiner Anfrage verwendet werden. *
+                                        {t('contact.privacyAgreement', {
+                                            privacyLink: <Link href="/datenschutz" className="text-black underline">{t('contact.privacyPolicy')}</Link>
+                                        })} *
                                     </span>
                                 </div>
                                 <Button 
@@ -168,7 +170,7 @@ const ContactUs = () => {
                                     isDisabled={isLoading}
                                 >
                                     <span className="font-bold md:text-[18px] text-[14px]">
-                                        {isLoading ? 'Wird gesendet...' : 'Kostenloses Erstgespräch vereinbaren'}
+                                        {isLoading ? t('contact.sending') : t('contact.sendButton')}
                                     </span>
                                 </Button>
                             </form>
@@ -177,9 +179,9 @@ const ContactUs = () => {
                 </div>
                 <div className="flex flex-col gap-10 w-full flex-1 flex-1 px-4">
                     <div className="flex flex-col gap-2">
-                        <h1 className="text-[32px] font-bold text-[#032e26]">So erreichst Du mich</h1>
+                        <h1 className="text-[32px] font-bold text-[#032e26]">{t('contact.howToReachMe')}</h1>
                         <p className="text-sm text-gray-500">
-                            Du hast Fragen rund um den Kompass, Leadership und Business-Modelle? Gerne stehe ich Dir in jeder Phase zur Seite!
+                            {t('contact.howToReachMeDesc')}
                         </p>
                     </div>
                     <div className="flex flex-col gap-4 w-full">
@@ -190,8 +192,8 @@ const ContactUs = () => {
                                         <MapPinIcon size={24} color="#000" />
                                     </div>
                                     <div className="flex flex-col gap-1 justify-center">
-                                        <h4 className="text-[18px] font-semibold leading-none text-default-600">Büro</h4>
-                                        <p className="text-[14px] tracking-tight text-default-400">Tigelbergstrasse <br></br>9442 Berneck CH</p>
+                                        <h4 className="text-[18px] font-semibold leading-none text-default-600">{t('contact.office')}</h4>
+                                        <p className="text-[14px] tracking-tight text-default-400">{t('contact.officeAddress')}</p>
                                     </div>
                                 </CardBody>
                             </Card>
@@ -201,8 +203,8 @@ const ContactUs = () => {
                                         <PhoneIcon size={24} color="#000" />
                                     </div>
                                     <div className="flex flex-col gap-1 justify-center">
-                                        <h4 className="text-[18px] font-semibold leading-none text-default-600">Telefon</h4>
-                                        <p className="text-[14px] tracking-tight text-default-400">+41 79 250 10 40</p>
+                                        <h4 className="text-[18px] font-semibold leading-none text-default-600">{t('contact.phone2')}</h4>
+                                        <p className="text-[14px] tracking-tight text-default-400">+41 79 XXX XX XX</p>
                                     </div>
                                 </CardBody>
                             </Card>
@@ -214,8 +216,8 @@ const ContactUs = () => {
                                         <EmailIcon size={24} color="#000" />
                                     </div>
                                     <div className="flex flex-col gap-1 justify-center">
-                                        <h4 className="text-[18px] font-semibold leading-none text-default-600">Email</h4>
-                                        <p className="text-[14px] tracking-tight text-default-400">info@der-innere-kompass.com</p>
+                                        <h4 className="text-[18px] font-semibold leading-none text-default-600">{t('contact.email2')}</h4>
+                                        <p className="text-[14px] tracking-tight text-default-400">info@viventis.net</p>
                                     </div>
                                 </CardBody>
                             </Card>
@@ -225,45 +227,41 @@ const ContactUs = () => {
                                         <ClockIcon size={24} color="#000" />
                                     </div>
                                     <div className="flex flex-col gap-1 justify-center">
-                                        <h4 className="text-[18px] font-semibold leading-none text-default-600">Öffnungszeiten</h4>
-                                        <p className="text-[14px] tracking-tight text-default-400">Täglich von 9 - 17 Uhr</p>
+                                        <h4 className="text-[18px] font-semibold leading-none text-default-600">{t('contact.workingHours')}</h4>
+                                        <p className="text-[14px] tracking-tight text-default-400">
+                                            {t('contact.mondayFriday')}<br />
+                                            {t('contact.timeRange')}
+                                        </p>
                                     </div>
                                 </CardBody>
                             </Card>
                         </div>
                     </div>
-                    <div className="flex flex-col md:flex-row justify-between w-full px-4">
-                        <h3 className="text-lg font-bold">
-                            Soziale Medien:
-                        </h3>
-                        <div className="flex flex-row gap-4 items-center">
-                            <div>
-                                <span className="text-[12px] text-white">
-                                    <Link href="https://www.linkedin.com/in/johannes-kreis-3b1000190/">
-                                        <Button color="default" variant="flat" isIconOnly radius="full" className="text-[12px] text-white">
-                                            <LinkedInIcon size={16} color="#000" />
-                                        </Button>
-                                    </Link>
-                                </span>
-                            </div>
-                            <div>
-                                <span className="text-[12px] text-white">
-                                    <Link href="https://www.instagram.com/johannes_kreis_/">
-                                        <Button color="default" variant="flat" isIconOnly radius="full" className="text-[12px] text-white">
-                                            <InstagramIcon size={16} color="#000" />
-                                        </Button>
-                                    </Link>
-                                </span>
-                            </div>
-                            <div>
-                                <span className="text-[12px] text-white">
-                                    <Link href="https://x.com/johannes_kreis_">
-                                        <Button color="default" variant="flat" isIconOnly radius="full" className="text-[12px] text-white">
-                                            <XIcon size={16} color="#000" />
-                                        </Button>
-                                    </Link>
-                                </span>
-                            </div>
+                    <div className="flex flex-col gap-4 w-full">
+                        <h1 className="text-[32px] font-bold text-[#032e26]">{t('contact.followUs')}</h1>
+                        <div className="flex flex-row gap-4 w-full">
+                            <Card className="w-full p-[15px]">
+                                <CardBody className="flex flex-row gap-4 w-full">
+                                    <div className="flex items-center justify-center bg-[#d8f4e5] h-12 w-12 rounded-full p-2">
+                                        <InstagramIcon size={24} color="#000" />
+                                    </div>
+                                    <div className="flex flex-col gap-1 justify-center">
+                                        <h4 className="text-[18px] font-semibold leading-none text-default-600">Instagram</h4>
+                                        <p className="text-[14px] tracking-tight text-default-400">@viventis</p>
+                                    </div>
+                                </CardBody>
+                            </Card>
+                            <Card className="w-full p-[15px]">
+                                <CardBody className="flex flex-row gap-4 w-full">
+                                    <div className="flex items-center justify-center bg-[#d8f4e5] h-12 w-12 rounded-full p-2">
+                                        <LinkedInIcon size={24} color="#000" />
+                                    </div>
+                                    <div className="flex flex-col gap-1 justify-center">
+                                        <h4 className="text-[18px] font-semibold leading-none text-default-600">LinkedIn</h4>
+                                        <p className="text-[14px] tracking-tight text-default-400">@viventis</p>
+                                    </div>
+                                </CardBody>
+                            </Card>
                         </div>
                     </div>
                 </div>

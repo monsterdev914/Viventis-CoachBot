@@ -2,9 +2,12 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
+import { getUserProfile } from '@/app/api/userProfile'
+import { UserProfile } from '@/types'
 
 type AuthContextType = {
     user: User | null
+    userProfile: UserProfile | null
     loading: boolean
     emailVerified: boolean
     setUser: (user: User | null) => void
@@ -16,6 +19,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null)
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
     const [loading, setLoading] = useState(true)
     const [emailVerified, setEmailVerified] = useState(false)
     const router = useRouter()
@@ -25,6 +29,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setLoading(true)
             supabase.auth.getUser(token).then(({ data }) => {
                 if (data.user) {
+                    getUserProfile().then((response) => {
+                        setUserProfile(response.data as UserProfile)
+                    })
                     setUser(data.user)
                 }
                 setLoading(false)
@@ -38,7 +45,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, [router])
 
     return (
-        <AuthContext.Provider value={{ user, loading, emailVerified, setUser, setLoading, setEmailVerified }}>
+        <AuthContext.Provider value={{ user, userProfile, loading, emailVerified, setUser, setLoading, setEmailVerified }}>
             {children}
         </AuthContext.Provider>
     )
