@@ -26,7 +26,7 @@ import { signOut } from "@/app/api";
 
 export const Navbar = () => {
   const { user, setUser, setLoading } = useAuth();
-  const { setLanguage } = useContext(TranslateContext);
+  const { setLanguage, lang } = useContext(TranslateContext);
   const handleLogout = useCallback(() => {
     setLoading(true);
     signOut().then((res) => {
@@ -85,11 +85,11 @@ export const Navbar = () => {
             </NextLink>
           </NavbarItem>}
         <NavbarItem className="max-md:hidden">
-          <Select aria-label="lang" classNames={{ value: "whitespace-normal overflow-visible text-clip", selectorIcon: "hidden" }} defaultSelectedKeys={["en"]} placeholder="Select" onChange={(e) => {
+          <Select aria-label="lang" classNames={{ value: "whitespace-normal overflow-visible text-clip", selectorIcon: "hidden" }} defaultSelectedKeys={[lang]} placeholder="Select" onChange={(e) => {
             setLanguage(e.target.value)
           }}>
-            <SelectItem key="en" textValue="English" className="text-[black]">English</SelectItem>
-            <SelectItem key="de" textValue="German" className="text-[black]">German</SelectItem>
+            <SelectItem key="en"  textValue="English" className="text-[black]">English</SelectItem>
+            <SelectItem key="de"  textValue="German" className="text-[black]">German</SelectItem>
           </Select>
         </NavbarItem>
         {user && (

@@ -19,12 +19,7 @@ const LoginPage: React.FC = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
-    const { setUser, user } = useAuth();
-    useEffect(() => {
-        if (user) {
-            router.replace('/chat');
-        }
-    }, [user, router]);
+    const { setUser } = useAuth();
     useEffect(() => {
         setMounted(true);
     }, []);
@@ -38,8 +33,13 @@ const LoginPage: React.FC = () => {
             if (response.status === 200) {
                 setSuccess(t('errors.loginSuccess'));
                 setUser(response.data.user);
-                router.push('/chat');
                 localStorage.setItem('token', response.data.token);
+                if (response.data.last_chat) {
+                    router.push(`/chat/${response.data.last_chat.id}`);
+                } else {
+                    router.push('/chat');
+                }
+
             } else {
                 setError(response.data.error);
             }
