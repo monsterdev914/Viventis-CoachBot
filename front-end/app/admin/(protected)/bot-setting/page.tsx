@@ -4,6 +4,8 @@ import { Card, CardBody, CardHeader, Skeleton } from "@heroui/react"
 import { Input, Textarea } from "@heroui/input"
 import { Button } from "@heroui/react"
 import { getBotSettings, saveBotSettings } from '@/app/api/botSetting'
+import { useTranslation } from 'react-i18next'
+
 interface BotSettings {
     id?: string;
     name: string;
@@ -16,6 +18,7 @@ interface BotSettings {
 }
 
 const BotSetting = () => {
+    const { t } = useTranslation();
     const [settings, setSettings] = useState<BotSettings>({
         name: '',
         description: '',
@@ -43,10 +46,10 @@ const BotSetting = () => {
                 setSettings(settings);
             }
             else {
-                setError('No settings found');
+                setError(t('admin.botSettings.errorLoading'));
             }
         } catch (error: any) {
-            setError(error?.data?.error || 'Failed to fetch settings');
+            setError(error?.data?.error || t('admin.botSettings.errorLoading'));
         } finally {
             setInitialLoading(false);
         }
@@ -68,9 +71,9 @@ const BotSetting = () => {
 
         try {
             await saveBotSettings(settings);
-            setSuccess('Settings updated successfully');
+            setSuccess(t('admin.botSettings.settingsSaved'));
         } catch (error: any) {
-            setError(error.response?.data?.error || 'Failed to update settings');
+            setError(error.response?.data?.error || t('admin.botSettings.errorSaving'));
         } finally {
             setLoading(false);
         }
@@ -130,7 +133,7 @@ const BotSetting = () => {
 
     return (
         <div className="container mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Bot Settings</h1>
+            <h1 className="text-2xl font-bold mb-4">{t('admin.botSettings.title')}</h1>
             <Card className='p-6'>
                 <CardBody>
                     {initialLoading ? (
@@ -139,61 +142,71 @@ const BotSetting = () => {
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <Input
-                                    label="Bot Name"
+                                    label={t('admin.botSettings.botName')}
                                     name="name"
                                     value={settings.name}
                                     onChange={handleChange}
+                                    placeholder={t('admin.botSettings.botNamePlaceholder')}
                                     required
                                 />
                                 <Input
-                                    label="Model"
+                                    label={t('admin.botSettings.model')}
                                     name="model"
                                     value={settings.model}
                                     onChange={handleChange}
                                     required
                                 />
                                 <Input
-                                    label="Description"
+                                    label={t('admin.botSettings.description')}
                                     name="description"
                                     value={settings.description}
                                     onChange={handleChange}
+                                    placeholder={t('admin.botSettings.descriptionPlaceholder')}
                                     required
                                 />
                                 <Input
-                                    label="Welcome Message"
+                                    label={t('admin.botSettings.welcomeMessage')}
                                     name="welcome_message"
                                     value={settings.welcome_message}
                                     onChange={handleChange}
+                                    placeholder={t('admin.botSettings.welcomeMessagePlaceholder')}
                                     required
                                 />
-                                <Input
-                                    type="number"
-                                    label="Temperature"
-                                    name="temperature"
-                                    value={settings.temperature.toString()}
-                                    onChange={handleChange}
-                                    min={0}
-                                    max={1}
-                                    step={0.1}
-                                    required
-                                />
-                                <Input
-                                    type="number"
-                                    label="Max Tokens"
-                                    name="max_tokens"
-                                    value={settings.max_tokens.toString()}
-                                    onChange={handleChange}
-                                    min={1}
-                                    required
-                                />
+                                <div className="space-y-2">
+                                    <Input
+                                        type="number"
+                                        label={t('admin.botSettings.temperature')}
+                                        name="temperature"
+                                        value={settings.temperature.toString()}
+                                        onChange={handleChange}
+                                        min={0}
+                                        max={1}
+                                        step={0.1}
+                                        required
+                                    />
+                                    <p className="text-xs text-default-500">{t('admin.botSettings.temperatureDesc')}</p>
+                                </div>
+                                <div className="space-y-2">
+                                    <Input
+                                        type="number"
+                                        label={t('admin.botSettings.maxTokens')}
+                                        name="max_tokens"
+                                        value={settings.max_tokens.toString()}
+                                        onChange={handleChange}
+                                        min={1}
+                                        required
+                                    />
+                                    <p className="text-xs text-default-500">{t('admin.botSettings.maxTokensDesc')}</p>
+                                </div>
                             </div>
 
                             <div className="mt-6">
                                 <Textarea
-                                    label="System Prompt"
+                                    label={t('admin.botSettings.systemPrompt')}
                                     name="system_prompt"
                                     value={settings.system_prompt}
                                     onChange={handleChange}
+                                    placeholder={t('admin.botSettings.systemPromptPlaceholder')}
                                     required
                                 />
                             </div>
@@ -215,7 +228,7 @@ const BotSetting = () => {
                                 color="primary"
                                 isLoading={loading}
                             >
-                                Save Settings
+                                {loading ? t('admin.botSettings.saving') : t('admin.botSettings.saveSettings')}
                             </Button>
                         </form>
                     )}

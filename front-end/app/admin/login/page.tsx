@@ -6,7 +6,10 @@ import { useRouter } from "next/navigation"
 import { useAdminAuth } from "@/contexts/AdminAuthContext"
 import { signIn } from "@/app/api/auth"
 import { supabase } from "@/lib/supabase"
+import { useTranslation } from 'react-i18next'
+
 const AdminLoginPage = () => {
+    const { t } = useTranslation()
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
@@ -29,7 +32,7 @@ const AdminLoginPage = () => {
                 setIsSuperAdmin(true)
                 router.push('/admin')
             } else {
-                setError('You are not authorized to access this page')
+                setError(t('errors.unauthorized'))
             }
         } catch (error: any) {
             setError(error.message)
@@ -42,30 +45,30 @@ const AdminLoginPage = () => {
         <div className="w-full h-full flex items-center justify-center">
             <div className="w-full max-w-md p-8 space-y-8 bg-content1 rounded-lg shadow-lg">
                 <div className="text-center">
-                    <h1 className="text-2xl text-[#000] font-bold">Admin Login</h1>
-                    <p className="text-[#000] mt-2">Sign in to access the admin dashboard</p>
+                    <h1 className="text-2xl text-[#000] font-bold">{t('admin.login.title')}</h1>
+                    <p className="text-[#000] mt-2">{t('admin.login.subtitle')}</p>
                 </div>
 
                 <form onSubmit={handleLogin} className="space-y-6">
                     <div className="space-y-4">
                         <Input
-                            label="Email"
+                            label={t('Email')}
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
                             fullWidth
-                            placeholder="Enter your email"
+                            placeholder={t('admin.login.emailPlaceholder')}
                         />
 
                         <Input
-                            label="Password"
+                            label={t('Password')}
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
                             fullWidth
-                            placeholder="Enter your password"
+                            placeholder={t('admin.login.passwordPlaceholder')}
                         />
                     </div>
 
@@ -81,7 +84,7 @@ const AdminLoginPage = () => {
                         fullWidth
                         isLoading={loading}
                     >
-                        Sign In
+                        {loading ? t('admin.common.loading') : t('admin.login.signIn')}
                     </Button>
                 </form>
             </div>

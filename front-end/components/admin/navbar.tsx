@@ -27,13 +27,13 @@ const Navbar: React.FC = () => {
                 <NavbarBrand as="li" className="gap-3 max-w-fit">
                     <NextLink className="flex justify-start items-center gap-1" href="/admin">
                         <Logo />
-                        <p className="font-bold text-inherit">{t("Viventis Bot")}</p>
+                        <p className="font-bold text-inherit">{t("admin.navbar.viventisBot")}</p>
                     </NextLink>
                 </NavbarBrand>
                 <NavbarMenu>
                     <NavbarMenuItem>
                         <NextLink href="/admin/login">
-                            Login
+                            {t("admin.navbar.login")}
                         </NextLink>
                     </NavbarMenuItem>
                 </NavbarMenu>
@@ -48,7 +48,7 @@ const Navbar: React.FC = () => {
                                 color="foreground"
                                 href="/admin/bot-setting"
                             >
-                                Settings
+                                {t("admin.navbar.settings")}
                             </NextLink>
                         </NavbarItem>
                         <NavbarItem>
@@ -60,7 +60,7 @@ const Navbar: React.FC = () => {
                                 color="foreground"
                                 href="/admin/knowledge-base"
                             >
-                                Knowledge Base
+                                {t("admin.navbar.knowledgeBase")}
                             </NextLink>
                         </NavbarItem>
                         <NavbarItem>
@@ -72,7 +72,7 @@ const Navbar: React.FC = () => {
                                 color="foreground"
                                 href="/admin/user-management"
                             >
-                                User Management
+                                {t("admin.navbar.userManagement")}
                             </NextLink>
                         </NavbarItem>
                     </ul>
@@ -82,9 +82,9 @@ const Navbar: React.FC = () => {
                 className="hidden sm:flex basis-1/5 sm:basis-full"
                 justify="end"
             >
-                {user ? <Button variant="bordered" color="primary" onClick={handleLogout}>{t("Logout")}</Button> : <Button variant="bordered" color="primary" as={NextLink} href="/auth/login">{t("Login")}</Button>}
+                {user ? <Button variant="bordered" color="primary" onClick={handleLogout}>{t("admin.navbar.logout")}</Button> : <Button variant="bordered" color="primary" as={NextLink} href="/auth/login">{t("admin.navbar.login")}</Button>}
                 <NavbarItem className="max-md:hidden">
-                    <Select aria-label="lang" classNames={{ value: "whitespace-normal overflow-visible text-clip", selectorIcon: "hidden" }} defaultSelectedKeys={["en"]} placeholder="Select" onChange={(e) => {
+                    <Select aria-label={t("admin.navbar.language")} classNames={{ value: "whitespace-normal overflow-visible text-clip", selectorIcon: "hidden" }} defaultSelectedKeys={["en"]} placeholder="Select" onChange={(e) => {
                         setLanguage(e.target.value)
                     }}>
                         <SelectItem key="en" textValue="English" className="text-[black]">English</SelectItem>
@@ -99,31 +99,31 @@ const Navbar: React.FC = () => {
                 <div className="mx-4 mt-2 flex flex-col gap-2 py-2">
                     {user ? <NavbarMenuItem>
                         <NextLink href="javascript:void(0)" onClick={handleLogout}>
-                            Logout
+                            {t("admin.navbar.logout")}
                         </NextLink>
                     </NavbarMenuItem> : <NavbarMenuItem>
                         <NextLink href="/admin/login">
-                            Login
+                            {t("admin.navbar.login")}
                         </NextLink>
                     </NavbarMenuItem>}
                     {user && (
                         <NavbarMenuItem>
                             <NextLink href="/admin">
-                                Dashboard
+                                {t("admin.navbar.dashboard")}
                             </NextLink>
                         </NavbarMenuItem>
                     )}
                     {user && (
                         <NavbarMenuItem>
                             <NextLink href="/admin/bot-setting">
-                                Settings
+                                {t("admin.navbar.settings")}
                             </NextLink>
                         </NavbarMenuItem>
                     )}
                     {user && (
                         <NavbarMenuItem>
                             <NextLink href="/admin/knowledge-base">
-                                Knowledge Base
+                                {t("admin.navbar.knowledgeBase")}
                             </NextLink>
                         </NavbarMenuItem>
                     )}

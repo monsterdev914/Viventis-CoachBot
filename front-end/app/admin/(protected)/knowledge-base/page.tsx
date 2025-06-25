@@ -6,6 +6,7 @@ import { Input } from "@heroui/input"
 import { Table, TableHeader, TableBody, TableColumn, TableRow, TableCell } from "@heroui/react"
 import { getDocuments, uploadDocument, deleteDocument, getQueueStatus } from '@/app/api/document'
 import { useTranslation } from 'react-i18next';
+
 interface Document {
     id: string;
     name: string;
@@ -28,6 +29,7 @@ interface QueueStatus {
 }
 
 const KnowledgeBase = () => {
+    const { t } = useTranslation();
     const [documents, setDocuments] = useState<Document[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -35,7 +37,7 @@ const KnowledgeBase = () => {
     const [uploading, setUploading] = useState(false);
     const [queueStatus, setQueueStatus] = useState<QueueStatus | null>(null);
     const [showQueueDetails, setShowQueueDetails] = useState(false);
-    const { t } = useTranslation();
+
     useEffect(() => {
         fetchDocuments();
         fetchQueueStatus();
@@ -68,7 +70,7 @@ const KnowledgeBase = () => {
             const response = await getDocuments();
             setDocuments(response);
         } catch (error: any) {
-            setError(error.response?.data?.error || 'Failed to fetch documents');
+            setError(error.response?.data?.error || t('admin.knowledgeBase.errorLoading'));
         } finally {
             setLoading(false);
         }
@@ -85,7 +87,7 @@ const KnowledgeBase = () => {
         const maxFileSize = 10 * 1024 * 1024; // 10 MB
         
         if (file.size > maxFileSize) {
-            setError(`File exceeds the 10 MB limit: ${file.name} (${formatFileSize(file.size)}). Please reduce file size or split into smaller files.`);
+            setError(`${t('admin.knowledgeBase.maxFileSize')}: ${file.name} (${formatFileSize(file.size)}). Please reduce file size or split into smaller files.`);
             e.target.value = ''; // Clear the file input
             return;
         }
@@ -99,7 +101,7 @@ const KnowledgeBase = () => {
         ];
 
         if (!allowedTypes.includes(file.type)) {
-            setError(`Unsupported file type. Only PDF, DOC, DOCX, and TXT files are allowed. File: ${file.name} (${file.type})`);
+            setError(`Unsupported file type. ${t('admin.knowledgeBase.supportedFormats')}. File: ${file.name} (${file.type})`);
             e.target.value = ''; // Clear the file input
             return;
         }
@@ -131,7 +133,7 @@ const KnowledgeBase = () => {
             if (queueStatus && (queueStatus.isProcessing || queueStatus.queueLength > 0)) {
                 setSuccess(`Document added to processing queue (position: ${queuePosition}). Processing will begin automatically.`);
             } else {
-                setSuccess('Document uploaded and processing started.');
+                setSuccess(t('admin.knowledgeBase.uploadSuccess'));
             }
             
             // Clear file input
@@ -141,7 +143,7 @@ const KnowledgeBase = () => {
             fetchDocuments();
             fetchQueueStatus();
         } catch (error: any) {
-            setError(error.response?.data?.error || 'Failed to upload document');
+            setError(error.response?.data?.error || t('admin.knowledgeBase.uploadError'));
         } finally {
             setUploading(false);
         }
@@ -150,10 +152,10 @@ const KnowledgeBase = () => {
     const handleDelete = async (id: string) => {
         try {
             await deleteDocument(id);
-            setSuccess('Document deleted successfully');
+            setSuccess(t('admin.knowledgeBase.deleteSuccess'));
             fetchDocuments(); // Refresh the list
         } catch (error: any) {
-            setError(error.response?.data?.error || 'Failed to delete document');
+            setError(error.response?.data?.error || t('admin.knowledgeBase.deleteError'));
         }
     };
 
@@ -166,12 +168,12 @@ const KnowledgeBase = () => {
     };
 
     const columns = [
-        { name: "Name", uid: "name" },
-        { name: "Type", uid: "type" },
-        { name: "Size", uid: "size" },
-        { name: "Uploaded", uid: "created_at" },
-        { name: "Status", uid: "status" },
-        { name: "Actions", uid: "actions" },
+        { name: t('admin.knowledgeBase.fileName'), uid: "name" },
+        { name: t('admin.knowledgeBase.fileType'), uid: "type" },
+        { name: t('admin.knowledgeBase.fileSize'), uid: "size" },
+        { name: t('admin.knowledgeBase.uploadDate'), uid: "created_at" },
+        { name: t('admin.knowledgeBase.status'), uid: "status" },
+        { name: t('admin.knowledgeBase.actions'), uid: "actions" },
     ];
 
     const renderQueueStatus = () => {
@@ -214,13 +216,13 @@ const KnowledgeBase = () => {
                         <span className="ml-2 font-medium">{queueLength}</span>
                     </div>
                     <div>
-                        <span className="text-gray-600">Processing:</span>
+                        <span className="text-gray-600">{t('admin.knowledgeBase.processing')}:</span>
                         <span className="ml-2 font-medium">
                             {isProcessing ? `${Math.min(maxConcurrentProcesses, queueLength)} of ${maxConcurrentProcesses}` : '0'}
                         </span>
                     </div>
                     <div>
-                        <span className="text-gray-600">Status:</span>
+                        <span className="text-gray-600">{t('admin.knowledgeBase.status')}:</span>
                         <span className="ml-2 font-medium">
                             {isProcessing ? 'Active' : queueLength > 0 ? 'Waiting' : 'Idle'}
                         </span>
@@ -248,7 +250,7 @@ const KnowledgeBase = () => {
 
     return (
         <div className="mx-auto p-4 w-full">
-            <h1 className="text-2xl font-bold mb-4">Knowledge Base</h1>
+            <h1 className="text-2xl font-bold mb-4">{t('admin.knowledgeBase.title')}</h1>
             <Card className='p-6'>
                 <CardHeader>
                     <div className="flex justify-between items-center w-full">
@@ -269,13 +271,13 @@ const KnowledgeBase = () => {
                                     isLoading={uploading}
                                     isDisabled={uploading || (queueStatus?.queueLength ?? 0) >= 10}
                                 >
-                                    {uploading ? 'Uploading...' : 
+                                    {uploading ? t('admin.knowledgeBase.uploading') : 
                                      queueStatus && queueStatus.queueLength >= 10 ? 'Queue Full' :
-                                     'Upload Document'}
+                                     t('admin.knowledgeBase.uploadDocument')}
                                 </Button>
                             </div>
                             <div className="text-xs text-gray-500">
-                                Supported formats: PDF, DOC, DOCX, TXT • Max size: 4.5 MB
+                                {t('admin.knowledgeBase.supportedFormats')}: PDF, DOC, DOCX, TXT • {t('admin.knowledgeBase.maxFileSize')}: 10MB
                             </div>
                         </div>
                     </div>
@@ -299,7 +301,7 @@ const KnowledgeBase = () => {
 
                     {renderQueueStatus()}
 
-                    <Table aria-label="Knowledge base documents">
+                    <Table aria-label={t('admin.knowledgeBase.documents')}>
                         <TableHeader>
                             {columns.map((column) => (
                                 <TableColumn key={column.uid}>{column.name}</TableColumn>
@@ -311,6 +313,15 @@ const KnowledgeBase = () => {
                                     <TableCell colSpan={columns.length}>
                                         <div className="flex items-center justify-center py-4">
                                             <Spinner size="sm" />
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ) : documents.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={columns.length}>
+                                        <div className="text-center py-8">
+                                            <p className="text-default-500 mb-2">{t('admin.knowledgeBase.noDocuments')}</p>
+                                            <p className="text-sm text-default-400">{t('admin.knowledgeBase.uploadFirst')}</p>
                                         </div>
                                     </TableCell>
                                 </TableRow>
@@ -326,7 +337,9 @@ const KnowledgeBase = () => {
                                                 doc.status === 'processing' ? 'bg-warning/20 text-warning' :
                                                     'bg-danger/20 text-danger'
                                                 }`}>
-                                                {doc.status}
+                                                {doc.status === 'ready' ? t('admin.knowledgeBase.ready') :
+                                                 doc.status === 'processing' ? t('admin.knowledgeBase.processing') :
+                                                 t('admin.knowledgeBase.error')}
                                                 {doc.error_message && (
                                                     <span className="ml-2" title={doc.error_message}>⚠️</span>
                                                 )}
@@ -338,7 +351,7 @@ const KnowledgeBase = () => {
                                                 size="sm"
                                                 onClick={() => handleDelete(doc.id)}
                                             >
-                                                {t("Delete")}
+                                                {t("admin.knowledgeBase.delete")}
                                             </Button>
                                         </TableCell>
                                     </TableRow>

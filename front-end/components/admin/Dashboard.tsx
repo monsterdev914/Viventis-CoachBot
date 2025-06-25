@@ -21,8 +21,10 @@ import MetricCard from './MetricCard';
 import SimpleChart from './SimpleChart';
 import DashboardSkeleton from './DashboardSkeleton';
 import { analyticsApi, DashboardMetrics, UserGrowthData, RevenueMetrics } from '../../app/api/analytics';
+import { useTranslation } from 'react-i18next';
 
 const Dashboard: React.FC = () => {
+  const { t } = useTranslation();
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [growthData, setGrowthData] = useState<UserGrowthData[]>([]);
   const [revenueMetrics, setRevenueMetrics] = useState<RevenueMetrics | null>(null);
@@ -47,14 +49,14 @@ const Dashboard: React.FC = () => {
         setRevenueMetrics(revenueData);
       } catch (err: any) {
         console.error('Error fetching dashboard data:', err);
-        setError(err.response?.data?.error || 'Failed to load dashboard data');
+        setError(err.response?.data?.error || t('admin.dashboard.failedToLoad'));
       } finally {
         setLoading(false);
       }
     };
 
     fetchDashboardData();
-  }, []);
+  }, [t]);
 
   if (loading) {
     return <DashboardSkeleton />;
@@ -65,7 +67,7 @@ const Dashboard: React.FC = () => {
       <Card className="w-full">
         <CardBody>
           <div className="text-center py-8">
-            <p className="text-danger mb-2">Error loading dashboard</p>
+            <p className="text-danger mb-2">{t('admin.dashboard.errorLoading')}</p>
             <p className="text-default-500 text-sm">{error}</p>
           </div>
         </CardBody>
@@ -77,7 +79,7 @@ const Dashboard: React.FC = () => {
     return (
       <Card className="w-full">
         <CardBody>
-          <p className="text-center text-default-500">No data available</p>
+          <p className="text-center text-default-500">{t('admin.dashboard.noDataAvailable')}</p>
         </CardBody>
       </Card>
     );
@@ -88,47 +90,47 @@ const Dashboard: React.FC = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div className="text-sm text-default-500">
-          Last updated: {new Date().toLocaleString()}
+          {t('admin.dashboard.lastUpdated')}: {new Date().toLocaleString()}
         </div>
       </div>
 
       {/* Key Metrics Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
-          title="Total Users"
+          title={t('admin.dashboard.totalUsers')}
           value={metrics.totalUsers.toLocaleString()}
           change={metrics.monthlyGrowthRate}
           changeType={metrics.monthlyGrowthRate > 0 ? 'increase' : metrics.monthlyGrowthRate < 0 ? 'decrease' : 'neutral'}
-          subtitle={`${metrics.usersThisMonth} new this month`}
+          subtitle={`${metrics.usersThisMonth} ${t('admin.dashboard.newThisMonth')}`}
           icon={<UsersIcon className="w-5 h-5" />}
           color="primary"
           variant="gradient"
         />
 
         <MetricCard
-          title="Active Subscriptions"
+          title={t('admin.dashboard.activeSubscriptions')}
           value={metrics.activeSubscriptions.toLocaleString()}
-          subtitle={`${metrics.paidSubscriptions} paid, ${metrics.trialSubscriptions} trial`}
+          subtitle={`${metrics.paidSubscriptions} ${t('admin.dashboard.paidSubscriptions')}, ${metrics.trialSubscriptions} ${t('admin.dashboard.trialSubscriptions')}`}
           icon={<CreditCardIcon className="w-5 h-5" />}
           color="secondary"
           variant="gradient"
         />
 
         <MetricCard
-          title="Monthly Revenue"
+          title={t('admin.dashboard.monthlyRevenue')}
           value={`CHF ${metrics.monthlyRevenue.toFixed(2)}`}
           change={revenueMetrics?.revenueGrowthRate}
           changeType={revenueMetrics && revenueMetrics.revenueGrowthRate > 0 ? 'increase' : 'decrease'}
-          subtitle={`MRR: CHF ${revenueMetrics?.mrr.toFixed(2) || '0.00'}`}
+          subtitle={`${t('admin.dashboard.mrr')}: CHF ${revenueMetrics?.mrr.toFixed(2) || '0.00'}`}
           icon={<CurrencyDollarIcon className="w-5 h-5" />}
           color="success"
           variant="gradient"
         />
 
         <MetricCard
-          title="Conversion Rate"
+          title={t('admin.dashboard.conversionRate')}
           value={`${metrics.conversionRate.toFixed(1)}%`}
-          subtitle="Trial to Paid"
+          subtitle={t('admin.dashboard.trialToPaid')}
           icon={<ArrowTrendingUpIcon className="w-5 h-5" />}
           color="warning"
           variant="gradient"
@@ -141,7 +143,7 @@ const Dashboard: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* User Growth Chart */}
         <SimpleChart
-          title="User Growth (Last 30 Days)"
+          title={t('admin.dashboard.userGrowth')}
           data={growthData}
           color="#3b82f6"
         />
@@ -149,7 +151,7 @@ const Dashboard: React.FC = () => {
         {/* Subscription Distribution */}
         <Card className="w-full">
           <CardHeader>
-            <h3 className="text-lg font-semibold">Subscription Distribution</h3>
+            <h3 className="text-lg font-semibold">{t('admin.dashboard.subscriptionDistribution')}</h3>
           </CardHeader>
           <CardBody>
             <div className="space-y-4">
@@ -162,7 +164,7 @@ const Dashboard: React.FC = () => {
                   <div key={planName} className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="font-medium">{planName}</span>
-                      <span className="text-default-500">{count} users ({percentage.toFixed(1)}%)</span>
+                      <span className="text-default-500">{count} {t('admin.dashboard.users')} ({percentage.toFixed(1)}%)</span>
                     </div>
                     <Progress
                       value={percentage}
@@ -173,7 +175,7 @@ const Dashboard: React.FC = () => {
                 );
               })}
               {Object.keys(metrics.planDistribution).length === 0 && (
-                <p className="text-default-500 text-center py-4">No subscription data available</p>
+                <p className="text-default-500 text-center py-4">{t('admin.dashboard.noSubscriptionData')}</p>
               )}
             </div>
           </CardBody>
@@ -184,28 +186,28 @@ const Dashboard: React.FC = () => {
       {revenueMetrics && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <MetricCard
-            title="Average Revenue Per User"
+            title={t('admin.dashboard.averageRevenuePerUser')}
             value={`CHF ${revenueMetrics.arpu.toFixed(2)}`}
-            subtitle="Monthly ARPU"
+            subtitle={t('admin.dashboard.monthlyArpu')}
             icon={<ChartBarIcon className="w-5 h-5" />}
             color="success"
             variant="gradient"
           />
 
           <MetricCard
-            title="Revenue Growth"
+            title={t('admin.dashboard.revenueGrowth')}
             value={`${revenueMetrics.revenueGrowthRate.toFixed(1)}%`}
             changeType={revenueMetrics.revenueGrowthRate > 0 ? 'increase' : 'decrease'}
-            subtitle="Month over month"
+            subtitle={t('admin.dashboard.monthOverMonth')}
             icon={<ArrowTrendingUpIcon className="w-5 h-5" />}
             color="warning"
             variant="gradient"
           />
 
           <MetricCard
-            title="Monthly Recurring Revenue"
+            title={t('admin.dashboard.monthlyRecurringRevenue')}
             value={`CHF ${revenueMetrics.mrr.toFixed(2)}`}
-            subtitle="Total MRR"
+            subtitle={t('admin.dashboard.totalMrr')}
             icon={<CurrencyDollarIcon className="w-5 h-5" />}
             color="success"
             variant="gradient"
@@ -216,10 +218,10 @@ const Dashboard: React.FC = () => {
       {/* Recent Activity */}
       <Card className="w-full">
         <CardHeader className="flex flex-row items-center justify-between">
-          <h3 className="text-lg font-semibold">Recent Users</h3>
+          <h3 className="text-lg font-semibold">{t('admin.dashboard.recentUsers')}</h3>
           <div className="flex items-center text-sm text-default-500">
             <ClockIcon className="w-4 h-4 mr-1" />
-            Last 7 days
+            {t('admin.dashboard.last7Days')}
           </div>
         </CardHeader>
         <CardBody>
@@ -250,7 +252,7 @@ const Dashboard: React.FC = () => {
                 );
               })
             ) : (
-              <p className="text-default-500 text-center py-4">No recent users</p>
+              <p className="text-default-500 text-center py-4">{t('admin.dashboard.noRecentUsers')}</p>
             )}
           </div>
         </CardBody>
