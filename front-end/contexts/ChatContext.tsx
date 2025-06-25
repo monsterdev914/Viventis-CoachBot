@@ -3,6 +3,7 @@ import { ChatMessage, Message } from "@/types";
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { sendMessage, createMessage, createChat, updateMessage as updateMessageApi, updateChat, getChat, getChats, getMessages, deleteMessage as deleteMessageApi, deleteChat as deleteChatApi } from "@/app/api/chat";
 import { useParams, useRouter } from "next/navigation";
+import { v4 as uuidv4 } from 'uuid';
 
 type ChatContextType = {
     messages: Message[];
@@ -44,6 +45,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     const sendStreamMessage = async (newMessage: string) => {
         setIsLoading(true);
         let assistantMessage: Partial<Message> | null = null;
+        let assistantMessageResponse: any = null;
         try {
             if (!chatId) {
                 const response = await createChat();
@@ -68,48 +70,50 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
                     } : chat
                 ));
             }
-            const userMessage: Partial<Message> = {
+            const tempUserMessageId = uuidv4();
+            const tempAssistantMessageId = uuidv4();
+            const userMessage: Omit<Message, "created_at" | "updated_at"> = {
                 chat_id: chatId,
                 role: 'user',
                 content: newMessage,
                 status: 'done',
+                id: tempUserMessageId,
             };
 
-            const assistantMessage: Partial<Message> = {
+            assistantMessage = {
                 chat_id: chatId,
                 role: 'assistant',
                 content: "",
                 status: 'pending',
+                id: tempAssistantMessageId,
             };
 
             setMessages(prev => [...prev, userMessage as Message, assistantMessage as Message]);
 
             const userMessageResponse = await createMessage({
-                chat_id: userMessage.chat_id!,
-                role: userMessage.role!,
-                content: userMessage.content!,
-                status: userMessage.status!,
+                chat_id: chatId,
+                role: userMessage.role,
+                content: userMessage.content,
+                status: userMessage.status,
             });
             if (userMessageResponse.data) {
                 const realUserMessage = { ...userMessage, id: userMessageResponse.data.id };
                 setMessages(prev => prev.map(msg =>
-                    msg.id === userMessage.id ? realUserMessage as Message : msg
+                    msg.id === tempUserMessageId ? realUserMessage as Message : msg
                 ));
-                userMessage.id = userMessageResponse.data.id;
             }
 
-            const assistantMessageResponse = await createMessage({
-                chat_id: assistantMessage!.chat_id!,
-                role: assistantMessage!.role!,
-                content: assistantMessage!.content!,
-                status: assistantMessage!.status!,
+            assistantMessageResponse = await createMessage({
+                chat_id: chatId,
+                role: assistantMessage.role!,
+                content: assistantMessage.content!,
+                status: assistantMessage.status!,
             });
             if (assistantMessageResponse.data) {
                 const realAssistantMessage = { ...assistantMessage!, id: assistantMessageResponse.data.id };
                 setMessages(prev => prev.map(msg =>
-                    msg.id === assistantMessage!.id ? realAssistantMessage as Message : msg
+                    msg.id === tempAssistantMessageId ? realAssistantMessage as Message : msg
                 ));
-                assistantMessage!.id = assistantMessageResponse.data.id;
             }
 
             let finalContent = "";
@@ -120,7 +124,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
                     finalContent += chunk;
                     setMessages(prev => {
                         return prev.map(msg => {
-                            if (msg.id === assistantMessage!.id) {
+                            if (msg.id === assistantMessageResponse.data.id) {
                                 return {
                                     ...msg,
                                     content: finalContent,
@@ -133,14 +137,14 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
             );
 
             const updatedMessage: Partial<Message> = {
-                id: assistantMessage!.id,
+                id: assistantMessageResponse.data.id,
                 content: finalContent,
                 status: "done" as const,
             };
             await updateMessageApi(updatedMessage);
             setMessages(prev => {
                 const newMessages = [...prev];
-                const index = newMessages.findIndex(msg => msg.id === assistantMessage!.id);
+                const index = newMessages.findIndex(msg => msg.id === tempAssistantMessageId);
                 if (index !== -1) {
                     newMessages[index] = {
                         ...newMessages[index],
@@ -159,15 +163,15 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
                 
                 if (code === 'NO_SUBSCRIPTION' || code === 'SUBSCRIPTION_EXPIRED') {
                     // Show subscription error message
-                    if (assistantMessage) {
+                    if (assistantMessageResponse?.data) {
                         const errorMessage: Partial<Message> = {
-                            id: "null",
+                            id: assistantMessageResponse.data.id,
                             content: `❌ ${message || 'Active subscription required to continue chatting. Please upgrade your plan.'}`,
                             status: "error" as const,
                         };
                         await updateMessageApi(errorMessage);
                         setMessages(prev => prev.map(msg =>
-                            msg.id === "null" ? { ...msg, ...errorMessage } as Message : msg
+                            msg.id === assistantMessageResponse.data.id ? { ...msg, ...errorMessage } as Message : msg
                         ));
                     }
                     // Redirect will be handled by axios interceptor
@@ -176,15 +180,15 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
             }
 
             // Handle other errors
-            if (assistantMessage) {
+            if (assistantMessageResponse?.data) {
                 const errorMessage: Partial<Message> = {
-                    id: "null",
+                    id: assistantMessageResponse.data.id,
                     content: "❌ Sorry, there was an error processing your message. Please try again.",
                     status: "error" as const,
                 };
                 await updateMessageApi(errorMessage);
                 setMessages(prev => prev.map(msg =>
-                    msg.id === "null" ? { ...msg, ...errorMessage } as Message : msg
+                    msg.id === assistantMessageResponse.data.id ? { ...msg, ...errorMessage } as Message : msg
                 ));
             }
         } finally {
