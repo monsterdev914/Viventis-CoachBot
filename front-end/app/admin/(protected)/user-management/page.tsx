@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardBody, Table, TableHeader, TableBody, TableColumn, TableRow, TableCell, Button, Chip, Input, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Tooltip } from "@heroui/react";
 import { getAllUsers, updateUserProfileByAdmin } from '@/app/api/userProfile';
 import { createUserPrompt, UserPrompt, getUserPrompts, updateUserPrompt } from '@/app/api/userPrompts';
+import { useTranslation } from 'react-i18next';
 
 interface User {
     id: string;
@@ -33,6 +34,7 @@ interface User {
 }
 
 const UserManagementPage = () => {
+    const { t } = useTranslation();
     const { isOpen, onOpen, onClose } = useDisclosure();
     const { isOpen: isDetailsOpen, onOpen: onDetailsOpen, onClose: onDetailsClose } = useDisclosure();
     const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
@@ -121,7 +123,7 @@ const UserManagementPage = () => {
     };
 
     const formatDate = (dateString: string | null) => {
-        if (!dateString) return 'Never';
+        if (!dateString) return t('userManagement.never');
         return new Date(dateString).toLocaleDateString();
     };
 
@@ -226,9 +228,9 @@ const UserManagementPage = () => {
     return (
         <div className="container mx-auto px-4 py-8 flex flex-col gap-4">
             <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-bold">User Management</h1>
+                <h1 className="text-2xl font-bold">{t('userManagement.title')}</h1>
                 <Button color="primary" onClick={fetchUsers}>
-                    Refresh Data
+                    {t('userManagement.refreshData')}
                 </Button>
             </div>
 
@@ -236,10 +238,10 @@ const UserManagementPage = () => {
                 <CardHeader>
                     <div className="flex justify-between w-full items-center">
                         <div className="text-sm text-gray-600">
-                            Total Users: {users.length} | Active Subscriptions: {users.filter(u => isSubscriptionActive(u.subscription)).length}
+                            {t('userManagement.totalUsers')}: {users.length} | {t('userManagement.activeSubscriptions')}: {users.filter(u => isSubscriptionActive(u.subscription)).length}
                         </div>
                         <Input
-                            placeholder="Search users..."
+                            placeholder={t('userManagement.searchUsers')}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-64"
@@ -249,12 +251,12 @@ const UserManagementPage = () => {
                 <CardBody>
                     <Table aria-label="User management table">
                         <TableHeader>
-                            <TableColumn>User Info</TableColumn>
-                            <TableColumn>Subscription</TableColumn>
-                            <TableColumn>Plan Details</TableColumn>
-                            <TableColumn>Expires/Ends</TableColumn>
-                            <TableColumn>Last Login</TableColumn>
-                            <TableColumn>Actions</TableColumn>
+                            <TableColumn>{t('userManagement.userInfo')}</TableColumn>
+                            <TableColumn>{t('userManagement.subscription')}</TableColumn>
+                            <TableColumn>{t('userManagement.planDetails')}</TableColumn>
+                            <TableColumn>{t('userManagement.expiresEnds')}</TableColumn>
+                            <TableColumn>{t('userManagement.lastLogin')}</TableColumn>
+                            <TableColumn>{t('userManagement.actions')}</TableColumn>
                         </TableHeader>
                         <TableBody>
                             {loading ? (
@@ -306,12 +308,12 @@ const UserManagementPage = () => {
                                                     <span className="font-medium">
                                                         {user.first_name || user.last_name
                                                             ? `${user.first_name} ${user.last_name}`.trim()
-                                                            : 'No name set'
+                                                            : t('userManagement.noNameSet')
                                                         }
                                                     </span>
                                                     <span className="text-sm text-gray-500">{user.email}</span>
                                                     <span className="text-xs text-gray-400">
-                                                        Joined: {formatDate(user.created_at)}
+                                                        {t('userManagement.joined')}: {formatDate(user.created_at)}
                                                     </span>
                                                 </div>
                                             </TableCell>
@@ -320,7 +322,7 @@ const UserManagementPage = () => {
                                                     color={getSubscriptionStatusColor(subscriptionDetails.status)}
                                                     size="sm"
                                                 >
-                                                    {subscriptionDetails.status === 'none' ? 'No subscription' : subscriptionDetails.status}
+                                                    {subscriptionDetails.status === 'none' ? t('userManagement.noSubscription') : subscriptionDetails.status}
                                                 </Chip>
                                             </TableCell>
                                             <TableCell>
@@ -338,7 +340,7 @@ const UserManagementPage = () => {
                                                             {formatDate(subscriptionDetails.endDate)}
                                                         </span>
                                                         <span className="text-xs text-gray-500">
-                                                            {new Date(subscriptionDetails.endDate) > new Date() ? 'Active' : 'Expired'}
+                                                            {new Date(subscriptionDetails.endDate) > new Date() ? t('userManagement.active') : t('userManagement.expired')}
                                                         </span>
                                                     </div>
                                                 ) : (
@@ -352,18 +354,18 @@ const UserManagementPage = () => {
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex gap-2">
-                                                    <Tooltip content="Edit user information" className='text-black'>
+                                                    <Tooltip content={t('userManagement.editUserInfo')} className='text-black'>
                                                         <Button
                                                             size="sm"
                                                             color="warning"
                                                             variant="bordered"
                                                             onClick={() => handleEditUser(user)}
                                                         >
-                                                            Edit
+                                                            {t('userManagement.edit')}
                                                         </Button>
                                                     </Tooltip>
 
-                                                    <Tooltip content="Add AI prompt with this user's context" className='text-black'>
+                                                    <Tooltip content={t('userManagement.addAiPrompt')} className='text-black'>
                                                         <Button
                                                             size="sm"
                                                             color="primary"
@@ -374,12 +376,12 @@ const UserManagementPage = () => {
                                                                 onOpen();
                                                             }}
                                                         >
-                                                            Add Prompt
+                                                            {t('userManagement.addPrompt')}
                                                         </Button>
                                                     </Tooltip>
 
                                                     {user.subscription && (
-                                                        <Tooltip content="View subscription details" className='text-black'>
+                                                        <Tooltip content={t('userManagement.viewSubscriptionDetails')} className='text-black'>
                                                             <Button
                                                                 size="sm"
                                                                 color="secondary"
@@ -389,7 +391,7 @@ const UserManagementPage = () => {
                                                                     onDetailsOpen();
                                                                 }}
                                                             >
-                                                                Details
+                                                                {t('userManagement.details')}
                                                             </Button>
                                                         </Tooltip>
                                                     )}
@@ -409,8 +411,8 @@ const UserManagementPage = () => {
                     <ModalHeader>
                         <div className="flex flex-col text-black">
                             <span>
-                                {isEditingPrompt ? 'Edit' : 'Add'} Prompt for {selectedUser?.first_name} {selectedUser?.last_name}
-                                {isEditingPrompt && <span className="text-sm text-blue-600 ml-2">(Existing prompt found)</span>}
+                                {isEditingPrompt ? t('userManagement.editPromptFor') : t('userManagement.addPromptFor')} {selectedUser?.first_name} {selectedUser?.last_name}
+                                {isEditingPrompt && <span className="text-sm text-blue-600 ml-2">({t('userManagement.existingPromptFound')})</span>}
                             </span>
                             <span className="text-sm text-gray-500">{selectedUser?.email}</span>
                         </div>
@@ -419,13 +421,13 @@ const UserManagementPage = () => {
                         <div className="flex flex-col gap-4 text-black">
                             {loadingPrompts && (
                                 <div className="p-3 bg-blue-50 rounded-lg">
-                                    <div className="text-sm text-blue-600">Loading existing prompts...</div>
+                                    <div className="text-sm text-blue-600">{t('userManagement.loadingPrompts')}</div>
                                 </div>
                             )}
                             
                             {existingPrompts.length > 1 && (
                                 <div className="p-3 bg-yellow-50 rounded-lg">
-                                    <h4 className="font-medium mb-2 text-yellow-800">Multiple Prompts Found ({existingPrompts.length})</h4>
+                                    <h4 className="font-medium mb-2 text-yellow-800">{t('userManagement.multiplePromptsFound')} ({existingPrompts.length})</h4>
                                     <div className="space-y-2">
                                         {existingPrompts.map((prompt, index) => (
                                             <div key={prompt.id} className="flex items-center gap-2">
@@ -441,7 +443,7 @@ const UserManagementPage = () => {
                                                     Prompt {index + 1}
                                                 </Button>
                                                 <span className="text-xs text-gray-500">
-                                                    Created: {prompt.created_at ? new Date(prompt.created_at).toLocaleDateString() : 'Unknown'}
+                                                    {t('userManagement.created')}: {prompt.created_at ? new Date(prompt.created_at).toLocaleDateString() : t('userManagement.unknown')}
                                                 </span>
                                             </div>
                                         ))}
@@ -451,18 +453,18 @@ const UserManagementPage = () => {
 
                             {selectedUser?.subscription && (
                                 <div className="p-3 bg-gray-100 rounded-lg">
-                                    <h4 className="font-medium mb-2">User&apos;s Subscription Context:</h4>
+                                    <h4 className="font-medium mb-2">{t('userManagement.subscriptionContext')}:</h4>
                                     <div className="text-sm space-y-1">
-                                        <p>Plan: {selectedUser.subscription.plan.name}</p>
-                                        <p>Status: {selectedUser.subscription.status}</p>
-                                        <p>Type: {selectedUser.subscription.plan.is_trial ? 'Trial' : 'Paid'}</p>
+                                        <p>{t('userManagement.plan')}: {selectedUser.subscription.plan.name}</p>
+                                        <p>{t('userManagement.status')}: {selectedUser.subscription.status}</p>
+                                        <p>{t('userManagement.type')}: {selectedUser.subscription.plan.is_trial ? t('userManagement.trial') : t('userManagement.paid')}</p>
                                     </div>
                                 </div>
                             )}
                             
                             <div className="flex flex-col gap-2">
                                 <div className="flex justify-between items-center">
-                                    <label htmlFor="prompt-text" className="font-medium">Prompt Text:</label>
+                                    <label htmlFor="prompt-text" className="font-medium">{t('userManagement.promptText')}:</label>
                                     {isEditingPrompt && (
                                         <Button
                                             size="sm"
@@ -474,14 +476,14 @@ const UserManagementPage = () => {
                                                 setIsEditingPrompt(false);
                                             }}
                                         >
-                                            Create New Prompt
+                                            {t('userManagement.createNewPrompt')}
                                         </Button>
                                     )}
                                 </div>
                                 <textarea
                                     id="prompt-text"
                                     className="w-full p-3 border rounded-lg min-h-[120px] text-black"
-                                    placeholder={isEditingPrompt ? "Edit existing prompt..." : "Enter prompt to test with this user's context..."}
+                                    placeholder={isEditingPrompt ? t('userManagement.editExistingPrompt') : t('userManagement.enterPromptContext')}
                                     value={promptText}
                                     onChange={(e) => setPromptText(e.target.value)}
                                 />
@@ -490,10 +492,10 @@ const UserManagementPage = () => {
                     </ModalBody>
                     <ModalFooter>
                         <Button color="danger" variant="light" onClick={onClose}>
-                            Cancel
+                            {t('userManagement.cancel')}
                         </Button>
                         <Button color="primary" onClick={handleSavePrompt} disabled={!promptText.trim()}>
-                            {isEditingPrompt ? 'Update' : 'Save'} Prompt
+                            {isEditingPrompt ? t('userManagement.updatePrompt') : t('userManagement.savePrompt')}
                         </Button>
                     </ModalFooter>
                 </ModalContent>
@@ -504,7 +506,7 @@ const UserManagementPage = () => {
                 <ModalContent>
                     <ModalHeader>
                         <div className="flex flex-col text-black">
-                            <span>Subscription Details - {selectedUserForDetails?.first_name} {selectedUserForDetails?.last_name}</span>
+                            <span>{t('userManagement.subscriptionDetails')} - {selectedUserForDetails?.first_name} {selectedUserForDetails?.last_name}</span>
                             <span className="text-sm text-gray-500">{selectedUserForDetails?.email}</span>
                         </div>
                     </ModalHeader>
@@ -515,10 +517,10 @@ const UserManagementPage = () => {
                                     {/* Current Subscription Status */}
                                     <div className="grid grid-cols-2 gap-4">
                                         <Card className="p-4">
-                                            <h4 className="font-semibold mb-3">Current Status</h4>
+                                            <h4 className="font-semibold mb-3">{t('userManagement.currentStatus')}</h4>
                                             <div className="space-y-2">
                                                 <div className="flex justify-between">
-                                                    <span className="text-sm text-gray-600">Status:</span>
+                                                    <span className="text-sm text-gray-600">{t('userManagement.status')}:</span>
                                                     <Chip
                                                         color={getSubscriptionStatusColor(selectedUserForDetails.subscription.status)}
                                                         size="sm"
@@ -527,46 +529,46 @@ const UserManagementPage = () => {
                                                     </Chip>
                                                 </div>
                                                 <div className="flex justify-between">
-                                                    <span className="text-sm text-gray-600">Plan:</span>
+                                                    <span className="text-sm text-gray-600">{t('userManagement.plan')}:</span>
                                                     <span className="font-medium">{selectedUserForDetails.subscription.plan.name}</span>
                                                 </div>
                                                 <div className="flex justify-between">
-                                                    <span className="text-sm text-gray-600">Type:</span>
+                                                    <span className="text-sm text-gray-600">{t('userManagement.type')}:</span>
                                                     <Chip color={selectedUserForDetails.subscription.plan.is_trial ? "warning" : "success"} size="sm">
-                                                        {selectedUserForDetails.subscription.plan.is_trial ? "Trial" : "Paid"}
+                                                        {selectedUserForDetails.subscription.plan.is_trial ? t('userManagement.trial') : t('userManagement.paid')}
                                                     </Chip>
                                                 </div>
                                                 <div className="flex justify-between">
                                                     <span className="text-sm text-gray-600">Price:</span>
                                                     <span className="font-medium">
-                                                        {selectedUserForDetails.subscription.plan.is_trial ? "FREE" : `CHF ${selectedUserForDetails.subscription.plan.price}`}
+                                                        {selectedUserForDetails.subscription.plan.is_trial ? t('userManagement.free') : `CHF ${selectedUserForDetails.subscription.plan.price}`}
                                                     </span>
                                                 </div>
                                             </div>
                                         </Card>
 
                                         <Card className="p-4">
-                                            <h4 className="font-semibold mb-3">Billing Information</h4>
+                                            <h4 className="font-semibold mb-3">{t('userManagement.billingInformation')}</h4>
                                             <div className="space-y-2">
                                                 <div className="flex justify-between">
-                                                    <span className="text-sm text-gray-600">Billing Cycle:</span>
+                                                    <span className="text-sm text-gray-600">{t('userManagement.billingCycle')}:</span>
                                                     <span className="font-medium">
-                                                        {selectedUserForDetails.subscription.plan.billing_period_months === 1 ? "Monthly" :
-                                                            selectedUserForDetails.subscription.plan.billing_period_months === 12 ? "Yearly" :
+                                                        {selectedUserForDetails.subscription.plan.billing_period_months === 1 ? t('userManagement.monthly') :
+                                                            selectedUserForDetails.subscription.plan.billing_period_months === 12 ? t('userManagement.yearly') :
                                                                 `${selectedUserForDetails.subscription.plan.billing_period_months} months`}
                                                     </span>
                                                 </div>
                                                 <div className="flex justify-between">
-                                                    <span className="text-sm text-gray-600">Period Start:</span>
+                                                    <span className="text-sm text-gray-600">{t('userManagement.periodStart')}:</span>
                                                     <span className="font-medium">{formatDate(selectedUserForDetails.subscription.current_period_start)}</span>
                                                 </div>
                                                 <div className="flex justify-between">
-                                                    <span className="text-sm text-gray-600">Period End:</span>
+                                                    <span className="text-sm text-gray-600">{t('userManagement.periodEnd')}:</span>
                                                     <span className="font-medium">{formatDate(selectedUserForDetails.subscription.current_period_end)}</span>
                                                 </div>
                                                 {selectedUserForDetails.subscription.trial_end && (
                                                     <div className="flex justify-between">
-                                                        <span className="text-sm text-gray-600">Trial End:</span>
+                                                        <span className="text-sm text-gray-600">{t('userManagement.trialEnd')}:</span>
                                                         <span className="font-medium">{formatDate(selectedUserForDetails.subscription.trial_end)}</span>
                                                     </div>
                                                 )}
@@ -576,13 +578,13 @@ const UserManagementPage = () => {
 
                                     {/* Subscription Timeline */}
                                     <Card className="p-4">
-                                        <h4 className="font-semibold mb-3">Timeline</h4>
+                                        <h4 className="font-semibold mb-3">{t('userManagement.timeline')}</h4>
                                         <div className="space-y-3">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
                                                 <div className="flex-1">
                                                     <div className="flex justify-between">
-                                                        <span className="font-medium">Subscription Created</span>
+                                                        <span className="font-medium">{t('userManagement.subscriptionCreated')}</span>
                                                         <span className="text-sm text-gray-600">{formatDate(selectedUserForDetails.subscription.created_at)}</span>
                                                     </div>
                                                 </div>
@@ -592,9 +594,9 @@ const UserManagementPage = () => {
                                                     <div className={`w-3 h-3 rounded-full ${new Date(selectedUserForDetails.subscription.trial_end) > new Date() ? 'bg-yellow-500' : 'bg-gray-400'}`}></div>
                                                     <div className="flex-1">
                                                         <div className="flex justify-between">
-                                                            <span className="font-medium">Trial Period</span>
+                                                            <span className="font-medium">{t('userManagement.trialPeriod')}</span>
                                                             <span className="text-sm text-gray-600">
-                                                                {new Date(selectedUserForDetails.subscription.trial_end) > new Date() ? 'Active' : 'Ended'} - {formatDate(selectedUserForDetails.subscription.trial_end)}
+                                                                {new Date(selectedUserForDetails.subscription.trial_end) > new Date() ? t('userManagement.active') : t('userManagement.ended')} - {formatDate(selectedUserForDetails.subscription.trial_end)}
                                                             </span>
                                                         </div>
                                                     </div>
@@ -604,9 +606,9 @@ const UserManagementPage = () => {
                                                 <div className={`w-3 h-3 rounded-full ${isSubscriptionActive(selectedUserForDetails.subscription) ? 'bg-green-500' : 'bg-red-500'}`}></div>
                                                 <div className="flex-1">
                                                     <div className="flex justify-between">
-                                                        <span className="font-medium">Current Period</span>
+                                                        <span className="font-medium">{t('userManagement.currentPeriod')}</span>
                                                         <span className="text-sm text-gray-600">
-                                                            {isSubscriptionActive(selectedUserForDetails.subscription) ? 'Active' : 'Expired'} - Ends {formatDate(selectedUserForDetails.subscription.current_period_end)}
+                                                            {isSubscriptionActive(selectedUserForDetails.subscription) ? t('userManagement.active') : t('userManagement.expired')} - {t('userManagement.ends')} {formatDate(selectedUserForDetails.subscription.current_period_end)}
                                                         </span>
                                                     </div>
                                                 </div>
@@ -616,30 +618,30 @@ const UserManagementPage = () => {
 
                                     {/* User Profile Information */}
                                     <Card className="p-4">
-                                        <h4 className="font-semibold mb-3">User Information</h4>
+                                        <h4 className="font-semibold mb-3">{t('userManagement.userInformation')}</h4>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2">
                                                 <div className="flex justify-between">
-                                                    <span className="text-sm text-gray-600">User ID:</span>
+                                                    <span className="text-sm text-gray-600">{t('userManagement.userId')}:</span>
                                                     <span className="font-mono text-sm">{selectedUserForDetails.id}</span>
                                                 </div>
                                                 <div className="flex justify-between">
-                                                    <span className="text-sm text-gray-600">Account Created:</span>
+                                                    <span className="text-sm text-gray-600">{t('userManagement.accountCreated')}:</span>
                                                     <span className="font-medium">{formatDate(selectedUserForDetails.created_at)}</span>
                                                 </div>
                                                 <div className="flex justify-between">
-                                                    <span className="text-sm text-gray-600">Last Login:</span>
+                                                    <span className="text-sm text-gray-600">{t('userManagement.lastLogin')}:</span>
                                                     <span className="font-medium">{formatDate(selectedUserForDetails.last_login || selectedUserForDetails.last_sign_in_at)}</span>
                                                 </div>
                                             </div>
                                             <div className="space-y-2">
                                                 <div className="flex justify-between">
-                                                    <span className="text-sm text-gray-600">Role:</span>
+                                                    <span className="text-sm text-gray-600">{t('userManagement.role')}:</span>
                                                     <span className="font-medium">{selectedUserForDetails.role}</span>
                                                 </div>
                                                 {selectedUserForDetails.subscription_status && (
                                                     <div className="flex justify-between">
-                                                        <span className="text-sm text-gray-600">Legacy Status:</span>
+                                                        <span className="text-sm text-gray-600">{t('userManagement.legacyStatus')}:</span>
                                                         <span className="font-medium text-gray-500">{selectedUserForDetails.subscription_status}</span>
                                                     </div>
                                                 )}
@@ -650,19 +652,19 @@ const UserManagementPage = () => {
                             ) : (
                                 <Card className="p-8 text-center">
                                     <div className="text-gray-500">
-                                        <h4 className="font-semibold mb-2">No Active Subscription</h4>
-                                        <p>This user does not have an active subscription.</p>
+                                        <h4 className="font-semibold mb-2">{t('userManagement.noActiveSubscription')}</h4>
+                                        <p>{t('userManagement.noActiveSubscriptionDesc')}</p>
                                         <div className="mt-4 space-y-2">
                                             <div className="flex justify-between">
-                                                <span className="text-sm text-gray-600">Account Created:</span>
+                                                <span className="text-sm text-gray-600">{t('userManagement.accountCreated')}:</span>
                                                 <span className="font-medium">{formatDate(selectedUserForDetails?.created_at || null)}</span>
                                             </div>
                                             <div className="flex justify-between">
-                                                <span className="text-sm text-gray-600">Last Login:</span>
+                                                <span className="text-sm text-gray-600">{t('userManagement.lastLogin')}:</span>
                                                 <span className="font-medium">{formatDate(selectedUserForDetails?.last_login || selectedUserForDetails?.last_sign_in_at || null)}</span>
                                             </div>
                                             <div className="flex justify-between">
-                                                <span className="text-sm text-gray-600">Role:</span>
+                                                <span className="text-sm text-gray-600">{t('userManagement.role')}:</span>
                                                 <span className="font-medium">{selectedUserForDetails?.role}</span>
                                             </div>
                                         </div>
@@ -673,7 +675,7 @@ const UserManagementPage = () => {
                     </ModalBody>
                     <ModalFooter>
                         <Button color="primary" onPress={onDetailsClose}>
-                            Close
+                            {t('userManagement.close')}
                         </Button>
                     </ModalFooter>
                 </ModalContent>
@@ -684,34 +686,34 @@ const UserManagementPage = () => {
                 <ModalContent>
                     <ModalHeader>
                         <div className="flex flex-col text-black">
-                            <span>Edit User Information</span>
+                            <span>{t('userManagement.editUserInformation')}</span>
                             <span className="text-sm text-gray-500">{selectedUserForEdit?.email}</span>
                         </div>
                     </ModalHeader>
                     <ModalBody>
                         <div className="flex flex-col gap-4 text-black">
                             <Input
-                                label="First Name"
-                                placeholder="Enter first name"
+                                label={t('userManagement.firstName')}
+                                placeholder={t('userManagement.enterFirstName')}
                                 value={editFormData.first_name}
                                 onChange={(e) => setEditFormData(prev => ({ ...prev, first_name: e.target.value }))}
                                 variant="bordered"
                             />
                             <Input
-                                label="Last Name"
-                                placeholder="Enter last name"
+                                label={t('userManagement.lastName')}
+                                placeholder={t('userManagement.enterLastName')}
                                 value={editFormData.last_name}
                                 onChange={(e) => setEditFormData(prev => ({ ...prev, last_name: e.target.value }))}
                                 variant="bordered"
                             />
                             <div className="text-sm text-gray-500 mt-2">
-                                <p>Note: Only first name and last name can be edited. Email and other account details cannot be changed.</p>
+                                <p>{t('userManagement.editNote')}</p>
                             </div>
                         </div>
                     </ModalBody>
                     <ModalFooter>
                         <Button color="danger" variant="light" onClick={onEditClose} disabled={isUpdatingUser}>
-                            Cancel
+                            {t('userManagement.cancel')}
                         </Button>
                         <Button 
                             color="primary" 
@@ -719,7 +721,7 @@ const UserManagementPage = () => {
                             disabled={isUpdatingUser || (!editFormData.first_name.trim() && !editFormData.last_name.trim())}
                             isLoading={isUpdatingUser}
                         >
-                            {isUpdatingUser ? 'Updating...' : 'Update User'}
+                            {isUpdatingUser ? t('userManagement.updating') : t('userManagement.updateUser')}
                         </Button>
                     </ModalFooter>
                 </ModalContent>

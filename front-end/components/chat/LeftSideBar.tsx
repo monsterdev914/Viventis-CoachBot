@@ -6,24 +6,35 @@ import { MenuIcon, PlusIcon, ArrowLeftIcon } from "@/components/icons";
 import { useCallback, useEffect, useState } from "react";
 import { ChatMessage } from "@/types";
 import { getChats } from "@/app/api/chat";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useChat } from "@/contexts/ChatContext";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Spinner } from "@heroui/react";
 import { signOut } from "@/app/api/auth";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { deleteChat } from "@/app/api/chat";
+import { useTranslation } from 'react-i18next';
 
 const LeftSideBar: React.FC = () => {
+    const { t } = useTranslation();
     const router = useRouter();
+    const pathname = usePathname();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const { chatHistory, isHistoryLoading, setChatHistory } = useChat();
     const { setMessages } = useChat();
-    const { user, setUser, setLoading } = useAuth();
-    const { subscription } = useSubscription();
+    const { user, userProfile, setUser, setLoading } = useAuth();
+    const { subscription, plans } = useSubscription();
     const [isOpen, setIsOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [deleteConfirmChatId, setDeleteConfirmChatId] = useState<string | null>(null);
+
+    // Function to get current chat ID from pathname
+    const getCurrentChatId = () => {
+        const match = pathname.match(/\/chat\/([^\/]+)/);
+        return match ? match[1] : null;
+    };
+
+    const currentChatId = getCurrentChatId();
 
     // Function to categorize chats by time
     const categorizeChatsByTime = (chats: any[]) => {
@@ -81,34 +92,42 @@ const LeftSideBar: React.FC = () => {
                     {title}
                 </h3>
                 <div className="space-y-1">
-                    {chats.map((chat) => (
-                        <div
-                            key={chat.id}
-                            className="group relative cursor-pointer hover:bg-gray-700 p-2 rounded transition-colors duration-200"
-                        >
+                    {chats.map((chat) => {
+                        const isActive = chat.id === currentChatId;
+                        return (
                             <div
-                                onClick={() => handleChatClick(chat.id)}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' || e.key === ' ') {
-                                        e.preventDefault();
-                                        handleChatClick(chat.id);
-                                    }
-                                }}
-                                role="button"
-                                tabIndex={0}
-                                aria-label={`Open chat: ${chat.title || "Untitled"}`}
-                                className="pr-8"
+                                key={chat.id}
+                                className={`group relative cursor-pointer p-2 rounded transition-colors duration-200 ${
+                                    isActive 
+                                        ? 'bg-green-600 hover:bg-green-700' 
+                                        : 'hover:bg-gray-700'
+                                }`}
                             >
-                                <h6 className="text-white text-sm truncate">{chat.title || "Untitled"}</h6>
-                                <p className="text-xs text-gray-400 mt-1">
-                                    {new Date(chat.updated_at).toLocaleDateString('en-US', {
-                                        month: 'short',
-                                        day: 'numeric',
-                                        hour: '2-digit',
-                                        minute: '2-digit'
-                                    })}
-                                </p>
-                            </div>
+                                <div
+                                    onClick={() => handleChatClick(chat.id)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                            e.preventDefault();
+                                            handleChatClick(chat.id);
+                                        }
+                                    }}
+                                    role="button"
+                                    tabIndex={0}
+                                    aria-label={`${t('chat.openChat')}: ${chat.title || t('chat.untitled')}`}
+                                    className="pr-8"
+                                >
+                                    <h6 className={`text-sm truncate ${isActive ? 'text-white font-medium' : 'text-white'}`}>
+                                        {chat.title || t('chat.untitled')}
+                                    </h6>
+                                    <p className={`text-xs mt-1 ${isActive ? 'text-green-100' : 'text-gray-400'}`}>
+                                        {new Date(chat.updated_at).toLocaleDateString('en-US', {
+                                            month: 'short',
+                                            day: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        })}
+                                    </p>
+                                </div>
                             
                             {/* Delete Button */}
                             <Button
@@ -120,14 +139,15 @@ const LeftSideBar: React.FC = () => {
                                     e.stopPropagation();
                                     setDeleteConfirmChatId(chat.id);
                                 }}
-                                aria-label={`Delete chat: ${chat.title || "Untitled"}`}
+                                aria-label={`${t('chat.deleteChat')}: ${chat.title || t('chat.untitled')}`}
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                     <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
                                 </svg>
                             </Button>
                         </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
         );
@@ -149,6 +169,12 @@ const LeftSideBar: React.FC = () => {
     };
 
     const handleChatClick = (chatId: string) => {
+        // If clicking on the same chat that's currently active, do nothing
+        if (chatId === currentChatId) {
+            setIsSidebarOpen(false); // Just close the sidebar
+            return;
+        }
+        
         setMessages([]);
         router.push(`/chat/${chatId}`);
     };
@@ -163,7 +189,7 @@ const LeftSideBar: React.FC = () => {
             setDeleteConfirmChatId(null);
             
             // If we're currently viewing the deleted chat, navigate to chat home
-            if (window.location.pathname.includes(chatId)) {
+            if (chatId === currentChatId) {
                 router.push('/chat');
             }
         } catch (error) {
@@ -179,6 +205,7 @@ const LeftSideBar: React.FC = () => {
             document.body.style.overflow = "auto";
         }
     }, [isSidebarOpen]);
+
     return (
         <>
             {isSidebarOpen && (
@@ -193,133 +220,148 @@ const LeftSideBar: React.FC = () => {
                     }}
                     role="button"
                     tabIndex={0}
-                    aria-label="Close sidebar"
+                    aria-label={t('chat.closeMenu')}
                 />
             )}
             {!isSidebarOpen && (
                 <Button
                     isIconOnly
-                    variant="faded"
-                    className="fixed left-0 top-[50%] -translate-y-1/2 z-50 rounded-l-none"
+                    className="fixed top-[100px] left-4 z-30 bg-white text-black shadow-lg border border-gray-200 hover:bg-gray-50"
                     onClick={() => setIsSidebarOpen(true)}
+                    aria-label={t('chat.openMenu')}
                 >
-                    <ArrowLeftIcon />
+                    <MenuIcon size={20} />
                 </Button>
             )}
-            <section 
-                className={`fixed top-0 left-0 w-[300px] h-screen z-50 drop-shadow-lg bg-color transition-transform duration-300 ease-in-out ${
-                    isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-                }`}
-            >
-                <div className="w-full h-full p-5 flex flex-col gap-5">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <Image src="/images/logo.png" alt="logo" width={32} height={32} />
-                            <h1 className="text-white text-2xl font-bold">Viventis</h1>
+
+            <div className={`fixed top-0 left-0 h-full bg-gray-800 text-white transition-transform duration-300 ease-in-out z-50 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} w-80`}>
+                <div className="flex flex-col h-full">
+                    {/* Header */}
+                    <div className="p-4 border-b border-gray-700 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <Image
+                                src="/images/logo.png"
+                                alt="Logo"
+                                width={32}
+                                height={32}
+                                className="rounded-full"
+                            />
+                            <h2 className="text-lg font-semibold">{t('chat.chatHistory')}</h2>
                         </div>
-                        <div>
-                            <Button isIconOnly variant="faded" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
-                                <MenuIcon />
+                        <Button
+                            isIconOnly
+                            variant="light"
+                            onClick={() => setIsSidebarOpen(false)}
+                            className="text-gray-400 hover:text-white"
+                            aria-label={t('chat.closeMenu')}
+                        >
+                            <ArrowLeftIcon size={20} />
+                        </Button>
+                    </div>
+
+                    {/* New Chat Button */}
+                    <div className="p-4 border-b border-gray-700">
+                        <Button
+                            onClick={handleCreateChat}
+                            className="w-full bg-green-600 hover:bg-green-700 text-white"
+                            startContent={<PlusIcon size={16} />}
+                        >
+                            {t('chat.newChat')}
+                        </Button>
+                    </div>
+
+                    {/* Chat History */}
+                    <div className="flex-1 overflow-y-auto p-4">
+                        {isHistoryLoading ? (
+                            <div className="flex justify-center items-center h-32">
+                                <Spinner color="white" />
+                            </div>
+                        ) : (
+                            <>
+                                {renderChatCategory(t('chat.today'), categorizedChats.today)}
+                                {renderChatCategory(t('chat.yesterday'), categorizedChats.yesterday)}
+                                {renderChatCategory(t('chat.last7Days'), categorizedChats.last7Days)}
+                                {renderChatCategory(t('chat.last30Days'), categorizedChats.last30Days)}
+                                
+                                {/* Older chats grouped by month */}
+                                {Object.entries(categorizedChats.older).map(([monthYear, chats]) => 
+                                    renderChatCategory(monthYear, chats)
+                                )}
+                                
+                                {chatHistory.length === 0 && (
+                                    <p className="text-gray-400 text-center text-sm">
+                                        {t('chat.noMessages')}
+                                    </p>
+                                )}
+                            </>
+                        )}
+                    </div>
+
+                    {/* Footer */}
+                    <div className="p-4 border-t border-gray-700">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
+                                    <span className="text-xs font-semibold">
+                                        {userProfile?.first_name?.charAt(0) || userProfile?.last_name?.charAt(0) || 'U'}
+                                    </span>
+                                </div>
+                                <div className="text-sm">
+                                    <p className="font-medium">{userProfile?.first_name || userProfile?.last_name}</p>
+                                    <p className="text-xs text-gray-400">
+                                        {plans?.find(plan => plan.id === subscription?.plan_id)?.name || 'Free'}
+                                    </p>
+                                </div>
+                            </div>
+                            <Button
+                                isIconOnly
+                                variant="light"
+                                onClick={handleLogout}
+                                className="text-gray-400 hover:text-white"
+                                aria-label={t('Logout')}
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clipRule="evenodd" />
+                                </svg>
                             </Button>
                         </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <Button variant="solid" className="gap-2" onClick={() => handleCreateChat()}>
-                            <PlusIcon />
-                            <h1>New Chat</h1>
-                        </Button>
-                    </div>
-
-                    <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-600 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-gray-500">
-                        {isHistoryLoading ? (
-                            <div className="flex justify-center py-4">
-                                <Spinner />
-                            </div>
-                        ) : chatHistory.length === 0 ? (
-                            <div className="flex items-center justify-center py-4">
-                                <h6 className="text-white font-bold">No chats found</h6>
-                            </div>
-                        ) : (
-                            <div className="space-y-2">
-                                {renderChatCategory("Today", categorizedChats.today)}
-                                {renderChatCategory("Yesterday", categorizedChats.yesterday)}
-                                {renderChatCategory("Last 7 Days", categorizedChats.last7Days)}
-                                {renderChatCategory("Last 30 Days", categorizedChats.last30Days)}
-                                {Object.entries(categorizedChats.older)
-                                    .sort(([a], [b]) => {
-                                        // Sort months in descending order (newest first)
-                                        const dateA = new Date(a + ' 1');
-                                        const dateB = new Date(b + ' 1');
-                                        return dateB.getTime() - dateA.getTime();
-                                    })
-                                    .map(([monthYear, chats]) => renderChatCategory(monthYear, chats))
-                                }
-                            </div>
-                        )}
-                    </div>
-                    <div className="flex flex-row justify-between gap-2">
-                        <div></div>
-                        <Button variant="light" className="rounded-full" color="primary" isIconOnly onClick={() => {
-                            setIsOpen(true);
-                            console.log(subscription);
-                        }}>
-                            <Image src="/images/pre.svg" alt="pre" width={32} height={32} className="w-6 h-6" />
-                        </Button>
-                    </div>
-                    {user && (  
-                        <Button variant="solid" className="w-full" onClick={() => handleLogout()}>
-                            Logout
-                        </Button>
-                    )}
                 </div>
-                <Modal
-                    isOpen={isOpen}
-                    onOpenChange={setIsOpen}
-                >
-                    <ModalContent>
-                        <ModalHeader>
-                            <h1 className="text-black">Upgrade to Pro</h1>
-                            <p className="text-black">
-                                {subscription ? `Status: ${subscription.status}` : 'No subscription'}
-                            </p>
-                        </ModalHeader>
-                    </ModalContent>
-                </Modal>
+            </div>
 
-                {/* Delete Chat Confirmation Modal */}
-                <Modal 
-                    isOpen={deleteConfirmChatId !== null} 
-                    onOpenChange={() => setDeleteConfirmChatId(null)}
-                    size="sm"
-                >
-                    <ModalContent>
-                        {(onClose) => (
-                            <>
-                                <ModalHeader className="flex flex-col gap-1">
-                                    <h3 className="text-lg font-semibold text-black">Delete Chat</h3>
-                                </ModalHeader>
-                                <ModalBody>
-                                    <p className="text-gray-600">
-                                        Are you sure you want to delete this chat? This will permanently delete all messages and cannot be undone.
-                                    </p>
-                                </ModalBody>
-                                <ModalFooter>
-                                    <Button variant="light" onPress={onClose}>
-                                        Cancel
-                                    </Button>
-                                    <Button 
-                                        color="danger" 
-                                        onPress={() => deleteConfirmChatId && handleDeleteChat(deleteConfirmChatId)}
-                                        isLoading={isDeleting}
-                                    >
-                                        {isDeleting ? 'Deleting...' : 'Delete Chat'}
-                                    </Button>
-                                </ModalFooter>
-                            </>
-                        )}
-                    </ModalContent>
-                </Modal>
-            </section>
+            {/* Delete Confirmation Modal */}
+            <Modal 
+                isOpen={deleteConfirmChatId !== null} 
+                onClose={() => setDeleteConfirmChatId(null)}
+                size="md"
+            >
+                <ModalContent>
+                    <ModalHeader>
+                        <h3 className="text-lg font-semibold text-black">{t('chat.deleteChat')}</h3>
+                    </ModalHeader>
+                    <ModalBody>
+                        <p className="text-gray-600">
+                            {t('chat.confirmDeleteChat')}
+                        </p>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button
+                            variant="light"
+                            onPress={() => setDeleteConfirmChatId(null)}
+                            disabled={isDeleting}
+                        >
+                            {t('userManagement.cancel')}
+                        </Button>
+                        <Button
+                            color="danger"
+                            onPress={() => deleteConfirmChatId && handleDeleteChat(deleteConfirmChatId)}
+                            isLoading={isDeleting}
+                        >
+                            {isDeleting ? t('chat.deleting') : t('Delete')}
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
         </>
     );
 };
