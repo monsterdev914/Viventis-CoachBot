@@ -2,7 +2,7 @@
 // import { Button } from "@heroui/button";
 import Image from "next/image";
 import ChatInput from "./ChatInput";
-import { useEffect, useRef, useCallback, useState } from "react";
+import { useEffect, useRef, useCallback, useState, useMemo } from "react";
 import { useChat } from "@/contexts/ChatContext";
 import { motion, AnimatePresence } from "framer-motion";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
@@ -64,6 +64,15 @@ const MainBoard: React.FC = () => {
     const messagesContainerRef = useRef<HTMLDivElement>(null);
     const lastMessageRef = useRef<HTMLDivElement>(null);
 
+    // Sort messages by created_at to ensure proper chronological order
+    const sortedMessages = useMemo(() => {
+        return [...messages].sort((a, b) => {
+            const dateA = new Date(a.created_at).getTime();
+            const dateB = new Date(b.created_at).getTime();
+            return dateA - dateB;
+        });
+    }, [messages]);
+
     const scrollToBottom = useCallback(() => {
         // Try multiple approaches to ensure scrolling works
         if (messagesEndRef.current) {
@@ -95,11 +104,11 @@ const MainBoard: React.FC = () => {
             clearTimeout(timeoutId);
             clearTimeout(animationTimeoutId);
         };
-    }, [messages, isLoading, scrollToBottom]);
+    }, [sortedMessages, isLoading, scrollToBottom]);
 
     // Additional effect to scroll when messages array length changes (new message added)
     useEffect(() => {
-        if (messages.length > 0) {
+        if (sortedMessages.length > 0) {
             // Immediate scroll for new messages
             scrollToBottom();
             
@@ -112,7 +121,7 @@ const MainBoard: React.FC = () => {
                 clearTimeout(secondTimeoutId);
             };
         }
-    }, [messages.length, scrollToBottom]);
+    }, [sortedMessages.length, scrollToBottom]);
 
     // Effect to handle scrolling when thinking animation appears/disappears
     useEffect(() => {
@@ -231,7 +240,7 @@ const MainBoard: React.FC = () => {
             {/* Messages Area */}
             <div className="flex-1 overflow-hidden min-h-0">
                 <AnimatePresence>
-                    {messages.length > 0 ? (
+                    {sortedMessages.length > 0 ? (
                         <motion.div
                             key="messages"
                             ref={messagesContainerRef}
@@ -241,7 +250,7 @@ const MainBoard: React.FC = () => {
                             transition={{ duration: 0.3 }}
                         >
                             <div className="flex flex-col gap-4">
-                                {messages.map((message, index) => (
+                                {sortedMessages.map((message, index) => (
                                     <motion.div
                                         key={message.id}
                                         initial={{ opacity: 0, y: 20 }}
@@ -285,7 +294,31 @@ const MainBoard: React.FC = () => {
                                                 </div>
                                             ) : (
                                                 <>
-                                                    <MarkdownRenderer content={message.content} />
+                                                    {/* Show loading state for assistant messages being regenerated */}
+                                                    {message.role === 'assistant' && message.status === 'pending' && !message.content ? (
+                                                        <div className="flex items-center gap-2 text-gray-500">
+                                                            <div className="flex gap-1">
+                                                                <motion.div
+                                                                    className="w-2 h-2 rounded-full bg-gray-400"
+                                                                    animate={{ y: [0, -4, 0] }}
+                                                                    transition={{ duration: 0.6, repeat: Infinity, delay: 0 }}
+                                                                />
+                                                                <motion.div
+                                                                    className="w-2 h-2 rounded-full bg-gray-400"
+                                                                    animate={{ y: [0, -4, 0] }}
+                                                                    transition={{ duration: 0.6, repeat: Infinity, delay: 0.2 }}
+                                                                />
+                                                                <motion.div
+                                                                    className="w-2 h-2 rounded-full bg-gray-400"
+                                                                    animate={{ y: [0, -4, 0] }}
+                                                                    transition={{ duration: 0.6, repeat: Infinity, delay: 0.4 }}
+                                                                />
+                                                            </div>
+                                                            <span className="text-sm">{t('chat.thinking')}</span>
+                                                        </div>
+                                                    ) : (
+                                                        <MarkdownRenderer content={message.content} />
+                                                    )}
                                                     
                                                     {/* Action buttons - show on hover */}
                                                     <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
@@ -363,7 +396,7 @@ const MainBoard: React.FC = () => {
             </div>
             
             {/* Clear Chat Button - only show when there are messages */}
-            {messages.length > 0 && (
+            {sortedMessages.length > 0 && (
                 <div className="flex-shrink-0 px-4 py-2 bg-white border-t border-gray-200">
                     <div className="flex justify-center">
                         <Button
