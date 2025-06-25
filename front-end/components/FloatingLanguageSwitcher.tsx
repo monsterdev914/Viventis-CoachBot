@@ -125,8 +125,17 @@ export const FloatingLanguageSwitcher = () => {
         cursor: isDragging ? 'grabbing' : 'grab',
         userSelect: 'none'
       }}
+      role="button"
+      tabIndex={0}
+      aria-label="Drag to move language switcher"
       onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          setIsOpen(!isOpen);
+        }
+      }}
     >
       <Popover isOpen={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger>
