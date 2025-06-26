@@ -34,7 +34,7 @@ const PricingPage = () => {
 
   const getLearnMoreContent = (plan: typeof plans[0]) => {
     const planIndex = plans.indexOf(plan);
-    
+
     // Content for Plan 1 (Trial/Kompass - First card)
     if (plan.is_trial || planIndex === 0) {
       return {
@@ -44,7 +44,7 @@ const PricingPage = () => {
               Du spürst: So wie es gerade läuft, geht es nicht weiter.<br />
               Aber du kannst es noch nicht greifen. Du brauchst Raum – nicht Druck. Klarheit – nicht gleich Veränderung.
             </p>
-            
+
             <p>
               Die Kompass-Testphase gibt dir einen geschützten Raum, um herauszufinden, wo du stehst.<br />
               Ganz ohne Verpflichtung, ganz bei dir.
@@ -70,7 +70,7 @@ const PricingPage = () => {
               Du hast zu viele Gedanken, aber keine Richtung.<br />
               Du funktionierst – aber innerlich ist es leer oder diffus. Du willst spüren, was wirklich zählt.
             </p>
-            
+
             <p>
               In dieser Stufe lernst du, dich auszurichten – innen statt außen.<br />
               Du beginnst, mit dir in Verbindung zu kommen.
@@ -96,7 +96,7 @@ const PricingPage = () => {
               Du hast genug analysiert. Jetzt willst du verändern.<br />
               Du willst nicht nur denken – du willst gehen. Deinen Weg. In deinem Tempo, aber mit echter Tiefe.
             </p>
-            
+
             <p>
               <strong>Im Wachstumspfad beginnst du, aktiv Verantwortung zu übernehmen.</strong><br />
               Du trainierst neue Sichtweisen, neue Werkzeuge – und einen neuen Umgang mit dir selbst.
@@ -123,7 +123,7 @@ const PricingPage = () => {
             Du bist bereit, alte Haut abzustreifen.<br />
             Du willst nicht nur &quot;besser funktionieren&quot;, sondern echt leben. Ohne Masken. Ohne Selbstverrat.
           </p>
-          
+
           <p>
             Die Stufe der Wandlung ist für Menschen, die bereit sind, tiefer zu schauen – und sich selbst zu begegnen.<br />
             Du lässt los, was du lange getragen hast – und beginnst, dich neu zu verkörpern.
@@ -340,7 +340,7 @@ const PricingPage = () => {
   };
 
   const getPlanCardStyle = (plan: typeof plans[0]) => {
-    let className = 'relative overflow-visible p-4';
+    let className = 'relative overflow-visible p-4 w-full md:h-[500px] h-full';
 
     // Add current plan styling (only for authenticated users)
     if (user && isCurrentPlan(plan)) {
@@ -458,7 +458,7 @@ const PricingPage = () => {
                 <div className="lg:col-span-2">
                   <div className="space-y-6">
                     <Skeleton className="h-10 w-[350px] rounded-lg bg-default-200" />
-                    
+
                     <div className="space-y-4">
                       <Skeleton className="h-8 w-[200px] rounded-lg bg-default-200" />
                       <Skeleton className="h-6 w-[300px] rounded-lg bg-default-200" />
@@ -484,13 +484,13 @@ const PricingPage = () => {
 
   return (
     <div className=" w-full bg-[#ECECEC]" id="pricing">
-      <div className="max-w-6xl mx-auto p-6">
+      <div className="max-w-7xl mx-auto p-6">
         <div className="text-center mb-8">
           <div className="mb-2 bg-[#3BCC91] rounded-full px-4 py-2 w-fit mx-auto">
             <p className="text-white">Abo-Modelle</p>
           </div>
           <h1 className="text-4xl font-bold py-4 text-[#032E26] md:text-5xl">Ein Coach für jedes Budget</h1>
-{/* 
+          {/* 
           {!user && (
             <div className="text-blue-700 px-4 py-3 mt-4">
               {t('subscription.loginRequired')}
@@ -511,9 +511,9 @@ const PricingPage = () => {
         )}
 
         {/* All Plans in One Grid */}
-        <div className="flex flex-col lg:flex-row gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 w-full">
           {plans.map((plan) => (
-            <div key={plan.id} className="flex-1">
+            <div key={plan.id} className="flex flex-col md:flex-none">
               <Card
                 key={plan.id}
                 className={getPlanCardStyle(plan)}
@@ -525,8 +525,8 @@ const PricingPage = () => {
                 )}
 
                 {plans.indexOf(plan) === 2 && (
-                  <div className="elementor-price-table__ribbon absolute top-0 right-0">
-                    <div className="elementor-price-table__ribbon-inner bg-[#3BCC91] text-white px-6 py-2 text-sm font-semibold transform rotate-45 translate-x-4 -translate-y-2 shadow-md">
+                  <div className=" absolute top-0 right-0">
+                    <div className=" bg-[#3BCC91] text-white px-6 py-2 text-sm font-semibold transform rotate-45 translate-x-4 -translate-y-2 shadow-md">
                       Populär
                     </div>
                   </div>
@@ -551,19 +551,21 @@ const PricingPage = () => {
                   )}
                 </CardHeader>
 
-                <CardBody className="pt-0">
-                  {plan.features && (
-                    <ul className="space-y-3 mb-6">
-                      {plan.features.map((feature, index) => (
-                        <li key={index} className="flex items-center">
-                          <svg className="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                          <span className="text-sm">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+                <CardBody className="pt-0 flex flex-col justify-between h-full">
+                  <div>
+                    {plan.features && (
+                      <ul className="space-y-3 mb-6">
+                        {plan.features.map((feature, index) => (
+                          <li key={index} className="flex items-center">
+                            <svg className="min-w-[20px] min-h-[20px] w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                            <span className="text-sm">{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
 
                   <Button
                     color={
@@ -658,18 +660,18 @@ const PricingPage = () => {
               <div className="text-gray-600 space-y-4">
                 <p>
                   <strong>Gestalte deinen CoachBot so individuell wie dein Leben.</strong><br />
-                  Neben dem Hauptmodul kannst du gezielt Erweiterungen aktivieren – für mehr Tiefe, Fokus oder Inspiration in deinem Alltag. 
+                  Neben dem Hauptmodul kannst du gezielt Erweiterungen aktivieren – für mehr Tiefe, Fokus oder Inspiration in deinem Alltag.
                   Jedes Modul bringt eigene Impulse, Routinen oder Reflexionsfragen. – Du entscheidest, was dich gerade weiterbringt.
                 </p>
-                
+
                 <div className="text-left">
                   <h3 className="text-xl font-semibold text-[#032E26] mb-2">So funktioniert&apos;s:</h3>
                   <p className="mb-4">
-                     Wähle ein oder mehrere Zusatzmodule<br />
-                     Aktiviere sie direkt in deinem CoachBot<br />
-                     Die Inhalte fliessen automatisch in deine Gespräche ein – punktgenau, passend, wirkungsvoll
+                    Wähle ein oder mehrere Zusatzmodule<br />
+                    Aktiviere sie direkt in deinem CoachBot<br />
+                    Die Inhalte fliessen automatisch in deine Gespräche ein – punktgenau, passend, wirkungsvoll
                   </p>
-                  
+
                   <h3 className="text-xl font-semibold text-[#032E26] mb-6">Modulübersicht & Preise:</h3>
                 </div>
               </div>
@@ -825,12 +827,12 @@ const PricingPage = () => {
                   <h2 className="text-3xl font-bold text-[#032E26] leading-tight">
                     7 x 24h - Praktisch - Wirkungsvoll.
                   </h2>
-                  
+
                   <div className="space-y-4">
                     <h3 className="text-2xl font-semibold text-[#032E26]">
                       Über den Viventis Bot
                     </h3>
-                    
+
                     <p className="text-lg font-semibold text-gray-800">
                       Warum der Innere Kompass Führung nachhaltig stärkt
                     </p>
@@ -840,11 +842,11 @@ const PricingPage = () => {
                     <h4 className="text-xl font-semibold text-[#032E26] mb-4">
                       Was den CoachBot besonders macht
                     </h4>
-                    
+
                     <p className="text-gray-700 leading-relaxed">
-                      Der CoachBot basiert auf dem bewährten System &quot;Der Innere Kompass&quot;. 
-                      Entwickelt aus 20 Jahren Erfahrung in Persönlichkeitsentwicklung, 
-                      verbindet er Klarheit, Struktur und Herz. Ohne Floskeln. Ohne Esoterik. 
+                      Der CoachBot basiert auf dem bewährten System &quot;Der Innere Kompass&quot;.
+                      Entwickelt aus 20 Jahren Erfahrung in Persönlichkeitsentwicklung,
+                      verbindet er Klarheit, Struktur und Herz. Ohne Floskeln. Ohne Esoterik.
                       Mit Wirkung.
                     </p>
                   </div>
@@ -907,7 +909,7 @@ const PricingPage = () => {
             </Card>
           ))}
         </div>
-      </div>     
+      </div>
     </div>
   );
 };

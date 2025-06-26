@@ -47,8 +47,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                     </div>
                     <div className="flex flex-col md:flex-row gap-8 w-full justify-between">
                         <div className="flex flex-col justify-between gap-4 flex-[2] items-center">
-                            <div className=" flex flex-row">
-                                <div className=" flex flex-col gap-4 flex-1">
+                            <div className=" flex flex-row justify-between">
+                                <div className=" flex flex-col gap-4 flex-1 items-center md:items-start">
                                     <div><Image src="/images/logo.png" alt="logo" width={270} height={16} /></div>
                                     <div className="w-full flex flex-col gap-4">
                                         <p className="text-[14px] text-white">
@@ -56,7 +56,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                                         </p>
                                     </div>
                                 </div>
-                                <div className=" flex flex-col gap-4 flex-1"></div>
+                                <div className=" flex flex-col gap-4 flex-1 md:block hidden"></div>
                             </div>
                         </div>
                         <div className="flex flex-col gap-8 flex-1 px-4 hidden md:block">
