@@ -29,10 +29,60 @@ export const getPlans = async (req: Request, res: Response) => {
   }
 };
 
+// Helper function to clean up canceled subscriptions
+const cleanupCanceledSubscriptions = async (userId: string) => {
+  try {
+    // Find any canceled subscriptions that still have stripe_subscription_id
+    const { data: canceledSubs, error: findError } = await supabase
+      .from('subscriptions')
+      .select('id, stripe_subscription_id')
+      .eq('user_id', userId)
+      .eq('status', 'canceled')
+      .not('stripe_subscription_id', 'is', null);
+
+    if (findError) {
+      console.error('Error finding canceled subscriptions:', findError);
+      return;
+    }
+
+    if (canceledSubs && canceledSubs.length > 0) {
+      console.log(`Cleaning up ${canceledSubs.length} canceled subscriptions for user ${userId}`);
+      
+      // Clear stripe_subscription_id from canceled subscriptions
+      const { error: cleanupError } = await supabase
+        .from('subscriptions')
+        .update({ 
+          stripe_subscription_id: null,
+          updated_at: new Date().toISOString() 
+        })
+        .eq('user_id', userId)
+        .eq('status', 'canceled');
+
+      if (cleanupError) {
+        console.error('Error cleaning up canceled subscriptions:', cleanupError);
+      } else {
+        console.log('Successfully cleaned up canceled subscriptions');
+      }
+
+      // Also clean up user_profile if it has a canceled subscription status
+      await supabase
+        .from('user_profile')
+        .update({ stripe_subscription_id: null })
+        .eq('user_id', userId)
+        .eq('subscription_status', 'canceled');
+    }
+  } catch (error) {
+    console.error('Error in cleanupCanceledSubscriptions:', error);
+  }
+};
+
 export const createSubscription = async (req: Request, res: Response) => {
   try {
     const { plan_id }: CreateSubscriptionRequest = req.body;
     const userId = (req as any).user.id;
+
+    // Clean up any canceled subscriptions first
+    await cleanupCanceledSubscriptions(userId);
 
     // Get plan details
     const { data: plan, error: planError } = await supabase
@@ -1036,5 +1086,26 @@ export const syncPaymentMethods = async (req: Request, res: Response) => {
       error: 'Failed to sync payment methods',
       details: error.message 
     });
+  }
+};
+
+// Manual cleanup endpoint for administrators
+export const cleanupSubscriptions = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const requestingUserId = (req as any).user.id;
+
+    // If no userId is provided, clean up for the requesting user
+    const targetUserId = userId || requestingUserId;
+
+    await cleanupCanceledSubscriptions(targetUserId);
+
+    res.json({ 
+      message: 'Subscription cleanup completed successfully',
+      userId: targetUserId 
+    });
+  } catch (error) {
+    console.error('Error in manual cleanup:', error);
+    res.status(500).json({ error: 'Failed to cleanup subscriptions' });
   }
 }; 

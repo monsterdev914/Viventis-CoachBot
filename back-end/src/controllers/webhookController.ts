@@ -311,11 +311,12 @@ export const handleWebhook = async (req: Request, res: Response) => {
         const subscription = event.data.object as Stripe.Subscription;
         console.log('Processing customer.subscription.deleted:', subscription.id);
 
-        // Update subscription status to canceled
+        // Update subscription status to canceled and clear stripe_subscription_id
         const { error: updateError } = await supabase
           .from('subscriptions')
           .update({
             status: 'canceled',
+            stripe_subscription_id: null, // Clear the stripe subscription ID
             updated_at: new Date().toISOString()
           })
           .eq('stripe_subscription_id', subscription.id);
@@ -324,14 +325,16 @@ export const handleWebhook = async (req: Request, res: Response) => {
           console.error('Error updating subscription:', updateError);
         }
 
-        // Also update user profile for backward compatibility
+        // Also update user profile for backward compatibility and clear stripe_subscription_id
         await supabase
           .from('user_profile')
           .update({
             subscription_status: 'canceled',
+            stripe_subscription_id: null, // Clear the stripe subscription ID
           })
           .eq('stripe_subscription_id', subscription.id);
 
+        console.log('Successfully canceled subscription and cleared stripe_subscription_id:', subscription.id);
         break;
       }
 

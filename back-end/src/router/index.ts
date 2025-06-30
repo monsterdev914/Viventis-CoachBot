@@ -29,7 +29,8 @@ import {
     getPaymentHistory,
     getPaymentMethods,
     convertTrialToPaid,
-    syncPaymentMethods
+    syncPaymentMethods,
+    cleanupSubscriptions
 } from '../controllers/stripeController';
 import { getDashboardMetrics, getUserGrowth, getRevenueMetrics } from '../controllers/analyticsController';
 
@@ -346,6 +347,7 @@ router.post('/subscriptions/convert-trial', auth, convertTrialToPaid);
 router.get('/subscriptions/payments', auth, getPaymentHistory);
 router.get('/subscriptions/payment-methods', auth, getPaymentMethods);
 router.post('/subscriptions/sync-payment-methods', auth, syncPaymentMethods);
+router.post('/subscriptions/cleanup/:userId?', auth, cleanupSubscriptions);
 
 // Analytics routes - Admin only
 router.get('/analytics/dashboard', auth, isAdmin, getDashboardMetrics);
