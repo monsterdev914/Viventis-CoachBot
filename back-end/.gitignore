@@ -6,6 +6,6 @@ dist/
 
 # Ignore environment variable file  
 .env  
-
+.env.local
 # Ignore Vercel deployment configuration  
 .vercel
