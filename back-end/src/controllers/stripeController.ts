@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import Stripe from 'stripe';
 import { supabase } from '../supabaseClient';
-import { Plan, Subscription, CreateSubscriptionRequest, UpdateSubscriptionRequest } from '../types/subscription';
+import { Plan, CreateSubscriptionRequest, UpdateSubscriptionRequest } from '../types/subscription';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-02-24.acacia',
@@ -749,7 +749,7 @@ export const upgradeSubscription = async (req: Request, res: Response) => {
             },
           ],
           success_url: `${process.env.FRONTEND_URL}/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
-          cancel_url: `${process.env.FRONTEND_URL}/subscription/manage`,
+          cancel_url: `${process.env.FRONTEND_URL}`,
           metadata: {
             subscription_id: currentSubscription.id,
             user_id: userId,

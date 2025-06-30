@@ -3,7 +3,7 @@ import { Button } from "@heroui/button";
 import { Textarea } from "@heroui/react";
 import { KeyboardEvent, useState } from "react";
 import { SendIcon } from "../icons";
-import { Message } from "@/types";
+import { useTranslation } from "react-i18next";
 
 interface ChatInputProps {
     onSendMessage: (message: string) => void;
@@ -15,7 +15,7 @@ interface ChatInputProps {
 
 const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled, props }) => {
     const [input, setInput] = useState("");
-
+    const { t } = useTranslation();
     const handleSend = () => {
         if (input.trim()) {
             onSendMessage(input.trim());
@@ -28,7 +28,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled, props })
             <Textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Type your message here..."
+                placeholder={`${t("chat.typeMessage")}`}
                 size="lg"
                 classNames={{
                     input: "bg-white opacity-100 caret-black ",
