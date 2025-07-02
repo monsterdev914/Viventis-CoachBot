@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { signUp } from '@/app/api';
 import NextLink from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
 const RegisterPage: React.FC = () => {
     const router = useRouter();
@@ -22,7 +23,8 @@ const RegisterPage: React.FC = () => {
         confirmPassword: '',
     });
     const [error, setError] = useState('');
-
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     // Check for existing user and redirect immediately
     useEffect(() => {
         if (user) {
@@ -102,7 +104,7 @@ const RegisterPage: React.FC = () => {
                             variant="bordered"
                         />
                         <Input
-                            type="password"
+                            type={showPassword ? 'text' : 'password'}
                             label={t('Password')}
                             placeholder={t('Enter your password')}
                             name="password"
@@ -110,9 +112,14 @@ const RegisterPage: React.FC = () => {
                             onChange={handleChange}
                             isRequired
                             variant="bordered"
+                            endContent={
+                                <Button variant="light" size="sm" onClick={() => setShowPassword(!showPassword)}>
+                                    {showPassword ? <EyeIcon className="text-2xl text-default-400 pointer-events-none" /> : <EyeSlashIcon className="text-2xl text-default-400 pointer-events-none" />}
+                                </Button>
+                            }
                         />
                         <Input
-                            type="password"
+                            type={showConfirmPassword ? 'text' : 'password'}
                             label={t('Confirm Password')}
                             placeholder={t('Confirm your password')}
                             name="confirmPassword"
@@ -120,6 +127,11 @@ const RegisterPage: React.FC = () => {
                             onChange={handleChange}
                             isRequired
                             variant="bordered"
+                            endContent={
+                                <Button variant="light" size="sm" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                                    {showConfirmPassword ? <EyeIcon className="text-2xl text-default-400 pointer-events-none" /> : <EyeSlashIcon className="text-2xl text-default-400 pointer-events-none" />}
+                                </Button>
+                            }
                         />
                         {error && (
                             <p className="text-danger text-sm text-center">
