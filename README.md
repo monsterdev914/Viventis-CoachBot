@@ -189,6 +189,244 @@ PORT=3001
 DATABASE_URL=your_database_connection_string
 ```
 
+## 🔄 Supabase Migration Guide
+
+### **Migrating to Another Supabase Project**
+
+This guide helps you migrate your existing Viventis CoachBot data and schema from one Supabase project to another (e.g., from development to production).
+
+#### **Prerequisites**
+- Supabase CLI installed (`npm install -g supabase`)
+- Access to both source and destination Supabase projects
+- Database passwords for both projects
+
+#### **Step 1: Backup Current Project**
+
+```bash
+# 1. Initialize Supabase in your project (if not already done)
+supabase init
+
+# 2. Link to your source project
+supabase link --project-ref YOUR_SOURCE_PROJECT_ID
+
+# 3. Pull the current schema
+supabase db pull --schema public,auth,storage
+
+# 4. Export your data (optional - for data migration)
+supabase db dump --data-only > backup_data.sql
+```
+
+#### **Step 2: Create New Supabase Project**
+
+1. **Create New Project**:
+   - Go to [Supabase Dashboard](https://app.supabase.com)
+   - Click "New Project"
+   - Choose organization and enter project details
+   - Wait for project initialization
+
+2. **Note New Project Details**:
+   - Project URL: `https://your-new-project.supabase.co`
+   - Anon Key: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
+   - Service Role Key: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
+
+#### **Step 3: Migrate Schema**
+
+```bash
+# 1. Unlink from source project
+supabase unlink
+
+# 2. Link to new destination project
+supabase link --project-ref YOUR_NEW_PROJECT_ID
+
+# 3. Push schema to new project
+supabase db push
+
+# 4. Verify migration
+supabase db diff
+```
+
+#### **Step 4: Migrate Data (Optional)**
+
+```bash
+# Option 1: Using Supabase CLI (recommended for small datasets)
+supabase db reset --linked # This will apply migrations and seed data
+
+# Option 2: Manual data migration (for large datasets)
+# Connect to source database and export specific tables
+pg_dump "postgresql://postgres:password@db.source-project.supabase.co:5432/postgres" \
+  --data-only \
+  --table=public.users \
+  --table=public.chats \
+  --table=public.messages \
+  --table=public.subscriptions \
+  > production_data.sql
+
+# Import to destination database
+psql "postgresql://postgres:password@db.new-project.supabase.co:5432/postgres" \
+  < production_data.sql
+```
+
+#### **Step 5: Update Configuration**
+
+1. **Update Environment Variables**:
+
+```bash
+# Frontend (.env.local)
+NEXT_PUBLIC_SUPABASE_URL=https://your-new-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_new_anon_key
+
+# Backend (.env)
+SUPABASE_URL=https://your-new-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your_new_service_role_key
+```
+
+2. **Update Supabase Client Configuration**:
+
+```typescript
+// frontend/lib/supabase.ts
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+```
+
+#### **Step 6: Configure Row Level Security (RLS)**
+
+```sql
+-- Enable RLS on all tables
+ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.chats ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.subscriptions ENABLE ROW LEVEL SECURITY;
+
+-- Create policies (example for users table)
+CREATE POLICY "Users can view own profile" ON public.users
+  FOR SELECT USING (auth.uid() = id);
+
+CREATE POLICY "Users can update own profile" ON public.users
+  FOR UPDATE USING (auth.uid() = id);
+
+-- Add similar policies for other tables
+```
+
+#### **Step 7: Configure Storage**
+
+```sql
+-- Create storage buckets
+INSERT INTO storage.buckets (id, name, public) VALUES 
+  ('documents', 'documents', false),
+  ('avatars', 'avatars', true);
+
+-- Set storage policies
+CREATE POLICY "Authenticated users can upload documents" ON storage.objects
+  FOR INSERT TO authenticated WITH CHECK (bucket_id = 'documents');
+
+CREATE POLICY "Users can view their documents" ON storage.objects
+  FOR SELECT TO authenticated USING (bucket_id = 'documents');
+```
+
+#### **Step 8: Update Stripe Webhook**
+
+If you're using Stripe webhooks, update the endpoint URL:
+
+1. Go to [Stripe Dashboard](https://dashboard.stripe.com)
+2. Navigate to Webhooks
+3. Update the endpoint URL to point to your new backend
+4. Test the webhook connection
+
+#### **Step 9: Test Migration**
+
+```bash
+# 1. Start your application
+npm run dev
+
+# 2. Test key functionalities:
+# - User registration and login
+# - Chat functionality
+# - Subscription management
+# - Admin dashboard
+# - Document upload
+
+# 3. Check database connections
+supabase db ping
+```
+
+#### **Step 10: Update DNS/Domain (Production)**
+
+For production deployments:
+
+```bash
+# 1. Update your domain's DNS records
+# 2. Configure SSL certificates
+# 3. Update CORS settings in Supabase dashboard
+# 4. Update redirect URLs for authentication
+```
+
+### **Migration Troubleshooting**
+
+#### **Common Issues**
+
+1. **Permission Errors**:
+   ```bash
+   # Ensure you have the correct service role key
+   supabase db pull --schema public,auth,storage
+   ```
+
+2. **Schema Differences**:
+   ```bash
+   # Check for differences
+   supabase db diff
+   
+   # Reset if needed
+   supabase db reset --linked
+   ```
+
+3. **Data Migration Failures**:
+   ```bash
+   # Check for foreign key constraints
+   # Migrate data in correct order (users first, then dependent tables)
+   ```
+
+4. **Authentication Issues**:
+   ```bash
+   # Verify JWT secret and auth settings
+   # Check redirect URLs in Supabase dashboard
+   ```
+
+#### **Rollback Plan**
+
+If migration fails:
+
+```bash
+# 1. Keep source project active
+# 2. Update environment variables back to source
+# 3. Test application functionality
+# 4. Investigate and fix issues before retry
+```
+
+### **Best Practices**
+
+1. **Test in Staging**: Always test migration in a staging environment first
+2. **Backup Everything**: Create complete backups before starting
+3. **Incremental Migration**: For large datasets, consider incremental migration
+4. **Monitor Performance**: Check query performance after migration
+5. **Update Documentation**: Keep environment documentation updated
+
+### **Post-Migration Checklist**
+
+- [ ] All environment variables updated
+- [ ] Database schema migrated successfully
+- [ ] Data integrity verified
+- [ ] Authentication working
+- [ ] Stripe webhooks updated
+- [ ] Storage buckets configured
+- [ ] RLS policies applied
+- [ ] Admin access verified
+- [ ] Application functionality tested
+- [ ] Performance monitoring enabled
+
 ## 🌐 Deployment
 
 ### **Frontend (Vercel)**
