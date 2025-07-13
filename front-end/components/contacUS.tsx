@@ -78,7 +78,7 @@ const ContactUs = () => {
             <div className="bg-color pt-[120px] pb-[200px] w-full flex flex-col items-center relative">
                 {/* Banner */}
                 <div className="w-full h-full bg-center bg-[length:65%_auto] opacity-[0.15] absolute top-0 left-0 filter brightness-50" style={{ backgroundImage: "url('/images/grid-banner.svg')" }}></div>
-                <div className="container mx-auto max-w-7xl flex flex-col gap-[60px] items-center">
+                <div className="container mx-auto max-w-7xl flex flex-col gap-[60px] items-center px-4">
                     <div className="flex flex-col gap-4">
                         <h1 className="text-[32px] font-bold">{t('contact.title')}</h1>
                         <p className="text-[18px] text-white text-center max-w-[800px]">
