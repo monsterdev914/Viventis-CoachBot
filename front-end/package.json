@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint --fix"
@@ -11,7 +11,7 @@
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
     "@heroicons/react": "^2.2.0",
-    "@heroui/badge": "^2.2.13",
+    "@heroui/badge": "^2.2.14",
     "@heroui/button": "2.2.19",
     "@heroui/card": "^2.2.20",
     "@heroui/code": "2.2.14",
@@ -27,8 +27,8 @@
     "@heroui/snippet": "2.2.20",
     "@heroui/spinner": "^2.2.18",
     "@heroui/switch": "2.2.17",
-    "@heroui/system": "2.4.15",
-    "@heroui/theme": "2.4.15",
+    "@heroui/system": "2.4.17",
+    "@heroui/theme": "2.4.17",
     "@react-aria/ssr": "3.9.8",
     "@react-aria/visually-hidden": "3.8.22",
     "@stripe/react-stripe-js": "^3.7.0",
