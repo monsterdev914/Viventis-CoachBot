@@ -7,6 +7,7 @@ import { useAdminAuth } from "@/contexts/AdminAuthContext"
 import { signIn } from "@/app/api/auth"
 import { supabase } from "@/lib/supabase"
 import { useTranslation } from 'react-i18next'
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
 const AdminLoginPage = () => {
     const { t } = useTranslation()
@@ -16,7 +17,7 @@ const AdminLoginPage = () => {
     const [error, setError] = useState('')
     const router = useRouter()
     const { setUser, setIsSuperAdmin } = useAdminAuth()
-
+    const [showPassword, setShowPassword] = useState(false);
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
         setLoading(true)
@@ -63,12 +64,17 @@ const AdminLoginPage = () => {
 
                         <Input
                             label={t('Password')}
-                            type="password"
+                            type={showPassword ? 'text' : 'password'}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
                             fullWidth
                             placeholder={t('admin.login.passwordPlaceholder')}
+                            endContent={
+                                <Button variant="light" size="sm" onClick={() => setShowPassword(!showPassword)}>
+                                    {showPassword ? <EyeIcon className="text-2xl text-default-400 pointer-events-none" /> : <EyeSlashIcon className="text-2xl text-default-400 pointer-events-none" />}
+                                </Button>
+                            }
                         />
                     </div>
 

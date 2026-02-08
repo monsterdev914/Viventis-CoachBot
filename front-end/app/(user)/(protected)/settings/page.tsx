@@ -10,6 +10,7 @@ import { changePassword, deleteAccount, signOut } from '@/app/api/auth';
 import SubscriptionManagement from '@/components/SubscriptionManagement';
 import SettingsSkeleton from '@/components/SettingsSkeleton';
 import { useSubscription } from '@/contexts/SubscriptionContext';
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
 interface UserProfile {
     id: string;
@@ -45,7 +46,7 @@ const SettingsPage: React.FC = () => {
         newPassword: '',
         confirmPassword: ''
     });
-
+    const [showPassword, setShowPassword] = useState(false);
     // Delete account modal state
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteLoading, setDeleteLoading] = useState(false);
@@ -423,7 +424,7 @@ const SettingsPage: React.FC = () => {
                         <ModalBody>
                             <div className="space-y-4">
                                 <Input
-                                    type="password"
+                                    type={showPassword ? 'text' : 'password'}
                                     label={t('Current Password')}
                                     placeholder={t('Enter your current password')}
                                     name="currentPassword"
@@ -432,9 +433,14 @@ const SettingsPage: React.FC = () => {
                                     variant="bordered"
                                     isRequired
                                     className='text-black'
+                                    endContent={
+                                        <Button variant="light" size="sm" onClick={() => setShowPassword(!showPassword)}>
+                                            {showPassword ? <EyeIcon className="text-2xl text-default-400 pointer-events-none" /> : <EyeSlashIcon className="text-2xl text-default-400 pointer-events-none" />}
+                                        </Button>
+                                    }
                                 />
                                 <Input
-                                    type="password"
+                                    type={showPassword ? 'text' : 'password'}
                                     label={t('New Password')}
                                     placeholder={t('Enter your new password')}
                                     name="newPassword"
@@ -444,9 +450,14 @@ const SettingsPage: React.FC = () => {
                                     isRequired
                                     description={t('Password must be at least 6 characters long')}
                                     className='text-black'
+                                    endContent={
+                                        <Button variant="light" size="sm" onClick={() => setShowPassword(!showPassword)}>
+                                            {showPassword ? <EyeIcon className="text-2xl text-default-400 pointer-events-none" /> : <EyeSlashIcon className="text-2xl text-default-400 pointer-events-none" />}
+                                        </Button>
+                                    }
                                 />
                                 <Input
-                                    type="password"
+                                    type={showPassword ? 'text' : 'password'}
                                     label={t('Confirm New Password')}
                                     placeholder={t('Confirm your new password')}
                                     name="confirmPassword"
@@ -455,6 +466,11 @@ const SettingsPage: React.FC = () => {
                                     variant="bordered"
                                     isRequired
                                     className='text-black'
+                                    endContent={
+                                        <Button variant="light" size="sm" onClick={() => setShowPassword(!showPassword)}>
+                                            {showPassword ? <EyeIcon className="text-2xl text-default-400 pointer-events-none" /> : <EyeSlashIcon className="text-2xl text-default-400 pointer-events-none" />}
+                                        </Button>
+                                    }
                                 />
                             </div>
                         </ModalBody>
@@ -506,13 +522,18 @@ const SettingsPage: React.FC = () => {
                                 </p>
                             </div>
                             <Input
-                                type="password"
+                                type={showPassword ? 'text' : 'password'}
                                 label={t('Enter your password to confirm')}
                                 placeholder={t('Your current password')}
                                 value={deletePassword}
                                 onChange={(e) => setDeletePassword(e.target.value)}
                                 variant="bordered"
                                 isRequired
+                                endContent={
+                                    <Button variant="light" size="sm" onClick={() => setShowPassword(!showPassword)}>
+                                        {showPassword ? <EyeIcon className="text-2xl text-default-400 pointer-events-none" /> : <EyeSlashIcon className="text-2xl text-default-400 pointer-events-none" />}
+                                    </Button>
+                                }
                             />
                         </div>
                     </ModalBody>

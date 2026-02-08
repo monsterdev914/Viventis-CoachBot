@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { signIn } from '@/app/api/auth';
 import { useAuth } from '@/contexts/AuthContext';
 import NextLink from 'next/link';
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
 const LoginPage: React.FC = () => {
     const router = useRouter();
@@ -20,6 +21,7 @@ const LoginPage: React.FC = () => {
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
     const { setUser } = useAuth();
+    const [showPassword, setShowPassword] = useState(false);
     useEffect(() => {
         setMounted(true);
     }, []);
@@ -100,8 +102,13 @@ const LoginPage: React.FC = () => {
                             variant="bordered"
                         />
                         <Input
-                            type="password"
+                            type={showPassword ? 'text' : 'password'}
                             label={t('Password')}
+                            endContent={
+                                <Button variant="light" size="sm" onClick={() => setShowPassword(!showPassword)}>
+                                    {showPassword ? <EyeIcon className="text-2xl text-default-400 pointer-events-none" /> : <EyeSlashIcon className="text-2xl text-default-400 pointer-events-none" />}
+                                </Button>
+                            }
                             placeholder={t('Enter your password')}
                             name="password"
                             value={formData.password}
